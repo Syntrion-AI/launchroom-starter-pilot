@@ -8,47 +8,59 @@ canonical_language: en
 secrets_rule: no secrets, tokens, private keys, OAuth values, credential values, connection strings, or private runtime identifiers belong in this repository
 ```
 
-LaunchRoom Starter Pilot is a small public test for a fresh Hermes user.
+LaunchRoom Starter Pilot is a first-run Stage 1 skill for Hermes Agent.
 
-It should answer one simple question:
-
-```text
-Can a new Hermes user get a safe first working room without learning GitHub, agents, cloud, or advanced automation first?
-```
-
-## Start in 30 seconds
-
-If you speak English, open:
+The important part is not browsing this repository. The important part is loading the skill:
 
 ```text
-START_HERE.md
+SKILL.md
 ```
 
-If you speak Russian, open:
+## Start here
+
+Russian:
 
 ```text
-START_HERE_RU.md
+INSTALL_RU.md
 ```
 
-Then copy the single prompt from that file into Hermes.
+English quick path:
 
-## Important
+```text
+hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md
+```
 
-Hermes can read this repository only if its web/GitHub access works. This repository is public, so a fresh Hermes profile should be able to open it by URL.
+Then in a new Hermes session:
 
-If Hermes still cannot open the URL, paste the text of `START_HERE.md` or `START_HERE_RU.md` directly into chat.
+```text
+/skill launchroom-starter-pilot
+I am a new Hermes user. Start LaunchRoom Stage 1.
+```
 
-## What the user should experience
+## Why the previous link-only test failed
+
+A GitHub link is just context. It does not automatically become an active Hermes instruction.
+
+A fresh Hermes profile needs one of these:
+
+```yaml
+best: install SKILL.md as a Hermes skill
+acceptable: paste SKILL.md text into chat as active instruction
+weak: paste only the repository link and hope the model reads the right files
+```
+
+## What Stage 1 should do
 
 ```yaml
 expected_user_experience:
-  - a short welcome
+  - short welcome
   - language confirmation
-  - one simple explanation of Stage 1
-  - no secret request in chat
-  - no automatic profile/config/workspace changes
+  - model works because Hermes is answering
+  - no automatic settings/profile/workspace changes
+  - no file creation unless user asks
+  - no skill creation or self-improvement during beginner test
   - no gateway/cloud/provider/runtime setup
-  - a tiny readiness result
+  - tiny readiness check
   - one next action
 ```
 
@@ -68,25 +80,17 @@ must_not_do:
   - publish or deploy anything
 ```
 
-## For maintainers only
-
-Under-the-hood contracts and validators are kept in:
+## Maintainer files
 
 ```text
+SKILL.md
+START_HERE.md
+START_HERE_RU.md
+INSTALL_RU.md
+DEFAULT_PROFILE_TEST.md
 UNDER_THE_HOOD.md
 contracts/
 scripts/validate_pilot_seed.py
-DEFAULT_PROFILE_TEST.md
-```
-
-A beginner should not need to read those first.
-
-## Repository
-
-```yaml
-repository: https://github.com/Syntrion-AI/launchroom-starter-pilot
-visibility: public
-public_release_status: public_pilot_not_product_release
 ```
 
 End of README.

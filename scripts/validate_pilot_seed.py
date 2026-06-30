@@ -15,6 +15,8 @@ import yaml
 
 TEXT_SUFFIXES = {".md", ".yaml", ".yml", ".json", ".py", ".txt"}
 REQUIRED_FILES = [
+    "SKILL.md",
+    "INSTALL_RU.md",
     "README.md",
     "START_HERE.md",
     "START_HERE_RU.md",
@@ -45,6 +47,7 @@ FORBIDDEN_UNGUARDED = [
     "gateway setup",
 ]
 REQUIRED_CONCEPTS = [
+    "launchroom-starter-pilot",
     "user_facing_layer",
     "under_the_hood_layer",
     "canonical_project_language",
