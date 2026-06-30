@@ -1,16 +1,18 @@
 {
   "agentpack_id": "AIRMIDA_LAUNCHROOM_AGENTPACK_v0_1",
-  "publication_status": "public_full_setup_test_package",
+  "publication_status": "public_real_hermes_setup_test_package",
   "status_marker": "public LaunchRoom test package / not AIRMIDA authority",
   "stage_count": 6,
   "required_generated_files": [
     "FULL_SETUP_TEST_RU.md",
     "INSTALL_RU.md",
+    "REAL_HERMES_SETUP_RU.md",
     "RUN_ME_FIRST_RU.md",
     "SKILL.md",
     "START_HERE_RU.md",
     "generated/FULL_SETUP_TEST_RU.md",
     "generated/HERMES_SKILL.md",
+    "generated/REAL_HERMES_SETUP_RU.md",
     "generated/RUN_ME_FIRST_RU.md",
     "generated/STAGE_MAP_RU.md",
     "generated/START_HERE_RU.md",
@@ -37,5 +39,5 @@
       "next_action"
     ]
   },
-  "primary_entrypoint": "FULL_SETUP_TEST_RU.md"
+  "primary_entrypoint": "REAL_HERMES_SETUP_RU.md"
 }

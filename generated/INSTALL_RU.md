@@ -1,14 +1,14 @@
-# AIRMIDA LaunchRoom — установка и полный тест
+# AIRMIDA LaunchRoom — установка и реальный тест Hermes setup
 
 `public LaunchRoom test package / not AIRMIDA authority`
 
-## Самый правильный тест
+## Главный тест
 
-1. Открой `FULL_SETUP_TEST_RU.md`.
+1. Открой `REAL_HERMES_SETUP_RU.md`.
 2. Скопируй главный prompt в новую Hermes-сессию.
-3. Проверь, что агент начинает Stage 1 и дальше спрашивает переход на Stage 2, Stage 3, Stage 4, Stage 5, Stage 6.
+3. Агент должен провести Stage 1–6 как реальную настройку Hermes, а не как резюме файла.
 
-## Установка как Hermes skill
+## Установка как skill
 
 ```bash
 hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md --yes
@@ -19,14 +19,25 @@ hermes skills list
 
 ```text
 /skill launchroom-starter-pilot
-Проведи меня по полному LaunchRoom setup нового Hermes agent от Stage 1 до Stage 6.
+Проведи меня через REAL_HERMES_SETUP для нового Hermes agent от Stage 1 до Stage 6.
 ```
 
-Если skill установился под другим именем, используй имя из `hermes skills list`.
+## Если terminal в тестовой среде не работает
 
-## Проверка репозитория
+Используй PowerShell вручную и вставь sanitized output:
 
-```bash
-python scripts/build_agentpack.py --check
-python scripts/doctor.py
+```powershell
+$ErrorActionPreference = "Continue"
+where.exe hermes
+hermes --version
+hermes status
+hermes doctor
+hermes config path
+hermes profile list
+hermes tools list
+hermes skills list
+hermes memory status
+hermes gateway status
 ```
+
+Не вставляй secrets, `.env`, `auth.json`, tokens, keys, passwords.

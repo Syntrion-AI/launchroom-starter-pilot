@@ -4,9 +4,9 @@ import json, re, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MARKER = 'public LaunchRoom test package / not AIRMIDA authority'
-REQUIRED = ['README.md', 'FULL_SETUP_TEST_RU.md', 'RUN_ME_FIRST_RU.md', 'START_HERE_RU.md', 'INSTALL_RU.md', 'SKILL.md', 'source/airmida_launchroom_agentpack.v0_1.json', 'scripts/build_agentpack.py', 'scripts/doctor.py', 'contracts/agentpack_contract.v0_1.json', 'generated/HERMES_SKILL.md', 'generated/STAGE_MAP_RU.md', '.github/workflows/validate.yml']
+REQUIRED = ['README.md', 'REAL_HERMES_SETUP_RU.md', 'FULL_SETUP_TEST_RU.md', 'RUN_ME_FIRST_RU.md', 'START_HERE_RU.md', 'INSTALL_RU.md', 'SKILL.md', 'source/airmida_launchroom_agentpack.v0_1.json', 'scripts/build_agentpack.py', 'scripts/doctor.py', 'contracts/agentpack_contract.v0_1.json', 'generated/HERMES_SKILL.md', 'generated/STAGE_MAP_RU.md', '.github/workflows/validate.yml']
 SECRET_RE = re.compile(r"(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|BEGIN (RSA|OPENSSH|PRIVATE) KEY|AKIA[0-9A-Z]{16})")
-REQUIRED_PHRASES = ["STAGE_1", "STAGE_6", "REAL_LOCAL_SETUP", "НЕ резюмируй", "Do not skip stages", "Не проси секреты в чат", "Cloudflare", "Hetzner", "n8n", "not AIRMIDA authority", "FULL_SETUP_TEST_RU.md"]
+REQUIRED_PHRASES = ["Stage 1", "Stage 6", "REAL_HERMES_SETUP", "hermes status", "hermes doctor", "hermes tools list", "hermes gateway status", "PowerShell", "Не проси секреты", "Cloudflare", "Hetzner", "n8n", "not AIRMIDA authority", "REAL_HERMES_SETUP_RU.md"]
 TEXT_SUFFIXES = {".md", ".json", ".py", ".yml", ".yaml", ".txt"}
 def main():
     issues=[]; warnings=[]

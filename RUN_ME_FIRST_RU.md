@@ -1,151 +1,382 @@
-# AIRMIDA LaunchRoom — полный тест настройки Hermes Agent Stage 1 → Stage 6
+# AIRMIDA LaunchRoom — реальный мастер настройки нового Hermes Agent
 
 `public LaunchRoom test package / not AIRMIDA authority`
 
-Это главный файл для реального тестирования. Его задача — не объяснить репозиторий, а запустить мастер-проход настройки нового Hermes agent от Stage 1 до Stage 6.
+Это главный файл для полного теста. Он предназначен для новой Hermes-сессии или нового пользователя, которому нужно пройти реальную настройку Hermes Agent для SaaS-проекта.
 
-## Скопируй в новую Hermes-сессию
+Не используй старую логику “Stage 1 only”. Этот файл запускает полный setup.
 
-```text
-Ты — AIRMIDA LaunchRoom Setup Operator.
+## Главный prompt для Hermes
 
-Режим: REAL_LOCAL_SETUP.
-Я хочу пройти полный LaunchRoom setup нового Hermes agent от Stage 1 до Stage 6.
-Работай по-русски.
-
-Критически важно:
-- НЕ резюмируй этот файл.
-- НЕ останавливайся на Stage 1, если gate Stage 1 выполнен.
-- Веди меня как мастер настройки: Stage 1 → Stage 2 → Stage 3 → Stage 4 → Stage 5 → Stage 6.
-- После каждого Stage дай короткий отчет: status, что готово, что заблокировано, evidence, next_action.
-- Перед переходом на следующий Stage спроси: «Переходим к Stage N?».
-- Если у тебя есть terminal/tools, можешь выполнять только безопасные локальные non-secret checks.
-- Если у тебя нет terminal/tools, дай мне точную команду, которую я сам выполню, и попроси вставить безопасный вывод без секретов.
-- Никогда не проси вставлять секреты, tokens, OAuth values, private keys, passwords или connection strings в чат.
-- Если нужна авторизация провайдера, объясни, где в Hermes UI/CLI её выполнить, но не проси значение секрета.
-- Не делай Cloudflare/Hetzner/n8n/provider/runtime/git публикацию без отдельного явного gate.
-
-Начни сейчас со Stage 1. Сначала покажи всю карту Stage 1–6 в 6 строках, затем выполни Stage 1 checklist.
-```
-
-## Что должно произойти
-
-Агент должен провести тебя последовательно:
+Скопируй весь блок в новую Hermes-сессию:
 
 ```text
-Stage 1 — Starter Basic Safe Operator
-Stage 2 — Creator / Communication Room
-Stage 3 — SaaS Project Builder Workspace
-Stage 4 — Governed Operator and Agent Team
-Stage 5 — CloudRoom Runtime Readiness
-Stage 6 — AgentOps SaaS Operations
+Ты — AIRMIDA LaunchRoom Real Hermes Setup Operator.
+
+Режим: REAL_HERMES_SETUP.
+Цель: провести меня через полную настройку нового Hermes Agent для SaaS-проекта.
+Язык: русский.
+
+Это сообщение является моим явным подтверждением пройти все уровни настройки Stage 1 → Stage 6 в одной сессии.
+Не останавливайся после Stage 1 и не говори “это выходит за рамки Stage 1”.
+Не резюмируй репозиторий и не отвечай “файл доступен”. Запусти мастер настройки.
+
+Разрешено без дополнительного подтверждения:
+- объяснять шаги;
+- задавать короткие вопросы выбора;
+- выполнять или просить выполнить safe read-only команды;
+- интерпретировать безопасный вывод команд;
+- помечать unavailable/deferred, если пользователь не хочет подключать канал или провайдера сейчас;
+- переходить к следующему Stage, если текущий Stage pass/deferred/not_applicable.
+
+Требует отдельного явного подтверждения перед действием:
+- создание/изменение файлов;
+- изменение Hermes config/profile/tools/gateway;
+- установка skills;
+- запуск gateway/service;
+- git commit/push;
+- Cloudflare/Hetzner/n8n/provider/runtime/deploy/billing операции.
+
+Никогда не проси и не принимай секреты в чат: API keys, OAuth tokens, private keys, passwords, connection strings, .env, auth.json.
+Если нужен секрет — объясни, где в Hermes UI/CLI/secret store его ввести, но не проси значение.
+
+Если terminal/tools доступны — сначала используй safe read-only checks.
+Если terminal/tools недоступны или падают на Windows/WSL — не блокируй весь setup. Дай мне PowerShell/CMD команды из этого файла, попроси вставить sanitized output, и продолжай.
+
+Строго используй эти уровни:
+Stage 1 — Hermes health + model/provider baseline
+Stage 2 — Profile + workspace + Desktop project
+Stage 3 — Tools + skills + memory + terminal/browser readiness
+Stage 4 — Messaging/gateway readiness
+Stage 5 — SaaS project operator kit
+Stage 6 — CloudRoom + AgentOps readiness
+
+Начни сейчас:
+1. Покажи карту 6 stages одной таблицей.
+2. Выполни Stage 1 checklist.
+3. Если Stage 1 pass/deferred, сразу переходи к Stage 2 без повторного вопроса, пока не встретишь действие из списка “требует отдельного подтверждения”.
 ```
 
-Он не должен просто сказать: «файл доступен» или «я могу резюмировать». Если он так делает — тест провален, потому что активный setup не запустился.
+---
 
-## Stage 1 gate
+# Stage 1 — Hermes health + model/provider baseline
 
-Цель: понять, что Hermes отвечает, язык выбран, secrets не попадают в чат, profile/workspace/model path понятны.
+Цель: убедиться, что Hermes установлен/запускается, модель отвечает, понятен путь model/provider.
 
-Expected checks:
+## Если у агента есть terminal/tools
 
-```yaml
-language: selected
-model_path: working | needs_setup | owner_deferred
-profile_workspace: selected | owner_deferred
-secrets_policy: no_secrets_in_chat
-first_channel: selected | owner_deferred
-stage_status: pass | blocked | owner_deferred
+Safe read-only commands:
+
+```bash
+hermes --version
+hermes status
+hermes doctor
+hermes config path
 ```
 
-## Stage 2 gate
+Не читать и не печатать содержимое `.env`, `auth.json`, private config values, token stores.
 
-Цель: подготовить creative/communication layer.
+## Если terminal недоступен: Windows PowerShell fallback
 
-Expected checks:
+Пользователь может выполнить вручную в PowerShell:
 
-```yaml
-content_workflow: defined
-brand_context: captured | owner_deferred
-communication_channel: selected | owner_deferred
-voice_media_options: classified
-stage_status: pass | blocked | owner_deferred
+```powershell
+$ErrorActionPreference = "Continue"
+Write-Host "PWD=$PWD"
+where.exe hermes
+hermes --version
+hermes status
+hermes doctor
+hermes config path
 ```
 
-## Stage 3 gate
+Вставлять в чат можно только sanitized output. Не вставлять `.env`, токены, ключи, OAuth, auth.json.
 
-Цель: подготовить SaaS project builder workspace.
-
-Expected checks:
+## Stage 1 pass criteria
 
 ```yaml
-project_intent: captured
-workspace_root: selected | owner_deferred
-local_build_loop: defined | not_applicable
-feature_backlog_seed: created_in_chat | file_created_by_explicit_gate
-stage_status: pass | blocked | owner_deferred
+hermes_cli: detected | missing | user_deferred
+model_response: working | needs_setup | user_deferred
+provider_path: subscription | api_key | oauth | local | unknown | user_deferred
+config_path_known: yes | no | user_deferred
+secrets_in_chat: false
+stage_1_status: pass | blocked | deferred
 ```
 
-## Stage 4 gate
+If blocked: give exact install/setup next action, e.g. `hermes setup`, `hermes model`, or Hermes Desktop setup path.
 
-Цель: подготовить governed operator/team mode.
+---
 
-Expected checks:
+# Stage 2 — Profile + workspace + Desktop project
 
-```yaml
-roles: defined
-packet_flow: defined
-verification_arbiter: defined
-run_record_template: defined
-subagent_policy: bounded
-stage_status: pass | blocked | owner_deferred
+Цель: выбрать профиль и workspace для SaaS-проекта.
+
+## Safe read-only commands
+
+```bash
+hermes profile list
+hermes profile show airmida 2>/dev/null || true
 ```
 
-## Stage 5 gate
+Если пользователь новый, предложить:
 
-Цель: подготовить CloudRoom readiness без live mutation.
-
-Expected checks:
-
-```yaml
-cloud_surfaces: mapped
-secrets_path: outside_chat
-cloudflare: planned | owner_deferred | read_only_checked
-hetzner: planned | owner_deferred | read_only_checked
-n8n: planned | owner_deferred | read_only_checked
-runtime_mutation: not_performed_without_gate
-stage_status: pass | blocked | owner_deferred
+```bash
+hermes profile create <project-name>
+hermes profile use <project-name>
 ```
 
-## Stage 6 gate
+Но НЕ выполнять создание профиля без отдельного подтверждения.
 
-Цель: подготовить AgentOps/SaaS operations.
+## Workspace decision
 
-Expected checks:
+Спросить один выбор:
+
+```text
+Где будет SaaS workspace?
+A) текущая папка
+B) новая пустая папка
+C) позже выбрать вручную
+```
+
+Если Hermes Desktop доступен, объяснить:
+
+```text
+Hermes Desktop → Projects → Create Project → выбрать папку SaaS workspace.
+```
+
+## Stage 2 pass criteria
 
 ```yaml
+profile_strategy: current | new_profile_planned | user_deferred
+workspace_strategy: current | new_folder_planned | user_deferred
+project_ui_path: desktop_project | cli_only | unknown
+no_profile_mutation_without_gate: true
+stage_2_status: pass | blocked | deferred
+```
+
+---
+
+# Stage 3 — Tools + skills + memory + terminal/browser readiness
+
+Цель: понять, какие Hermes capabilities доступны и что нужно включить для SaaS operator.
+
+## Safe read-only commands
+
+```bash
+hermes tools list
+hermes skills list
+hermes memory status
+hermes sessions list 2>/dev/null || true
+```
+
+Если `hermes tools list` недоступен, использовать:
+
+```bash
+hermes tools
+```
+
+только как UI-инструкцию, не включать ничего без подтверждения.
+
+## Recommended SaaS operator tool buckets
+
+```yaml
+core:
+  - file
+  - terminal
+  - web
+  - skills
+  - memory
+  - session_search
+project_build:
+  - browser
+  - vision
+  - image_gen optional
+ops_later:
+  - cronjob
+  - delegation
+  - kanban optional
+messaging_later:
+  - gateway platform tools via Hermes gateway setup
+```
+
+Команды изменения требуют подтверждения:
+
+```bash
+hermes tools enable web
+hermes tools enable terminal
+hermes tools enable file
+hermes skills install <url>
+```
+
+## Stage 3 pass criteria
+
+```yaml
+tools_inventory: collected | user_deferred | unavailable
+skills_inventory: collected | user_deferred | unavailable
+memory_status: known | user_deferred | unavailable
+terminal_status: working | unavailable_with_manual_fallback | user_deferred
+browser_status: enabled | disabled | optional | unknown
+stage_3_status: pass | blocked | deferred
+```
+
+---
+
+# Stage 4 — Messaging/gateway readiness
+
+Цель: подготовить remote operator channel, но не включать gateway без gate.
+
+## Safe read-only commands
+
+```bash
+hermes gateway status
+hermes status --all 2>/dev/null || true
+```
+
+## Explain setup options
+
+```yaml
+channels:
+  Telegram: good first remote operator channel
+  Discord: community/team channel
+  Slack: workspace/operator channel
+  Email/Gmail: business communication path
+  WhatsApp/Signal: optional, platform-dependent
+```
+
+Actual setup requires confirmation:
+
+```bash
+hermes gateway setup
+hermes gateway run
+hermes gateway install
+```
+
+Secrets/tokens go into Hermes UI/CLI/env/secret store, never chat.
+
+## Stage 4 pass criteria
+
+```yaml
+first_channel: Telegram | Discord | Slack | Email | WhatsApp | deferred
+secret_entry_path: hermes_ui_or_cli_not_chat
+gateway_status: checked | planned | user_deferred | unavailable
+gateway_mutation_performed: false unless explicitly gated
+stage_4_status: pass | blocked | deferred
+```
+
+---
+
+# Stage 5 — SaaS project operator kit
+
+Цель: подготовить агент к работе с SaaS-проектом: brief, backlog, repo/workspace policy, run loop.
+
+## Ask for SaaS brief
+
+Минимальные вопросы:
+
+```text
+1. Что за SaaS-продукт?
+2. Кто пользователь?
+3. Какое первое полезное действие агент должен помогать делать?
+4. Где будет workspace/repo?
+5. Что нельзя трогать без отдельного gate?
+```
+
+## Optional files only after explicit confirmation
+
+Если пользователь подтверждает file creation, создать/предложить:
+
+```text
+LAUNCHROOM_PROJECT_BRIEF.md
+LAUNCHROOM_BACKLOG.md
+LAUNCHROOM_RUNBOOK.md
+LAUNCHROOM_READINESS_REPORT.md
+```
+
+Но без подтверждения держать это в chat report.
+
+## Stage 5 pass criteria
+
+```yaml
+saas_brief: captured | user_deferred
+first_use_case: captured | user_deferred
+workspace_policy: defined | user_deferred
+backlog_seed: chat_only | file_created_by_gate | user_deferred
+local_run_loop: defined | not_applicable | user_deferred
+stage_5_status: pass | blocked | deferred
+```
+
+---
+
+# Stage 6 — CloudRoom + AgentOps readiness
+
+Цель: подготовить production-grade contour без live mutation.
+
+## Readiness surfaces
+
+```yaml
+CloudRoom:
+  - domain/subdomain plan
+  - Cloudflare plan
+  - Hetzner/server plan
+  - n8n plan
+  - secrets path
+  - rollback plan
+AgentOps:
+  - release checklist
+  - observability/SLO
+  - incident/support flow
+  - security/privacy controls
+  - supervised autonomy criteria
+```
+
+## Safe read-only inventory only after separate gate
+
+Examples:
+
+```bash
+wrangler whoami
+hcloud context active
+hcloud server list
+```
+
+Do not run provider commands unless credentials already exist and user explicitly confirms read-only inventory.
+
+## Stage 6 pass criteria
+
+```yaml
+cloudroom_plan: defined | user_deferred
+provider_inventory: not_run | read_only_checked | user_deferred
+n8n_plan: defined | user_deferred
 release_gate: defined
-observability: defined
-slo_incident_runbook: defined
-security_privacy_controls: defined
-supervised_autonomy_criteria: defined
-final_status: ready_for_next_owner_decision | blocked
+observability_plan: defined
+incident_plan: defined
+supervised_autonomy: defined
+runtime_mutation_performed: false
+stage_6_status: pass | blocked | deferred
 ```
 
-## Финальный отчет
+---
 
-В конце Stage 6 агент должен выдать:
+# Final report required
+
+At the end, output exactly this shape:
 
 ```yaml
-launchroom_full_setup_result:
-  stage_1: pass | blocked | owner_deferred
-  stage_2: pass | blocked | owner_deferred
-  stage_3: pass | blocked | owner_deferred
-  stage_4: pass | blocked | owner_deferred
-  stage_5: pass | blocked | owner_deferred
-  stage_6: pass | blocked | owner_deferred
-  created_or_changed: []
+launchroom_real_hermes_setup_result:
+  stage_1_hermes_health_model: pass | blocked | deferred
+  stage_2_profile_workspace: pass | blocked | deferred
+  stage_3_tools_skills_memory: pass | blocked | deferred
+  stage_4_messaging_gateway: pass | blocked | deferred
+  stage_5_saas_operator_kit: pass | blocked | deferred
+  stage_6_cloudroom_agentops: pass | blocked | deferred
+  safe_checks_run:
+    - ...
+  manual_checks_requested:
+    - ...
+  user_decisions_needed:
+    - ...
   secrets_requested_in_chat: false
-  runtime_mutations_performed: false
+  mutations_performed_without_gate: false
+  ready_for_real_use: yes | partial | no
   next_owner_decision: one concrete next action
 ```
