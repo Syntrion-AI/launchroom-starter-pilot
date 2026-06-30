@@ -35,6 +35,16 @@ def main() -> int:
     require(run, "После успешного `hermes setup terminal` НЕ объявляй Bootstrap 0 pass", issues, "no pass after external setup terminal")
     require(run, "Открой новый Hermes chat и вставь эту же ссылку снова", issues, "restart/new chat gate")
     require(run, "agent_direct_terminal_check: pass", issues, "direct terminal pass gate")
+    require(run, "examples inside this runbook", issues, "examples-not-evidence rule")
+    require(run, "example_errors_are_not_current_facts", issues, "example errors are not current facts")
+    require(run, "invalid_bootstrap_report", issues, "contradictory evidence guard")
+    require(run, "If Stage 1 is pass, the only forward `one_next_action` is Stage 2", issues, "Stage 1 only-forward rule")
+    require(run, "Запрещено после Stage 1 просить: “пришли суть SaaS-проекта”", issues, "no SaaS brief before Stage 6")
+    require(run, "Decision UI / Clarify Button Contract", issues, "decision UI contract")
+    require(run, "clarify_tool_rule", issues, "clarify tool shape rule")
+    require(run, "question: \"Stage 1 завершён. Что делаем дальше?\"", issues, "Stage 1 clarify gate")
+    require(run, "Stage flow contract", issues, "stage flow contract")
+    require(run, "Короткие описания Stage для пользователя", issues, "beginner stage descriptions")
 
     # The previous public-package failure: link summarization instead of execution.
     require(run, "не отвечай “ссылка работает”", issues, "no link-summary rule")
@@ -54,8 +64,20 @@ def main() -> int:
 
     if "bootstrap_0" not in data:
         issues.append("missing source bootstrap_0")
+    if "decision_ui_contract" not in data:
+        issues.append("missing source decision_ui_contract")
+    if "evidence_discipline" not in data:
+        issues.append("missing source evidence_discipline")
+    if "stage_flow_contract" not in data:
+        issues.append("missing source stage_flow_contract")
     if len(data.get("stages", [])) != 6:
         issues.append("expected exactly 6 source stages after bootstrap")
+    stage_1 = next((s for s in data.get("stages", []) if s.get("id") == "STAGE_1"), {})
+    if stage_1.get("next_gate", {}).get("only_forward_stage") != "STAGE_2":
+        issues.append("Stage 1 next_gate must only forward to STAGE_2")
+    forbidden_after_stage_1 = set(stage_1.get("forbidden_after_pass", []))
+    if "ask SaaS project brief" not in forbidden_after_stage_1:
+        issues.append("Stage 1 must forbid SaaS project brief before Stage 6")
 
     result = {"status": "pass" if not issues else "fail", "issues": issues}
     print(json.dumps(result, ensure_ascii=False, indent=2))

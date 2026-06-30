@@ -15,8 +15,13 @@
 **Gate checks:**
 - bootstrap_0 pass or manual_only selected
 - model path working/planned/deferred
+- active profile identified
+- Hermes runtime zone identified without secret values
+- project workspace/cwd identified or deferred
 - settings buckets explained
 - first channel selected or deferred
+- evidence ledger present
+- next allowed stage is Stage 2 only
 
 **Transition output:** `STAGE_1_BASIC_SAFE_ROOM_REPORT`
 

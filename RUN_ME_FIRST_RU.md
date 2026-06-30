@@ -28,6 +28,101 @@ forbidden_status_pattern: "выполнен, но всё критическое 
 5. Никогда не проси секреты в чат: API keys, OAuth tokens, passwords, private keys, connection strings, `.env`, `auth.json`.
 6. Не создавай/не меняй файлы, config, profile, tools, skills, gateway, git, cloud/runtime без отдельного gate.
 7. Дай пользователю **один следующий шаг**, не простыню случайных команд.
+8. Используй только evidence текущего запуска для текущих статусов. Старые ошибки, память, прошлые сессии, web-summary и примеры внутри runbook не являются текущим фактом.
+9. Если в одном ответе есть и `terminal blocked`, и `terminal works/pass`, это `invalid_bootstrap_report`: остановись, не начинай Stage 1, повтори current direct check или попроси свежий sanitized вывод.
+10. Для выбора пути и перехода между stages используй interactive decision UI через `clarify`, если инструмент доступен. Если кнопки недоступны, покажи numbered fallback и требуй один явный выбор.
+11. После каждого Stage единственный forward-переход — следующий Stage по порядку. Нельзя просить SaaS/project brief до Stage 6.
+
+## Decision UI / Clarify Button Contract
+
+Это не косметика. Кнопки — это gate-события, чтобы пользователь не печатал случайные буквы, а агент не прыгал по этапам.
+
+```yaml
+decision_ui_contract:
+  use_when:
+    - Bootstrap 0 path choice
+    - repair vs manual_only vs stop
+    - confirmation to enter next Stage
+    - defer vs configure decisions
+    - any config/file/tool/gateway/runtime action gate
+  fixed_choice_rule:
+    max_choices: 4
+    no_free_text_unless_user_specific_value_is_needed: true
+  custom_input_rule:
+    use_only_when_user_specific_value_is_required: true
+    examples:
+      - workspace path
+      - first communication channel outside standard choices
+      - project brief in Stage 6 only
+    include:
+      - recommended default
+      - defer/skip option
+      - write my own option
+  clarify_tool_rule:
+    question: "только сам вопрос, без перечисления вариантов внутри question"
+    choices: "каждый вариант отдельным элементом"
+  fallback_rule:
+    if_interactive_buttons_unavailable: "show numbered choices and accept only exact number or label"
+  button_safety_rule: "button chooses intent; it does not silently mutate files/config/runtime"
+```
+
+Правильный `clarify` пример:
+
+```yaml
+question: "Hermes пока не может сам выполнять локальные проверки. Что делаем?"
+choices:
+  - "Починить Local terminal"
+  - "Продолжить ручной режим"
+  - "Остановить setup"
+```
+
+Неправильно: писать варианты только текстом и просить пользователя набрать `A/B/C`, если interactive choice доступен.
+
+## Stage flow contract
+
+Каждый Stage должен быть понятным mini-wizard, а не набором скрытых действий.
+
+```yaml
+stage_flow_contract:
+  before_or_at_stage_start:
+    - state exact stage name
+    - give 1-2 sentence beginner explanation
+    - say which checks are read-only
+    - say what will NOT be changed without a separate gate
+  under_the_hood:
+    allowed:
+      - read-only checks
+      - status commands
+      - config/profile path discovery without secret values
+      - tool availability checks
+    forbidden_without_gate:
+      - config changes
+      - file creation
+      - skill/memory/profile updates
+      - gateway/provider/cloud/runtime mutation
+      - package installation
+  stage_result:
+    - status
+    - direct evidence ledger
+    - deferred/gated items
+    - plain-language meaning for the user
+  next_gate:
+    - use clarify/buttons where available
+    - only next Stage is allowed as forward action
+    - report and pause options are allowed
+```
+
+Короткие описания Stage для пользователя:
+
+| Stage | Коротко для новичка |
+|---|---|
+| Bootstrap 0 | Проверяем, может ли Hermes не только отвечать, но и сам безопасно проверять этот компьютер. Если нет — даём понятные кнопки ремонта/ручного режима/паузы. |
+| Stage 1 | Проверяем базовую безопасную комнату Hermes: модель отвечает, профиль найден, рабочая зона понятна, секреты не нужны в чат. Проект ещё не начинаем. |
+| Stage 2 | Разбираемся, где служебная зона Hermes, а где безопасная рабочая папка проекта. Пользователь должен понимать, что можно трогать, а что нельзя. |
+| Stage 3 | Собираем no-secret картину компьютера и инструментов, чтобы агент не гадал, что установлено. |
+| Stage 4 | Проверяем доступные возможности Hermes: tools, skills, memory, sessions и missing decisions. |
+| Stage 5 | Выбираем или откладываем первый канал связи: Telegram, Slack, Email и т.п.; секреты не вводятся в чат. |
+| Stage 6 | Только здесь собираем SaaS operator kit: идея продукта, следующий локальный task, CloudRoom/AgentOps boundaries и gates. |
 
 ## Initial response format
 
@@ -49,6 +144,12 @@ forbidden_status_pattern: "выполнен, но всё критическое 
 | Stage 4 | Tools/skills/memory readiness | известны capabilities и missing decisions |
 | Stage 5 | Communications/gateway | выбран/проверен первый канал или defer |
 | Stage 6 | SaaS operator kit + CloudRoom/AgentOps readiness | есть следующий рабочий SaaS-пакет и gated cloud/ops map |
+
+Затем скажи одной фразой:
+
+```text
+Я буду двигаться строго по порядку. После каждого этапа я покажу, что проверено, что это значит, и предложу кнопку/выбор для следующего разрешённого этапа.
+```
 
 ---
 
@@ -103,6 +204,43 @@ partial_manual_recovery:
   user_text: "настройку поправили вручную, но агент ещё не доказал, что сам умеет выполнять команды; нужен перезапуск/new session и повторная проверка"
 ```
 
+## Current-run evidence discipline
+
+Перед выводом текущего статуса Bootstrap 0 используй только текущие факты:
+
+```yaml
+evidence_precedence:
+  strongest:
+    - terminal/file/tool output executed by this agent in this current session
+  accepted_manual:
+    - user-pasted sanitized output explicitly described as current
+  instructions_not_evidence:
+    - examples inside this runbook
+    - previous session transcripts
+    - memory/profile notes
+    - cached web summaries
+    - old blocker IDs without current output
+```
+
+Запрещено говорить “по известным данным terminal заблокирован”, если ты не получил эту ошибку в текущем tool call или свежем user-pasted выводе.
+
+```yaml
+example_errors_are_not_current_facts:
+  - WSL execvpe(/bin/bash) failed
+  - /bin/bash not found
+  - terminal backend unavailable
+```
+
+Если current report одновременно содержит blocked/failure и pass/works для terminal:
+
+```yaml
+bootstrap_0:
+  status: invalid_bootstrap_report
+  reason: contradictory_current_evidence
+  stage_1_to_6_status: not_started
+  next_action: rerun current direct terminal check or ask for fresh sanitized output
+```
+
 ## Agent action if tools are available
 
 Сначала попробуй safe read-only checks через свои tools/terminal, если они доступны:
@@ -113,14 +251,38 @@ hermes status
 hermes config path
 ```
 
-Если эти команды выполняются **самим агентом**, Bootstrap 0 может быть `pass`, и только тогда можно продолжать Stage 1.
+Если эти команды выполняются **самим агентом**, Bootstrap 0 может быть `pass`, но Stage 1 начинается только после явного user confirmation gate.
 
 ```yaml
 bootstrap_0_pass_requires:
   - Hermes chat/model responds
   - agent_direct_terminal_check: pass
   - terminal_backend_known: true
+  - evidence_ledger_present: true
+
+evidence_ledger_minimum:
+  - command: hermes --version
+    status: pass | fail
+    evidence: short_output_no_secrets
+  - command: hermes status
+    status: pass | fail
+    evidence: backend/profile/model summary without secret values
+  - command: hermes config path
+    status: pass | fail
+    evidence: path_only
 ```
+
+После Bootstrap 0 `pass` используй button/clarify gate:
+
+```yaml
+question: "Bootstrap 0 пройден: агент может сам выполнять безопасные локальные проверки. Продолжаем?"
+choices:
+  - "Перейти к Stage 1"
+  - "Показать отчёт Bootstrap 0"
+  - "Пауза"
+```
+
+Без подтверждения пользователя не начинай Stage 1.
 
 ## If terminal fails on Windows / WSL / bash
 
@@ -151,18 +313,27 @@ bootstrap_0:
   stage_1_to_6_status: not_started
 ```
 
-Затем дай пользователю выбор из трёх путей:
+Затем дай пользователю interactive choice. Если `clarify` доступен, используй его; если нет — покажи numbered fallback. Не заставляй новичка печатать A/B/C, когда можно нажать вариант.
+
+```yaml
+question: "Hermes пока не может сам выполнять локальные проверки. Что делаем?"
+choices:
+  - "Починить Local terminal"
+  - "Продолжить ручной режим"
+  - "Остановить setup"
+```
+
+Fallback text only if buttons unavailable:
 
 ```text
-Выбери путь:
-A — Починить Local terminal сейчас. Рекомендовано: это нужно для настоящего агента, который сам проверяет этот компьютер.
-B — Продолжить ручной режим. Ограниченно: ты выполняешь команды, я объясняю вывод. Это временный fallback, не цель.
-C — Остановить setup и вернуться позже.
+1 — Починить Local terminal сейчас. Рекомендовано: это нужно для настоящего агента, который сам проверяет этот компьютер.
+2 — Продолжить ручной режим. Ограниченно: ты выполняешь команды, я объясняю вывод. Это временный fallback, не цель.
+3 — Остановить setup и вернуться позже.
 ```
 
 ## Path A — recommended Local repair
 
-Если пользователь выбирает A, не давай простыню команд. Дай ровно один основной шаг:
+Если пользователь выбирает `Починить Local terminal`, не давай простыню команд. Дай ровно один основной шаг:
 
 ```powershell
 hermes setup terminal
@@ -202,7 +373,7 @@ bootstrap_0:
 
 ## Path B — no-terminal/manual mode
 
-Если пользователь выбирает B, явно скажи:
+Если пользователь выбирает `Продолжить ручной режим`, явно скажи:
 
 ```text
 Это ручной режим восстановления. Он помогает не застрять, но это не полноценная настройка автономного агента.
@@ -246,11 +417,40 @@ do_not_proceed_if:
 
 # Stage 1 — Basic Safe Hermes Room
 
+## Beginner intro
+
+На Stage 1 мы проверяем базовую безопасную комнату Hermes: модель отвечает, активный профиль понятен, workspace/cwd не перепутан со служебной зоной, а секреты не нужны в чат. Это **ещё не запуск SaaS-проекта** и не Stage 6.
+
+После подтверждения перехода из Bootstrap 0 начни Stage 1 с безопасных read-only checks “под капотом”, затем сразу покажи пользователю mini-инструкцию: что проверено, зачем это нужно, и что это значит.
+
+```yaml
+stage_1_under_the_hood_allowed:
+  - hermes status
+  - hermes doctor
+  - hermes config path
+  - hermes config env-path
+  - optional model smoke test
+stage_1_forbidden_without_gate:
+  - changing config
+  - creating project files
+  - setting workspace/profile
+  - gateway setup
+  - memory/profile/self-improvement updates
+  - asking for SaaS project brief
+```
+
 ## Purpose
 
-Сделать первый безопасный “Hermes room”: модель, профиль, workspace, settings buckets, первый канал связи, readiness report.
+Сделать первый безопасный “Hermes room”: model/provider path, active profile/runtime path, workspace/cwd understanding, settings buckets, first channel selected/deferred, readiness report.
 
 ## Agent action
+
+Перед результатом Stage 1 покажи человеку:
+
+```text
+Stage 1 — Basic Safe Hermes Room.
+Я проверяю, что Hermes уже стоит на безопасном основании: модель отвечает, профиль найден, рабочая зона понятна, секреты не вводятся в чат. Проект мы ещё не начинаем; после Stage 1 единственный forward-шаг — Stage 2.
+```
 
 1. Проверить/уточнить provider/model path:
    - Nous Portal/subscription/OAuth;
@@ -276,17 +476,46 @@ Builder: terminal, files, browser automation, subagents, cron, project tools
 Governed_Operator: MCP, cloud/runtime, n8n, provider changes, remote gateway, production actions
 ```
 
+5. Раздели для новичка две зоны, даже если подробно Stage 2 будет позже:
+
+```yaml
+Hermes_runtime_profile_zone: "служебная зона Hermes: config, .env presence only, auth, skills, memory, sessions; не редактировать и не копировать секреты вручную"
+Project_workspace_zone: "рабочая зона проекта; безопасные файлы будут обсуждаться на Stage 2"
+```
+
+6. Не проси SaaS/project brief. Если Stage 1 pass, следующий разрешённый шаг — только Stage 2.
+
 ## Pass condition
 
 ```yaml
 stage_1:
   status: pass | blocked | deferred | manual_only
   model_path: working | needs_setup | deferred
-  profile_workspace_path: selected | planned | deferred
+  active_profile_identified: true | false
+  hermes_runtime_zone_identified: true | false
+  project_workspace_or_cwd_identified_or_deferred: true | false
   settings_buckets_explained: true
   first_channel_selected_or_deferred: true
   secrets_requested_in_chat: false
+  evidence_ledger_present: true
+  next_allowed_stage: Stage 2
 ```
+
+Stage 1 result must end with plain-language meaning and button gate:
+
+```text
+Что это значит: Hermes может быть базовой безопасной комнатой. Мы проверили основание, но проект ещё не начинаем. Следующий разрешённый этап — Stage 2: разобраться с runtime/profile/workspace/memory/file structure.
+```
+
+```yaml
+question: "Stage 1 завершён. Что делаем дальше?"
+choices:
+  - "Перейти к Stage 2"
+  - "Показать отчёт Stage 1"
+  - "Пауза"
+```
+
+Запрещено после Stage 1 просить: “пришли суть SaaS-проекта”. Это разрешено только на Stage 6.
 
 ---
 
@@ -593,6 +822,9 @@ airmida_launchroom_setup_report:
   stage_4_tools_skills_memory_sessions: pass | blocked | manual_only | deferred | not_started
   stage_5_communications_gateway: pass | blocked | manual_only | deferred | not_started
   stage_6_saas_operator_cloudroom_agentops: pass | blocked | manual_only | deferred | not_started
+  current_stage: Bootstrap_0 | Stage_1 | Stage_2 | Stage_3 | Stage_4 | Stage_5 | Stage_6
+  next_allowed_stage: Stage_1 | Stage_2 | Stage_3 | Stage_4 | Stage_5 | Stage_6 | none
+  invalid_bootstrap_report: true | false
   direct_checks_run: []
   manual_checks_requested: []
   user_choices_made: []
@@ -606,5 +838,7 @@ airmida_launchroom_setup_report:
 ```
 
 If Bootstrap 0 is blocked, report Stage 1–6 as `not_started`, not pass.
+If Bootstrap 0 evidence is contradictory, report `invalid_bootstrap_report: true`, Stage 1–6 as `not_started`, and rerun current direct check instead of proceeding.
+If Stage 1 is pass, the only forward `one_next_action` is Stage 2; do not ask for SaaS/project brief before Stage 6.
 
 End of one-link runbook.

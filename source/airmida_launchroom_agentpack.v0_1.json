@@ -2,7 +2,7 @@
   "agentpack_id": "AIRMIDA_LAUNCHROOM_ONE_LINK_SETUP_v0_4",
   "status_marker": "Hermes working artifact / not AIRMIDA authority",
   "language_default": "ru",
-  "product_promise": "One pasted link launches a real clean-computer Hermes setup wizard with Bootstrap 0 before Stage 1-6 and honest pass/blocked/manual_only/partial_manual_recovery statuses.",
+  "product_promise": "One pasted link launches a beginner-safe Hermes setup wizard with Bootstrap 0, button/clarify decision gates, current-run evidence discipline, Stage 1 mini-intro, and honest pass/blocked/manual_only/partial_manual_recovery statuses.",
   "scope": {
     "write_surface": "public_repository_root",
     "authority_status": "public_test_package_not_airmida_authority",
@@ -102,10 +102,39 @@
       "gate_checks": [
         "bootstrap_0 pass or manual_only selected",
         "model path working/planned/deferred",
+        "active profile identified",
+        "Hermes runtime zone identified without secret values",
+        "project workspace/cwd identified or deferred",
         "settings buckets explained",
-        "first channel selected or deferred"
+        "first channel selected or deferred",
+        "evidence ledger present",
+        "next allowed stage is Stage 2 only"
       ],
-      "transition_output": "STAGE_1_BASIC_SAFE_ROOM_REPORT"
+      "transition_output": "STAGE_1_BASIC_SAFE_ROOM_REPORT",
+      "beginner_intro": "Проверяем базовую безопасную комнату Hermes: модель отвечает, активный профиль понятен, workspace/cwd не перепутан со служебной зоной, секреты не нужны в чат. Проект ещё не начинаем.",
+      "under_the_hood_allowed": [
+        "hermes status",
+        "hermes doctor",
+        "hermes config path",
+        "hermes config env-path",
+        "optional model smoke test"
+      ],
+      "forbidden_after_pass": [
+        "ask SaaS project brief",
+        "jump to Stage 6",
+        "create files",
+        "change config",
+        "gateway setup"
+      ],
+      "next_gate": {
+        "question": "Stage 1 завершён. Что делаем дальше?",
+        "choices": [
+          "Перейти к Stage 2",
+          "Показать отчёт Stage 1",
+          "Пауза"
+        ],
+        "only_forward_stage": "STAGE_2"
+      }
     },
     {
       "id": "STAGE_2",
@@ -255,7 +284,7 @@
     "required_behavior_on_block": [
       "stage_1_to_6_status: not_started",
       "explain Local/Docker/Modal/SSH/Daytona in beginner language",
-      "offer A repair Local / B manual mode / C stop"
+      "offer clarify/buttons: repair Local / manual mode / stop"
     ],
     "path_a_repair": {
       "primary_command": "hermes setup terminal",
@@ -278,7 +307,21 @@
       "Stage 6 readiness",
       "system ready while agent_direct_terminal_check is not_yet_proven",
       "Bootstrap 0 pass after hermes setup terminal without restart/direct check"
-    ]
+    ],
+    "pass_requires": [
+      "Hermes chat/model responds",
+      "agent_direct_terminal_check pass",
+      "terminal_backend_known",
+      "evidence_ledger_present"
+    ],
+    "after_pass_gate": {
+      "question": "Bootstrap 0 пройден: агент может сам выполнять безопасные локальные проверки. Продолжаем?",
+      "choices": [
+        "Перейти к Stage 1",
+        "Показать отчёт Bootstrap 0",
+        "Пауза"
+      ]
+    }
   },
   "status_contract": [
     "pass",
@@ -290,9 +333,60 @@
     "not_applicable"
   ],
   "forbidden_behavior": [
-    "summarize link instead of starting Bootstrap 0",
+    "advance stages without user decision gate when clarify/buttons are available",
+    "ask SaaS project brief before Stage 6",
+    "ask secrets in chat",
+    "claim Bootstrap blocked and pass in the same report",
     "count stages when Bootstrap 0 is blocked",
     "self-memory/profile updates during onboarding without gate",
-    "ask secrets in chat"
-  ]
+    "summarize link instead of starting Bootstrap 0",
+    "treat runbook example errors as current evidence"
+  ],
+  "decision_ui_contract": {
+    "purpose": "Turn text-only A/B/C choices into explicit user decision gates when interactive buttons/clarify are available.",
+    "use_when": [
+      "Bootstrap 0 path choice",
+      "Stage transition confirmation",
+      "defer/configure/manual-only choices",
+      "any config/file/tool/gateway/runtime gate"
+    ],
+    "max_choices": 4,
+    "fallback": "If interactive buttons are unavailable, render numbered choices and require one explicit number/label.",
+    "button_safety_rule": "Buttons choose intent; they do not silently mutate files/config/runtime.",
+    "clarify_shape_rule": "Question contains only the question; choices are separate rows/options."
+  },
+  "evidence_discipline": {
+    "current_status_sources_allowed": [
+      "current agent direct tool output",
+      "current user-pasted sanitized output explicitly marked current"
+    ],
+    "not_current_evidence": [
+      "runbook examples",
+      "previous session transcripts",
+      "memory/profile notes",
+      "cached web summaries"
+    ],
+    "examples_are_not_evidence": [
+      "WSL execvpe(/bin/bash) failed",
+      "/bin/bash not found",
+      "terminal backend unavailable"
+    ],
+    "contradiction_guard": "If the same Bootstrap report claims terminal blocked and terminal pass/works, mark invalid_bootstrap_report and keep Stage 1-6 not_started."
+  },
+  "stage_flow_contract": {
+    "stage_intro_required_every_time": true,
+    "intro_contains": [
+      "stage name",
+      "1-2 sentence beginner explanation",
+      "read-only checks",
+      "what is not changed without gate"
+    ],
+    "result_contains": [
+      "status",
+      "evidence ledger",
+      "deferred/gated items",
+      "plain-language meaning"
+    ],
+    "next_gate": "Use clarify/buttons where available; only the next stage is allowed as forward action."
+  }
 }
