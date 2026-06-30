@@ -2,7 +2,7 @@
 
 ```yaml
 authority_status: pilot repo candidate / not AIRMIDA authority
-pilot_status: local_seed_not_public_release
+pilot_status: private_pilot_repo_for_owner_test
 canonical_language: en
 secrets_rule: no secrets, tokens, private keys, OAuth values, credential values, connection strings, or private runtime identifiers belong in this repository
 ```
@@ -85,6 +85,14 @@ See:
 
 ```text
 DEFAULT_PROFILE_TEST.md
+```
+
+## Pilot repository
+
+```yaml
+repository: https://github.com/Syntrion-AI/launchroom-starter-pilot
+visibility: private
+public_release_status: not_public_release
 ```
 
 End of README.

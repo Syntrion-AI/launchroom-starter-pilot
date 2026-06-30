@@ -2,11 +2,14 @@
 
 ```yaml
 document_type: owner_gate_checklist
-pilot_status: local_seed_not_public_release
-publication_status: not_granted
+pilot_status: private_pilot_repo_for_owner_test
+publication_status: granted_for_private_owner_test
+repository: https://github.com/Syntrion-AI/launchroom-starter-pilot
+visibility: private
+public_release_status: not_public_release
 ```
 
-This repo candidate must not be published until the owner grants a separate publication gate.
+This repo candidate has been published as a private owner-test repository. Public release, public install URL, provider/runtime setup, and broader distribution remain blocked until a separate owner gate.
 
 ## Owner decisions required
 

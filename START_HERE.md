@@ -3,7 +3,7 @@
 ```yaml
 document_type: user_facing_entrypoint
 language: en
-pilot_status: local_seed_not_public_release
+pilot_status: private_pilot_repo_for_owner_test
 secrets_rule: do not paste secrets into chat
 ```
 
