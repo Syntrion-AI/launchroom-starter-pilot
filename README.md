@@ -41,6 +41,24 @@ hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-s
 
 But the primary test is the one-link paste above.
 
+## Optional clean test profile reset script
+
+For Windows repeatable tests, use the PowerShell helper. It creates the
+`launchroom-zero` profile if missing, and only resets an existing test profile
+when `-ResetExisting` is explicitly passed. Existing test profiles are exported
+to a timestamped backup before deletion.
+
+```powershell
+# Create missing test profile and run model picker only
+powershell -ExecutionPolicy Bypass -File .\scripts\reset_launchroom_test_profile.ps1
+
+# Recreate the test profile from scratch, with backup first
+powershell -ExecutionPolicy Bypass -File .\scripts\reset_launchroom_test_profile.ps1 -ResetExisting
+```
+
+This does not reset the main/default Hermes profile and does not uninstall
+Windows tools such as Python, Git, Node, Docker, or ripgrep.
+
 ## Safety
 
 No secrets in chat. No file/config/profile/tool/skill/gateway/cloud/runtime/git mutation without separate explicit gate.
