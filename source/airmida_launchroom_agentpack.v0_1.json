@@ -2,7 +2,7 @@
   "agentpack_id": "AIRMIDA_LAUNCHROOM_ONE_LINK_SETUP_v0_4",
   "status_marker": "Hermes working artifact / not AIRMIDA authority",
   "language_default": "ru",
-  "product_promise": "One pasted link launches a real clean-computer Hermes setup wizard with Bootstrap 0 before Stage 1-6 and honest pass/blocked/manual_only statuses.",
+  "product_promise": "One pasted link launches a real clean-computer Hermes setup wizard with Bootstrap 0 before Stage 1-6 and honest pass/blocked/manual_only/partial_manual_recovery statuses.",
   "scope": {
     "write_surface": "public_repository_root",
     "authority_status": "public_test_package_not_airmida_authority",
@@ -225,20 +225,59 @@
   "canonical_one_link": "https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_ME_FIRST_RU.md",
   "bootstrap_0": {
     "id": "BOOTSTRAP_0",
-    "name": "Execution surface preflight",
-    "purpose": "Verify Hermes can run local checks before any stage is counted.",
+    "name": "Execution surface preflight and beginner-safe repair",
+    "purpose": "Verify Hermes is not only a working chat, but can directly run safe local checks on the intended computer before any setup stage is counted.",
+    "beginner_explanation": {
+      "chat_vs_agent": "Hermes can answer as a chat after model setup; LaunchRoom needs the agent to verify this computer under user supervision.",
+      "terminal_backend": "Where Hermes runs commands.",
+      "recommended_first_choice": "Local — this computer",
+      "local_safety_note": "Local is the execution location, not permission to mutate without approval; changes still require gates."
+    },
+    "backend_choice_explanations": {
+      "local": "This computer; recommended for first LaunchRoom setup because the agent must see local files, tools, Hermes config, and workspace.",
+      "docker": "An isolated container/sandbox; useful later for development isolation, not the first clean-PC choice.",
+      "modal": "Cloud execution; useful later, not for configuring this PC.",
+      "ssh": "A remote server/VPS; useful later for CloudRoom/Hetzner, not local Starter setup.",
+      "daytona": "A cloud development environment; useful later for cloud workspaces, not the first local setup."
+    },
+    "statuses": {
+      "pass": "A new/current agent directly ran safe terminal checks successfully.",
+      "blocked": "The agent cannot directly run terminal checks and the user has not selected manual-only fallback.",
+      "manual_only": "User knowingly continues by running commands manually and pasting sanitized output; this is not the target autonomous operator mode.",
+      "partial_manual_recovery": "User repaired settings externally, such as selecting Local, but a restarted/new agent has not yet proved direct terminal access.",
+      "not_started": "Stages are not started while Bootstrap 0 is blocked or partial manual recovery."
+    },
     "blocked_if": [
       "terminal backend unavailable",
-      "Hermes cannot run local checks and user does not choose no-terminal mode"
+      "terminal tool system dependency not met",
+      "Hermes cannot run local checks and user does not choose no-terminal/manual mode"
     ],
     "required_behavior_on_block": [
       "stage_1_to_6_status: not_started",
-      "offer A repair / B manual mode / C stop"
+      "explain Local/Docker/Modal/SSH/Daytona in beginner language",
+      "offer A repair Local / B manual mode / C stop"
     ],
+    "path_a_repair": {
+      "primary_command": "hermes setup terminal",
+      "recommended_choice": "1. Local - run directly on this machine",
+      "after_success_status": "partial_manual_recovery",
+      "after_success_rule": "Do not start Stage 1; tell user to restart Hermes Desktop/open a new chat and paste the LaunchRoom link again.",
+      "pass_rule": "Bootstrap 0 becomes pass only after a new/current agent directly runs a safe terminal check itself."
+    },
+    "path_b_manual_only": {
+      "purpose": "Temporary fallback, not the target mode.",
+      "minimal_commands": [
+        "where.exe hermes",
+        "hermes --version",
+        "hermes status"
+      ],
+      "report_requirement": "verification_source: user_supplied_sanitized_output; agent_direct_verification: false; target_mode_not_reached"
+    },
     "forbidden_claims": [
-      "Stage 1 pass",
+      "Stage 1 pass after external PowerShell-only recovery",
       "Stage 6 readiness",
-      "system ready"
+      "system ready while agent_direct_terminal_check is not_yet_proven",
+      "Bootstrap 0 pass after hermes setup terminal without restart/direct check"
     ]
   },
   "status_contract": [
@@ -246,6 +285,7 @@
     "blocked",
     "deferred",
     "manual_only",
+    "partial_manual_recovery",
     "not_started",
     "not_applicable"
   ],

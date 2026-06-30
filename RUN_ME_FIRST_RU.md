@@ -15,7 +15,7 @@
 Главное правило: **не проходи мифические этапы**. Каждый статус должен быть честным:
 
 ```yaml
-allowed_statuses: [pass, blocked, deferred, manual_only, not_started, not_applicable]
+allowed_statuses: [pass, blocked, deferred, manual_only, partial_manual_recovery, not_started, not_applicable]
 forbidden_status_pattern: "выполнен, но всё критическое заблокировано"
 ```
 
@@ -52,11 +52,56 @@ forbidden_status_pattern: "выполнен, но всё критическое 
 
 ---
 
-# BOOTSTRAP 0 — Execution surface preflight
+# BOOTSTRAP 0 — Execution surface preflight and beginner-safe repair
 
 ## Purpose
 
-Проверить, может ли Hermes реально выполнять локальные действия. Без этого нельзя честно проходить Stage 1–6.
+Проверить не только то, что Hermes отвечает как чат, а то, что Hermes Agent может **сам** выполнять безопасные локальные проверки на нужном компьютере. Без этого нельзя честно проходить Stage 1–6.
+
+## Explain first: chat vs local agent
+
+Сначала объясни пользователю простыми словами:
+
+```text
+Hermes уже может отвечать как чат, если подключена модель.
+Но для LaunchRoom нам нужен не просто чат, а агент, который под твоим надзором сможет сам проверять этот компьютер: папки, Python, Git, Node, настройки Hermes и workspace.
+
+Для этого Hermes должен знать, где выполнять команды. Это называется terminal backend.
+```
+
+## Explain terminal backend choices before asking the user to choose
+
+Если возникает выбор backend или ошибка terminal/backend, объясни варианты так:
+
+| Вариант | Простое объяснение | Когда нужен | Для первого LaunchRoom setup |
+|---|---|---|---|
+| `Local — этот компьютер` | Агент выполняет команды прямо на этом Windows/macOS/Linux компьютере | Проверить локальные папки, программы, проект, Hermes config | **Рекомендовано** |
+| `Docker — изолированная коробка` | Агент работает внутри контейнера, как в песочнице | Позже для dev/test изоляции | Не первый выбор |
+| `Modal — облачная песочница` | Команды выполняются в облаке, не на этом ПК | Позже для cloud execution | Не для настройки этого ПК |
+| `SSH — удалённый сервер` | Команды выполняются на VPS/сервере | Позже для Hetzner/VPS/CloudRoom | Не для локального старта |
+| `Daytona — облачная dev-среда` | Постоянная development-среда в облаке | Позже для cloud dev workspaces | Не первый выбор |
+
+Затем скажи:
+
+```text
+Для первого запуска выбери Local.
+Local не означает “агент делает всё без спроса”.
+Local означает только “команды выполняются на этом компьютере”.
+Изменения всё равно должны идти через подтверждения и gates.
+```
+
+## Status words for Bootstrap 0
+
+Используй эти слова и объясняй их человеку, если они появляются:
+
+```yaml
+Local:
+  user_text: "этот компьютер; рекомендуемый backend для первого запуска"
+manual_only:
+  user_text: "ручной режим: я пока не могу сам запускать проверки, ты выполняешь команды и присылаешь sanitized вывод; это не целевой режим"
+partial_manual_recovery:
+  user_text: "настройку поправили вручную, но агент ещё не доказал, что сам умеет выполнять команды; нужен перезапуск/new session и повторная проверка"
+```
 
 ## Agent action if tools are available
 
@@ -65,12 +110,17 @@ forbidden_status_pattern: "выполнен, но всё критическое 
 ```bash
 hermes --version
 hermes status
-hermes doctor
 hermes config path
-hermes config env-path
 ```
 
-Если эти команды выполняются — продолжай Stage 1.
+Если эти команды выполняются **самим агентом**, Bootstrap 0 может быть `pass`, и только тогда можно продолжать Stage 1.
+
+```yaml
+bootstrap_0_pass_requires:
+  - Hermes chat/model responds
+  - agent_direct_terminal_check: pass
+  - terminal_backend_known: true
+```
 
 ## If terminal fails on Windows / WSL / bash
 
@@ -82,6 +132,7 @@ WSL execvpe(/bin/bash) failed
 bash: not found
 cmd /c ... also failed from Hermes terminal
 terminal backend unavailable
+terminal tool: system dependency not met
 ```
 
 немедленно останови stage progression и выдай:
@@ -90,6 +141,7 @@ terminal backend unavailable
 bootstrap_0:
   status: blocked
   blocker_id: HERMES_TERMINAL_BACKEND_UNAVAILABLE
+  plain_language: "Hermes отвечает как чат, но пока не может сам выполнять локальные проверки на этом компьютере."
   impact:
     - cannot verify workspace directly
     - cannot inspect config/profile directly
@@ -103,38 +155,60 @@ bootstrap_0:
 
 ```text
 Выбери путь:
-A — Починить Hermes terminal/backend сейчас. Рекомендовано для настоящего агента.
-B — Продолжить no-terminal/manual mode. Ограниченно: я смогу вести setup по твоему sanitized выводу, но не проверять сам.
+A — Починить Local terminal сейчас. Рекомендовано: это нужно для настоящего агента, который сам проверяет этот компьютер.
+B — Продолжить ручной режим. Ограниченно: ты выполняешь команды, я объясняю вывод. Это временный fallback, не цель.
 C — Остановить setup и вернуться позже.
 ```
 
-## Path A — terminal/backend recovery
+## Path A — recommended Local repair
 
-Если пользователь выбирает A, дай только этот короткий recovery packet:
+Если пользователь выбирает A, не давай простыню команд. Дай ровно один основной шаг:
 
 ```powershell
-# Открой Windows PowerShell отдельно от Hermes и выполни:
 hermes setup terminal
-hermes doctor
-hermes status
 ```
 
-Поясни:
+Скажи пользователю:
 
 ```text
-В setup terminal выбери рабочий local/native Windows или доступный shell/backend. Если Hermes просит установить Git Bash/WSL/другой backend — выбери понятный вариант и перезапусти Hermes Desktop/сессию после завершения. Не вставляй секреты в чат.
+Когда Hermes спросит terminal backend, выбери:
+1. Local — run directly on this machine.
+
+Почему Local: мы настраиваем этот компьютер, поэтому агенту нужно видеть именно его локальные файлы, программы и настройки.
 ```
 
-После вывода пользователя классифицируй:
+После успешного `hermes setup terminal` НЕ объявляй Bootstrap 0 pass и НЕ начинай Stage 1. Вместо этого выдай:
 
 ```yaml
-terminal_recovery: pass | still_blocked | user_deferred
-next_action: restart Hermes session and rerun this link | continue no-terminal mode | stop
+bootstrap_0:
+  status: partial_manual_recovery
+  external_cli_recovery: pass
+  terminal_backend_config: local
+  agent_direct_terminal_check: not_yet_proven
+  stage_1_to_6_status: not_started
+  next_action: restart Hermes Desktop / open a new Hermes chat, then paste this LaunchRoom link again
 ```
+
+Объясни человечески:
+
+```text
+Ты включил Local backend. Это как включить доступ к инструментам.
+Но текущий чат мог стартовать до этой настройки, поэтому ему нужен перезапуск/new session.
+Открой новый Hermes chat и вставь эту же ссылку снова. Новый агент должен сам проверить `hermes --version` / `hermes status`.
+Только после этого Bootstrap 0 будет pass.
+```
+
+Не требуй `hermes doctor` и `hermes status` как основной путь после Path A. Их можно предложить только как advanced/manual fallback, если пользователь не может перезапустить Hermes сейчас.
 
 ## Path B — no-terminal/manual mode
 
-Если пользователь выбирает B, не проходи stages как pass. Используй статусы `manual_only` или `deferred` и явно пометь ограничения.
+Если пользователь выбирает B, явно скажи:
+
+```text
+Это ручной режим восстановления. Он помогает не застрять, но это не полноценная настройка автономного агента.
+```
+
+Не проходи stages как `pass`. Используй `manual_only` или `deferred` и явно помечай ограничения.
 
 Минимальный manual inventory request, не больше одного экрана:
 
@@ -143,15 +217,29 @@ next_action: restart Hermes session and rerun this link | continue no-terminal m
 where.exe hermes
 hermes --version
 hermes status
-hermes doctor
-hermes config path
 ```
 
-Проси вставлять только sanitized output. Если пользователь прислал вывод, продолжай Stage 1, но в отчётах ставь:
+Проси вставлять только sanitized output. Если пользователь прислал вывод и осознанно выбрал manual mode, можно продолжать Stage 1 только как `manual_only`, с обязательной пометкой:
 
 ```yaml
 verification_source: user_supplied_sanitized_output
 agent_direct_verification: false
+target_mode_not_reached: "agent still cannot directly verify the computer"
+```
+
+## Bootstrap 0 transition rule
+
+Не переходи к Stage 1 после ручного `hermes setup terminal`, пока новый/перезапущенный агент сам не выполнит safe terminal check.
+
+```yaml
+proceed_to_stage_1_only_if:
+  bootstrap_0: pass
+  agent_direct_terminal_check: pass
+
+do_not_proceed_if:
+  bootstrap_0: blocked
+  bootstrap_0: partial_manual_recovery
+  user_has_not_explicitly_chosen_manual_only: true
 ```
 
 ---
@@ -498,7 +586,7 @@ End with this exact shape:
 
 ```yaml
 airmida_launchroom_setup_report:
-  bootstrap_0_execution_surface: pass | blocked | manual_only | deferred
+  bootstrap_0_execution_surface: pass | blocked | manual_only | partial_manual_recovery | deferred
   stage_1_basic_safe_room: pass | blocked | manual_only | deferred | not_started
   stage_2_profile_workspace_memory_structure: pass | blocked | manual_only | deferred | not_started
   stage_3_system_inventory_toolchain: pass | blocked | manual_only | deferred | not_started

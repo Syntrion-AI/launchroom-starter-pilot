@@ -29,6 +29,12 @@ def main() -> int:
     require(run, "HERMES_TERMINAL_BACKEND_UNAVAILABLE", issues, "terminal blocker id")
     require(run, "stage_1_to_6_status: not_started", issues, "stage not-started rule")
     require(run, "If Bootstrap 0 is blocked, report Stage 1–6 as `not_started`, not pass", issues, "no fake pass rule")
+    require(run, "Local — этот компьютер", issues, "beginner Local explanation")
+    require(run, "Docker — изолированная коробка", issues, "beginner Docker explanation")
+    require(run, "partial_manual_recovery", issues, "partial manual recovery status")
+    require(run, "После успешного `hermes setup terminal` НЕ объявляй Bootstrap 0 pass", issues, "no pass after external setup terminal")
+    require(run, "Открой новый Hermes chat и вставь эту же ссылку снова", issues, "restart/new chat gate")
+    require(run, "agent_direct_terminal_check: pass", issues, "direct terminal pass gate")
 
     # The previous public-package failure: link summarization instead of execution.
     require(run, "не отвечай “ссылка работает”", issues, "no link-summary rule")
@@ -40,7 +46,7 @@ def main() -> int:
     require(skill, "No memory/profile/self-improvement updates during onboarding unless explicitly requested.", issues, "skill no self-improvement rule")
 
     # Honest status vocabulary must be machine-visible.
-    expected = {"pass", "blocked", "deferred", "manual_only", "not_started", "not_applicable"}
+    expected = {"pass", "blocked", "deferred", "manual_only", "partial_manual_recovery", "not_started", "not_applicable"}
     actual = set(data.get("status_contract", []))
     missing_statuses = sorted(expected - actual)
     if missing_statuses:
