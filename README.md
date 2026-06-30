@@ -2,77 +2,60 @@
 
 `public LaunchRoom test package / not AIRMIDA authority`
 
-AIRMIDA LaunchRoom is a staged Hermes Agent package for turning a fresh AI-agent user into a governed operator for a SaaS project.
+AIRMIDA LaunchRoom is a public test package for walking a user through a full Hermes Agent setup path for a governed SaaS project.
 
-This is a **public testing package**, not a production release and not AIRMIDA authority.
+This repository is not meant to be “read and summarized”. It contains an active setup prompt and skill.
 
-## Start here
+## Use this first
 
-If you use Hermes Agent, start with:
+Open:
 
 ```text
-START_HERE_RU.md
+FULL_SETUP_TEST_RU.md
 ```
 
-Or install the active skill from this repository:
+Direct link:
+
+```text
+https://github.com/Syntrion-AI/launchroom-starter-pilot/blob/main/FULL_SETUP_TEST_RU.md
+```
+
+Paste the block from that file into a new Hermes session. The agent should start the full master flow:
+
+```text
+Stage 1 -> Stage 2 -> Stage 3 -> Stage 4 -> Stage 5 -> Stage 6
+```
+
+## Install as Hermes skill
 
 ```bash
 hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md --yes
+hermes skills list
 ```
 
-Then open a new Hermes session and load the installed skill. If Hermes installs direct raw URLs under a branch-derived name, use the name shown by `hermes skills list`.
+Then load the installed skill by the name shown in `hermes skills list`:
 
 ```text
 /skill launchroom-starter-pilot
-Я хочу пройти LaunchRoom Stage 1 для SaaS-проекта.
+Проведи меня по полному LaunchRoom setup нового Hermes agent от Stage 1 до Stage 6.
 ```
 
-Fallback if the skill name differs:
+If Hermes installs direct raw URLs under another name, use that displayed name.
 
-```text
-/skill main
-Я хочу пройти LaunchRoom Stage 1 для SaaS-проекта.
-```
+## Expected behavior
 
-## What this repo contains
+The agent must not answer only “the file is available” or “I can summarize it”. It must run a setup wizard with gated checkpoints after every stage.
 
-- `SKILL.md` — active Hermes skill for the LaunchRoom guide.
-- `START_HERE_RU.md` — paste-first Russian beginner entrypoint.
-- `INSTALL_RU.md` — install/use instructions.
-- `generated/` — generated active entrypoints and stage map.
-- `source/airmida_launchroom_agentpack.v0_1.json` — source of truth.
-- `scripts/build_agentpack.py` — regenerates active files and supports `--check`.
-- `scripts/doctor.py` — validates the public package.
-- `.github/workflows/validate.yml` — public CI validation.
+## Files
 
-## Stage ladder
+- `FULL_SETUP_TEST_RU.md` — main real-test entrypoint.
+- `RUN_ME_FIRST_RU.md` — same as full setup entrypoint.
+- `START_HERE_RU.md` — short pointer to full setup.
+- `SKILL.md` — active Hermes skill.
+- `docs/STAGE_MAP_RU.md` — stage map.
+- `scripts/doctor.py` — package validator.
+- `.github/workflows/validate.yml` — CI validation.
 
-| Stage | Name | Unlocks | Gate output |
-|---|---|---|---|
-| STAGE_1 | Starter Basic Safe Operator | I can talk to Hermes safely and understand what to set up next. | `STAGE_1_READINESS_REPORT` |
-| STAGE_2 | Creator Communication and Content Room | I can use my agent to create, refine, and communicate useful SaaS content safely. | `STAGE_2_CREATOR_WORKFLOW_REPORT` |
-| STAGE_3 | SaaS Project Builder Workspace | I have a bounded SaaS project workspace and can ask the agent to build locally with tests. | `STAGE_3_PROJECT_BUILDER_PACKET` |
-| STAGE_4 | Governed Operator and Agent Team | My agent team can work on packets without losing gates, evidence, or boundaries. | `STAGE_4_GOVERNED_OPERATOR_REPORT` |
-| STAGE_5 | CloudRoom Runtime Readiness | I know what runtime surfaces are needed and what must be explicitly approved before provisioning. | `STAGE_5_CLOUDROOM_READINESS_PACKET` |
-| STAGE_6 | AgentOps SaaS Operations | My SaaS project can move toward real operations with observable, reversible, audited agent assistance. | `STAGE_6_AGENTOPS_OPERATING_PACKET` |
+## Safety
 
-## Safety boundary
-
-LaunchRoom does **not** ask for secrets in chat. It does **not** mutate cloud/runtime/provider/n8n/git/authority surfaces without separate explicit gates. Stage 5 and Stage 6 are readiness and operations design stages until an owner separately authorizes live action.
-
-## Validate locally
-
-```bash
-python scripts/build_agentpack.py --check
-python scripts/doctor.py
-```
-
-## Publication status
-
-```yaml
-repo: Syntrion-AI/launchroom-starter-pilot
-visibility: public
-status: public_test_package
-not_authority: true
-not_production_release: true
-```
+No secrets in chat. No provider/cloud/runtime/n8n/git/production mutation without a separate explicit gate.

@@ -17,6 +17,8 @@ def wanted(data):
       ROOT/"generated"/"HERMES_SKILL.md": (ROOT/"SKILL.md").read_text(encoding="utf-8"),
       ROOT/"generated"/"INSTALL_RU.md": (ROOT/"INSTALL_RU.md").read_text(encoding="utf-8"),
       ROOT/"generated"/"START_HERE_RU.md": (ROOT/"START_HERE_RU.md").read_text(encoding="utf-8"),
+      ROOT/"generated"/"FULL_SETUP_TEST_RU.md": (ROOT/"FULL_SETUP_TEST_RU.md").read_text(encoding="utf-8"),
+      ROOT/"generated"/"RUN_ME_FIRST_RU.md": (ROOT/"RUN_ME_FIRST_RU.md").read_text(encoding="utf-8"),
       ROOT/"generated"/"STAGE_MAP_RU.md": render_stage_map(data),
     }
 def main(argv=None):

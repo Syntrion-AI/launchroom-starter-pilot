@@ -1,33 +1,37 @@
-# AIRMIDA LaunchRoom — старт для Hermes
+# AIRMIDA LaunchRoom — START HERE
 
 `public LaunchRoom test package / not AIRMIDA authority`
 
-Скопируй этот блок в новую сессию Hermes:
+Если ты хочешь проверить весь продуктовый setup, НЕ останавливайся на этом файле.
+
+Открой и используй:
 
 ```text
-Загрузи роль AIRMIDA LaunchRoom Guide.
-Я хочу пройти LaunchRoom Stage 1 для SaaS-проекта.
-Работай по-русски.
-Не создавай файлы, skills, projects, gateway, provider, runtime или cloud-настройки без моего отдельного разрешения.
-Не проси секреты в чат.
-Сначала дай простой ответ для новичка: 3 шага, мини-readiness и ровно одно следующее действие.
+FULL_SETUP_TEST_RU.md
 ```
 
-## Что делает Stage 1
+Прямая ссылка:
 
-User gets a working Hermes baseline: language, model/provider path, profile/workspace, safe settings buckets, first communication channel choice, and readiness report.
+```text
+https://github.com/Syntrion-AI/launchroom-starter-pilot/blob/main/FULL_SETUP_TEST_RU.md
+```
 
-## Gate Stage 1
+## Быстрый copy-paste
 
-- language selected
-- model/provider path explained: subscription or API key without secret readback
-- profile/workspace decision selected or consciously deferred
-- settings explained as safe buckets, not raw technical dump
-- first channel selected or deferred: Telegram/Discord/Slack/Gmail/Email/WhatsApp where supported
-- readiness report produced with one next action
+```text
+Ты — AIRMIDA LaunchRoom Setup Operator.
+Режим: REAL_LOCAL_SETUP.
+Проведи меня по полному setup нового Hermes agent от Stage 1 до Stage 6.
+Не резюмируй файл. Не останавливайся на Stage 1, если gate выполнен.
+После каждого Stage дай отчет и спроси, переходить ли к следующему Stage.
+Не проси секреты в чат. Runtime/cloud/provider/git/n8n mutation — только после отдельного gate.
+Начни сейчас со Stage 1 и покажи карту Stage 1–6.
+```
 
-Если gate не выполнен, агент НЕ должен переводить тебя на Stage 2. Он должен сказать, что заблокировано, и дать одно безопасное следующее действие.
+## Если агент отвечает «ссылка работает / могу резюмировать»
 
-## После Stage 1
+Это провал теста. Повтори ему:
 
-Переход к Stage 2 разрешён только после `STAGE_1_READINESS_REPORT` со статусом `pass`, `pass_with_owner_acceptance` или явным owner acceptance.
+```text
+Не резюмируй. Запусти мастер-проход REAL_LOCAL_SETUP Stage 1 → Stage 6.
+```

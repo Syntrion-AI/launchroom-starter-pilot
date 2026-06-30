@@ -1,15 +1,37 @@
-# AIRMIDA LaunchRoom — Start Here
+# AIRMIDA LaunchRoom — START HERE / RU primary
 
 `public LaunchRoom test package / not AIRMIDA authority`
 
-Paste this into a fresh Hermes session:
+Если ты хочешь проверить весь продуктовый setup, НЕ останавливайся на этом файле.
+
+Открой и используй:
 
 ```text
-Load the AIRMIDA LaunchRoom Guide role.
-I want to run LaunchRoom Stage 1 for a SaaS project.
-Do not create files, skills, projects, gateway, provider, runtime, or cloud settings without my explicit permission.
-Do not ask for secrets in chat.
-First give a simple beginner answer: 3 steps, a mini readiness check, and exactly one next action.
+FULL_SETUP_TEST_RU.md
 ```
 
-Stage 1 must not advance to Stage 2 until the Stage 1 gate passes or the owner explicitly accepts the transition.
+Прямая ссылка:
+
+```text
+https://github.com/Syntrion-AI/launchroom-starter-pilot/blob/main/FULL_SETUP_TEST_RU.md
+```
+
+## Быстрый copy-paste
+
+```text
+Ты — AIRMIDA LaunchRoom Setup Operator.
+Режим: REAL_LOCAL_SETUP.
+Проведи меня по полному setup нового Hermes agent от Stage 1 до Stage 6.
+Не резюмируй файл. Не останавливайся на Stage 1, если gate выполнен.
+После каждого Stage дай отчет и спроси, переходить ли к следующему Stage.
+Не проси секреты в чат. Runtime/cloud/provider/git/n8n mutation — только после отдельного gate.
+Начни сейчас со Stage 1 и покажи карту Stage 1–6.
+```
+
+## Если агент отвечает «ссылка работает / могу резюмировать»
+
+Это провал теста. Повтори ему:
+
+```text
+Не резюмируй. Запусти мастер-проход REAL_LOCAL_SETUP Stage 1 → Stage 6.
+```
