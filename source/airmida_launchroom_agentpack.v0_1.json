@@ -1,8 +1,8 @@
 {
-  "agentpack_id": "AIRMIDA_LAUNCHROOM_AGENTPACK_v0_1",
+  "agentpack_id": "AIRMIDA_LAUNCHROOM_ONE_LINK_SETUP_v0_4",
   "status_marker": "Hermes working artifact / not AIRMIDA authority",
   "language_default": "ru",
-  "product_promise": "Turn a fresh Hermes user into a governed AI operator for a SaaS project through staged gates, not unchecked autonomy.",
+  "product_promise": "One pasted link launches a real clean-computer Hermes setup wizard with Bootstrap 0 before Stage 1-6 and honest pass/blocked/manual_only statuses.",
   "scope": {
     "write_surface": "public_repository_root",
     "authority_status": "public_test_package_not_airmida_authority",
@@ -85,170 +85,174 @@
   "stages": [
     {
       "id": "STAGE_1",
-      "name": "Starter Basic Safe Operator",
-      "promise": "User gets a working Hermes baseline: language, model/provider path, profile/workspace, safe settings buckets, first communication channel choice, and readiness report.",
-      "user_result": "I can talk to Hermes safely and understand what to set up next.",
+      "name": "Basic Safe Hermes Room",
+      "promise": "Model/provider path, profile/workspace path, settings buckets, first channel path, readiness report.",
+      "user_result": "User knows how Hermes is safely grounded before work.",
       "allowed_default_actions": [
         "explain",
-        "ask simple preference",
-        "run non-secret local diagnostics when user permits",
-        "produce readiness report"
+        "read-only checks",
+        "model smoke if available",
+        "readiness report"
       ],
       "blocked_without_gate": [
-        "file creation",
-        "skill creation",
-        "profile credential mutation",
-        "gateway activation",
+        "secret handling in chat",
         "provider credential entry",
-        "cloud/runtime mutation"
+        "config mutation"
       ],
       "gate_checks": [
-        "language selected",
-        "model/provider path explained: subscription or API key without secret readback",
-        "profile/workspace decision selected or consciously deferred",
-        "settings explained as safe buckets, not raw technical dump",
-        "first channel selected or deferred: Telegram/Discord/Slack/Gmail/Email/WhatsApp where supported",
-        "readiness report produced with one next action"
+        "bootstrap_0 pass or manual_only selected",
+        "model path working/planned/deferred",
+        "settings buckets explained",
+        "first channel selected or deferred"
       ],
-      "transition_output": "STAGE_1_READINESS_REPORT"
+      "transition_output": "STAGE_1_BASIC_SAFE_ROOM_REPORT"
     },
     {
       "id": "STAGE_2",
-      "name": "Creator Communication and Content Room",
-      "promise": "User gets a comfortable creation loop: writing, voice/media options, brand/context capture, communication lane, and one repeatable content workflow.",
-      "user_result": "I can use my agent to create, refine, and communicate useful SaaS content safely.",
+      "name": "Profile Workspace Memory Structure",
+      "promise": "Clear separation of Hermes runtime profile area and safe project workspace structure.",
+      "user_result": "User knows where not to edit and where project files belong.",
       "allowed_default_actions": [
-        "draft content",
-        "create local non-secret templates after user asks",
-        "explain media/voice options",
-        "define brand/context packet"
+        "explain paths",
+        "read-only config/profile checks",
+        "plan profile/workspace"
       ],
       "blocked_without_gate": [
-        "publishing",
-        "paid media generation commitments",
-        "channel posting",
-        "credential entry",
-        "runtime automations"
+        "create profile",
+        "change config",
+        "create files"
       ],
       "gate_checks": [
-        "brand/project context packet exists in chat or local artifact by request",
-        "one content workflow rehearsed",
-        "media/voice/tool choices classified as enabled, optional, or gated",
-        "communication channel plan selected",
-        "no public posting or credential handling performed"
+        "profile strategy selected/deferred",
+        "workspace strategy selected/deferred",
+        "memory policy known/deferred",
+        "safe file structure explained"
       ],
-      "transition_output": "STAGE_2_CREATOR_WORKFLOW_REPORT"
+      "transition_output": "STAGE_2_PROFILE_WORKSPACE_REPORT"
     },
     {
       "id": "STAGE_3",
-      "name": "SaaS Project Builder Workspace",
-      "promise": "User gets a governed local SaaS project workspace: product brief, repo/workspace policy, feature backlog, local prototype packet, and test/run loop.",
-      "user_result": "I have a bounded SaaS project workspace and can ask the agent to build locally with tests.",
+      "name": "System Inventory Toolchain Baseline",
+      "promise": "No-secret inventory of OS and installed toolchain before recommending installs.",
+      "user_result": "Required/recommended/optional missing tools are known.",
       "allowed_default_actions": [
-        "create local project artifacts under approved workspace",
-        "inspect code",
-        "write implementation packets",
-        "run local tests",
-        "build local prototype"
+        "read-only version/path checks",
+        "manual sanitized fallback"
       ],
       "blocked_without_gate": [
-        "deployment",
-        "domain/subdomain creation",
-        "production database",
-        "billing",
-        "external user data",
-        "git push"
+        "install programs",
+        "change PATH",
+        "update tools"
       ],
       "gate_checks": [
-        "project root selected and allowed",
-        "SaaS brief and non-goals recorded",
-        "local-only build/test loop identified",
-        "implementation packet exists before executor changes",
-        "rollback and verification specified"
+        "terminal status classified",
+        "toolchain inventory collected or manual_only",
+        "missing tool decision list created"
       ],
-      "transition_output": "STAGE_3_PROJECT_BUILDER_PACKET"
+      "transition_output": "STAGE_3_SYSTEM_INVENTORY_REPORT"
     },
     {
       "id": "STAGE_4",
-      "name": "Governed Operator and Agent Team",
-      "promise": "User gets governed multi-agent operations: roles, packet schema, validation, handoffs, run records, and Codex/Claude/Hermes coordination boundaries.",
-      "user_result": "My agent team can work on packets without losing gates, evidence, or boundaries.",
+      "name": "Tools Skills Memory Sessions Readiness",
+      "promise": "Hermes capabilities, skills, memory, sessions and gaps are known.",
+      "user_result": "User knows what Hermes can do now and what must be enabled under gate.",
       "allowed_default_actions": [
-        "create packet templates",
-        "run local validators",
-        "delegate bounded subtasks",
-        "write run records",
-        "perform read-only MCP/tool inventories"
+        "read-only tools list",
+        "read-only skills list",
+        "memory status",
+        "decision list"
       ],
       "blocked_without_gate": [
-        "live autonomous agents",
-        "provider/runtime mutation",
-        "credential operations",
-        "n8n workflow execution",
-        "production sync"
+        "enable tools",
+        "install skills",
+        "memory/profile self-update"
       ],
       "gate_checks": [
-        "role contour defined",
-        "packet templates and validator pass",
-        "handoff/run-record format exists",
-        "tool boundaries documented",
-        "verification arbiter report says pass or blocked"
+        "tools inventory known/deferred",
+        "skills inventory known/deferred",
+        "memory status known/deferred",
+        "no self-memory updates without gate"
       ],
-      "transition_output": "STAGE_4_GOVERNED_OPERATOR_REPORT"
+      "transition_output": "STAGE_4_CAPABILITY_REPORT"
     },
     {
       "id": "STAGE_5",
-      "name": "CloudRoom Runtime Readiness",
-      "promise": "User gets a gated cloud/runtime room plan: domains, Cloudflare, Hetzner, n8n, site sandbox, secrets policy, rollback, and read-only inventory before mutation.",
-      "user_result": "I know what runtime surfaces are needed and what must be explicitly approved before provisioning.",
+      "name": "Communication Gateway Readiness",
+      "promise": "First remote communication channel selected or consciously deferred.",
+      "user_result": "User knows how Telegram/Discord/Slack/Email path will be configured without leaking secrets.",
       "allowed_default_actions": [
-        "read official docs",
-        "prepare provider-readiness packets",
-        "run non-secret read-only inventory when authenticated",
-        "draft rollback plans"
+        "gateway status read-only",
+        "explain channels",
+        "plan token entry path"
       ],
       "blocked_without_gate": [
-        "Cloudflare DNS/Access/Tunnel/Worker changes",
-        "Hetzner server/firewall/network changes",
-        "n8n workflow/credential mutation",
-        "public deployment",
-        "secret readback"
+        "gateway setup/run/install",
+        "channel posting",
+        "token readback"
       ],
       "gate_checks": [
-        "provider surfaces mapped",
-        "secret handling path defined outside chat",
-        "read-only inventory complete or blocker recorded",
-        "provisioning packet includes backup, rollback, observability, owner approval fields",
-        "no runtime mutation occurred without gate"
+        "first channel selected/deferred",
+        "gateway status checked/unavailable/deferred",
+        "secret entry path explained"
       ],
-      "transition_output": "STAGE_5_CLOUDROOM_READINESS_PACKET"
+      "transition_output": "STAGE_5_COMMUNICATION_REPORT"
     },
     {
       "id": "STAGE_6",
-      "name": "AgentOps SaaS Operations",
-      "promise": "User gets production-grade operational discipline: CI/release gates, monitoring, SLOs, incidents, support loop, cost controls, and supervised autonomy plan.",
-      "user_result": "My SaaS project can move toward real operations with observable, reversible, audited agent assistance.",
+      "name": "SaaS Operator Kit CloudRoom AgentOps Readiness",
+      "promise": "Minimal SaaS operator kit plus gated CloudRoom/AgentOps map.",
+      "user_result": "User has a next local SaaS task and knows what remains gated.",
       "allowed_default_actions": [
-        "design CI gates",
-        "write runbooks",
-        "define SLO/incident/cost controls",
-        "prepare supervised automation packets"
+        "capture brief in chat",
+        "define next local task",
+        "map cloud/ops gates"
       ],
       "blocked_without_gate": [
-        "production release",
-        "autonomous production agents",
-        "billing/customer data operations",
-        "provider mutations",
-        "incident automation activation"
+        "create project files",
+        "git publish",
+        "Cloudflare/Hetzner/n8n mutation",
+        "production deployment"
       ],
       "gate_checks": [
-        "release checklist exists",
-        "observability/SLO/runbook packet exists",
-        "security/privacy controls specified",
-        "support and incident flow defined",
-        "supervised autonomy criteria explicit"
+        "brief captured/deferred",
+        "next local task defined",
+        "CloudRoom/AgentOps boundaries explained",
+        "no production mutation"
       ],
-      "transition_output": "STAGE_6_AGENTOPS_OPERATING_PACKET"
+      "transition_output": "STAGE_6_SAAS_OPERATOR_READINESS_REPORT"
     }
+  ],
+  "canonical_one_link": "https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_ME_FIRST_RU.md",
+  "bootstrap_0": {
+    "id": "BOOTSTRAP_0",
+    "name": "Execution surface preflight",
+    "purpose": "Verify Hermes can run local checks before any stage is counted.",
+    "blocked_if": [
+      "terminal backend unavailable",
+      "Hermes cannot run local checks and user does not choose no-terminal mode"
+    ],
+    "required_behavior_on_block": [
+      "stage_1_to_6_status: not_started",
+      "offer A repair / B manual mode / C stop"
+    ],
+    "forbidden_claims": [
+      "Stage 1 pass",
+      "Stage 6 readiness",
+      "system ready"
+    ]
+  },
+  "status_contract": [
+    "pass",
+    "blocked",
+    "deferred",
+    "manual_only",
+    "not_started",
+    "not_applicable"
+  ],
+  "forbidden_behavior": [
+    "summarize link instead of starting Bootstrap 0",
+    "count stages when Bootstrap 0 is blocked",
+    "self-memory/profile updates during onboarding without gate",
+    "ask secrets in chat"
   ]
 }

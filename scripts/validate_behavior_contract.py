@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+RUN = ROOT / "RUN_ME_FIRST_RU.md"
+SKILL = ROOT / "SKILL.md"
+SOURCE = ROOT / "source" / "airmida_launchroom_agentpack.v0_1.json"
+MARKER = "public LaunchRoom test package / not AIRMIDA authority"
+
+
+def require(text: str, needle: str, issues: list[str], label: str = "") -> None:
+    if needle not in text:
+        issues.append(f"missing {label or needle}")
+
+
+def main() -> int:
+    issues: list[str] = []
+    run = RUN.read_text(encoding="utf-8")
+    skill = SKILL.read_text(encoding="utf-8")
+    data = json.loads(SOURCE.read_text(encoding="utf-8"))
+
+    # The clean-Windows stress failure: terminal backend broken must stop before stages.
+    require(run, "WSL execvpe(/bin/bash) failed", issues, "Windows/WSL failure trigger")
+    require(run, "BOOTSTRAP_0_BLOCKED", issues, "explicit Bootstrap blocked marker")
+    require(run, "HERMES_TERMINAL_BACKEND_UNAVAILABLE", issues, "terminal blocker id")
+    require(run, "stage_1_to_6_status: not_started", issues, "stage not-started rule")
+    require(run, "If Bootstrap 0 is blocked, report Stage 1–6 as `not_started`, not pass", issues, "no fake pass rule")
+
+    # The previous public-package failure: link summarization instead of execution.
+    require(run, "не отвечай “ссылка работает”", issues, "no link-summary rule")
+    require(run, "Начни `BOOTSTRAP_0`", issues, "start Bootstrap instruction")
+    require(skill, "Do not summarize the runbook. Start `BOOTSTRAP_0`.", issues, "skill start instruction")
+
+    # Customer onboarding must not silently mutate memory/profile.
+    require(run, "Не обновляй memory/profile/self-improvement", issues, "no self-improvement rule")
+    require(skill, "No memory/profile/self-improvement updates during onboarding unless explicitly requested.", issues, "skill no self-improvement rule")
+
+    # Honest status vocabulary must be machine-visible.
+    expected = {"pass", "blocked", "deferred", "manual_only", "not_started", "not_applicable"}
+    actual = set(data.get("status_contract", []))
+    missing_statuses = sorted(expected - actual)
+    if missing_statuses:
+        issues.append(f"missing status contract values: {missing_statuses}")
+
+    if "bootstrap_0" not in data:
+        issues.append("missing source bootstrap_0")
+    if len(data.get("stages", [])) != 6:
+        issues.append("expected exactly 6 source stages after bootstrap")
+
+    result = {"status": "pass" if not issues else "fail", "issues": issues}
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0 if not issues else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

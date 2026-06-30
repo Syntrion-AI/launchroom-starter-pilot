@@ -1,57 +1,46 @@
-# AIRMIDA LaunchRoom
+# AIRMIDA LaunchRoom One-Link Setup
 
 `public LaunchRoom test package / not AIRMIDA authority`
 
-AIRMIDA LaunchRoom is a public real-test package for setting up a new Hermes Agent as a governed operator for a SaaS project.
-
-## Use this first
-
-Open:
+Use **one link** in a new Hermes Agent chat:
 
 ```text
-REAL_HERMES_SETUP_RU.md
+https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_ME_FIRST_RU.md
 ```
 
-Direct link:
+Expected behavior: Hermes must not summarize the file. It must start `Bootstrap 0`, verify whether it can run local checks, and only then proceed through real setup stages.
 
-```text
-https://github.com/Syntrion-AI/launchroom-starter-pilot/blob/main/REAL_HERMES_SETUP_RU.md
+## What this package tests
+
+```yaml
+bootstrap_0: execution surface / terminal backend / model basics
+stage_1: Basic Safe Hermes Room
+stage_2: profile, workspace, memory, safe file structure
+stage_3: system inventory and toolchain baseline
+stage_4: tools, skills, memory, sessions readiness
+stage_5: communications and gateway readiness
+stage_6: SaaS operator kit plus CloudRoom/AgentOps readiness
 ```
 
-This is not a file to summarize. It is a setup wizard prompt. It should guide Hermes through:
+## Important behavior
 
-```text
-Stage 1 health/model
-Stage 2 profile/workspace
-Stage 3 tools/skills/memory
-Stage 4 gateway/messaging
-Stage 5 SaaS operator kit
-Stage 6 CloudRoom/AgentOps readiness
+If Hermes terminal/backend is broken on a clean Windows machine, the correct result is:
+
+```yaml
+bootstrap_0: blocked
+stage_1_to_6: not_started
 ```
 
-## Install as Hermes skill
+Not a fake Stage 6 pass.
+
+## Optional skill install
 
 ```bash
 hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md --yes
-hermes skills list
 ```
 
-Then in a new Hermes session:
-
-```text
-/skill launchroom-starter-pilot
-Проведи меня через REAL_HERMES_SETUP для нового Hermes agent от Stage 1 до Stage 6.
-```
-
-If Hermes installs direct raw URLs under another name, use the name shown by `hermes skills list`.
-
-## Validate repo
-
-```bash
-python scripts/build_agentpack.py --check
-python scripts/doctor.py
-```
+But the primary test is the one-link paste above.
 
 ## Safety
 
-No secrets in chat. No provider/cloud/runtime/n8n/git/production mutation without separate explicit gate.
+No secrets in chat. No file/config/profile/tool/skill/gateway/cloud/runtime/git mutation without separate explicit gate.

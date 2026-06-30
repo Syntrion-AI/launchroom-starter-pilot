@@ -1,4 +1,4 @@
-# Install / Test RU
+# Install / Test
 
 `public LaunchRoom test package / not AIRMIDA authority`
 

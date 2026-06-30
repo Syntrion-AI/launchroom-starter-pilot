@@ -2,117 +2,108 @@
 
 `public LaunchRoom test package / not AIRMIDA authority`
 
-## STAGE_1 — Starter Basic Safe Operator
+## STAGE_1 — Basic Safe Hermes Room
 
-**Promise:** User gets a working Hermes baseline: language, model/provider path, profile/workspace, safe settings buckets, first communication channel choice, and readiness report.
+**Promise:** Model/provider path, profile/workspace path, settings buckets, first channel path, readiness report.
 
-**User result:** I can talk to Hermes safely and understand what to set up next.
+**User result:** User knows how Hermes is safely grounded before work.
 
-**Allowed by default:** explain, ask simple preference, run non-secret local diagnostics when user permits, produce readiness report
+**Allowed by default:** explain, read-only checks, model smoke if available, readiness report
 
-**Blocked without gate:** file creation, skill creation, profile credential mutation, gateway activation, provider credential entry, cloud/runtime mutation
-
-**Gate checks:**
-- language selected
-- model/provider path explained: subscription or API key without secret readback
-- profile/workspace decision selected or consciously deferred
-- settings explained as safe buckets, not raw technical dump
-- first channel selected or deferred: Telegram/Discord/Slack/Gmail/Email/WhatsApp where supported
-- readiness report produced with one next action
-
-**Transition output:** `STAGE_1_READINESS_REPORT`
-
-## STAGE_2 — Creator Communication and Content Room
-
-**Promise:** User gets a comfortable creation loop: writing, voice/media options, brand/context capture, communication lane, and one repeatable content workflow.
-
-**User result:** I can use my agent to create, refine, and communicate useful SaaS content safely.
-
-**Allowed by default:** draft content, create local non-secret templates after user asks, explain media/voice options, define brand/context packet
-
-**Blocked without gate:** publishing, paid media generation commitments, channel posting, credential entry, runtime automations
+**Blocked without gate:** secret handling in chat, provider credential entry, config mutation
 
 **Gate checks:**
-- brand/project context packet exists in chat or local artifact by request
-- one content workflow rehearsed
-- media/voice/tool choices classified as enabled, optional, or gated
-- communication channel plan selected
-- no public posting or credential handling performed
+- bootstrap_0 pass or manual_only selected
+- model path working/planned/deferred
+- settings buckets explained
+- first channel selected or deferred
 
-**Transition output:** `STAGE_2_CREATOR_WORKFLOW_REPORT`
+**Transition output:** `STAGE_1_BASIC_SAFE_ROOM_REPORT`
 
-## STAGE_3 — SaaS Project Builder Workspace
+## STAGE_2 — Profile Workspace Memory Structure
 
-**Promise:** User gets a governed local SaaS project workspace: product brief, repo/workspace policy, feature backlog, local prototype packet, and test/run loop.
+**Promise:** Clear separation of Hermes runtime profile area and safe project workspace structure.
 
-**User result:** I have a bounded SaaS project workspace and can ask the agent to build locally with tests.
+**User result:** User knows where not to edit and where project files belong.
 
-**Allowed by default:** create local project artifacts under approved workspace, inspect code, write implementation packets, run local tests, build local prototype
+**Allowed by default:** explain paths, read-only config/profile checks, plan profile/workspace
 
-**Blocked without gate:** deployment, domain/subdomain creation, production database, billing, external user data, git push
-
-**Gate checks:**
-- project root selected and allowed
-- SaaS brief and non-goals recorded
-- local-only build/test loop identified
-- implementation packet exists before executor changes
-- rollback and verification specified
-
-**Transition output:** `STAGE_3_PROJECT_BUILDER_PACKET`
-
-## STAGE_4 — Governed Operator and Agent Team
-
-**Promise:** User gets governed multi-agent operations: roles, packet schema, validation, handoffs, run records, and Codex/Claude/Hermes coordination boundaries.
-
-**User result:** My agent team can work on packets without losing gates, evidence, or boundaries.
-
-**Allowed by default:** create packet templates, run local validators, delegate bounded subtasks, write run records, perform read-only MCP/tool inventories
-
-**Blocked without gate:** live autonomous agents, provider/runtime mutation, credential operations, n8n workflow execution, production sync
+**Blocked without gate:** create profile, change config, create files
 
 **Gate checks:**
-- role contour defined
-- packet templates and validator pass
-- handoff/run-record format exists
-- tool boundaries documented
-- verification arbiter report says pass or blocked
+- profile strategy selected/deferred
+- workspace strategy selected/deferred
+- memory policy known/deferred
+- safe file structure explained
 
-**Transition output:** `STAGE_4_GOVERNED_OPERATOR_REPORT`
+**Transition output:** `STAGE_2_PROFILE_WORKSPACE_REPORT`
 
-## STAGE_5 — CloudRoom Runtime Readiness
+## STAGE_3 — System Inventory Toolchain Baseline
 
-**Promise:** User gets a gated cloud/runtime room plan: domains, Cloudflare, Hetzner, n8n, site sandbox, secrets policy, rollback, and read-only inventory before mutation.
+**Promise:** No-secret inventory of OS and installed toolchain before recommending installs.
 
-**User result:** I know what runtime surfaces are needed and what must be explicitly approved before provisioning.
+**User result:** Required/recommended/optional missing tools are known.
 
-**Allowed by default:** read official docs, prepare provider-readiness packets, run non-secret read-only inventory when authenticated, draft rollback plans
+**Allowed by default:** read-only version/path checks, manual sanitized fallback
 
-**Blocked without gate:** Cloudflare DNS/Access/Tunnel/Worker changes, Hetzner server/firewall/network changes, n8n workflow/credential mutation, public deployment, secret readback
-
-**Gate checks:**
-- provider surfaces mapped
-- secret handling path defined outside chat
-- read-only inventory complete or blocker recorded
-- provisioning packet includes backup, rollback, observability, owner approval fields
-- no runtime mutation occurred without gate
-
-**Transition output:** `STAGE_5_CLOUDROOM_READINESS_PACKET`
-
-## STAGE_6 — AgentOps SaaS Operations
-
-**Promise:** User gets production-grade operational discipline: CI/release gates, monitoring, SLOs, incidents, support loop, cost controls, and supervised autonomy plan.
-
-**User result:** My SaaS project can move toward real operations with observable, reversible, audited agent assistance.
-
-**Allowed by default:** design CI gates, write runbooks, define SLO/incident/cost controls, prepare supervised automation packets
-
-**Blocked without gate:** production release, autonomous production agents, billing/customer data operations, provider mutations, incident automation activation
+**Blocked without gate:** install programs, change PATH, update tools
 
 **Gate checks:**
-- release checklist exists
-- observability/SLO/runbook packet exists
-- security/privacy controls specified
-- support and incident flow defined
-- supervised autonomy criteria explicit
+- terminal status classified
+- toolchain inventory collected or manual_only
+- missing tool decision list created
 
-**Transition output:** `STAGE_6_AGENTOPS_OPERATING_PACKET`
+**Transition output:** `STAGE_3_SYSTEM_INVENTORY_REPORT`
+
+## STAGE_4 — Tools Skills Memory Sessions Readiness
+
+**Promise:** Hermes capabilities, skills, memory, sessions and gaps are known.
+
+**User result:** User knows what Hermes can do now and what must be enabled under gate.
+
+**Allowed by default:** read-only tools list, read-only skills list, memory status, decision list
+
+**Blocked without gate:** enable tools, install skills, memory/profile self-update
+
+**Gate checks:**
+- tools inventory known/deferred
+- skills inventory known/deferred
+- memory status known/deferred
+- no self-memory updates without gate
+
+**Transition output:** `STAGE_4_CAPABILITY_REPORT`
+
+## STAGE_5 — Communication Gateway Readiness
+
+**Promise:** First remote communication channel selected or consciously deferred.
+
+**User result:** User knows how Telegram/Discord/Slack/Email path will be configured without leaking secrets.
+
+**Allowed by default:** gateway status read-only, explain channels, plan token entry path
+
+**Blocked without gate:** gateway setup/run/install, channel posting, token readback
+
+**Gate checks:**
+- first channel selected/deferred
+- gateway status checked/unavailable/deferred
+- secret entry path explained
+
+**Transition output:** `STAGE_5_COMMUNICATION_REPORT`
+
+## STAGE_6 — SaaS Operator Kit CloudRoom AgentOps Readiness
+
+**Promise:** Minimal SaaS operator kit plus gated CloudRoom/AgentOps map.
+
+**User result:** User has a next local SaaS task and knows what remains gated.
+
+**Allowed by default:** capture brief in chat, define next local task, map cloud/ops gates
+
+**Blocked without gate:** create project files, git publish, Cloudflare/Hetzner/n8n mutation, production deployment
+
+**Gate checks:**
+- brief captured/deferred
+- next local task defined
+- CloudRoom/AgentOps boundaries explained
+- no production mutation
+
+**Transition output:** `STAGE_6_SAAS_OPERATOR_READINESS_REPORT`

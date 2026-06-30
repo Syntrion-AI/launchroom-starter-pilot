@@ -17,3 +17,5 @@ jobs:
         run: python scripts/build_agentpack.py --check
       - name: Doctor
         run: python scripts/doctor.py
+      - name: Behavior contract
+        run: python scripts/validate_behavior_contract.py
