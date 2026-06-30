@@ -1,0 +1,31 @@
+contract_id: launchroom_stage1_memory_policy_v0_1
+status: pilot
+canonical_language: en
+authority_status: pilot repo candidate / not AIRMIDA authority
+secrets_rule: never store secrets in memory
+
+memory_policy:
+  explain_before_deep_use: true
+  allowed_memory_content:
+    - durable user preferences
+    - stable environment facts
+    - reusable conventions
+    - non-secret workflow preferences
+  forbidden_memory_content:
+    - secrets
+    - credential values
+    - private keys
+    - OAuth values
+    - temporary task progress
+    - stale issue identifiers
+    - stale commit identifiers
+    - raw logs or dumps
+
+recommended_budget_for_power_user_profile:
+  memory_char_limit: 6000
+  user_profile_char_limit: 3000
+  note: This is a proven dogfood budget, not a forced default for every beginner.
+
+beginner_policy:
+  default: explain memory and ask before saving durable personal facts
+  first_test: do not require changing memory settings

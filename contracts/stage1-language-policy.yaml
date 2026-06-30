@@ -1,0 +1,38 @@
+contract_id: launchroom_stage1_language_policy_v0_1
+status: pilot
+canonical_language: en
+authority_status: pilot repo candidate / not AIRMIDA authority
+
+language_policy:
+  canonical_project_language: en
+  first_contact_mode: bilingual_short_prompt
+  minimum_languages:
+    - en
+    - ru
+  later_candidates:
+    - lv
+    - es
+    - de
+    - fr
+    - uk
+    - pl
+
+selection_order:
+  - explicit_user_choice
+  - gateway_or_platform_locale_if_available
+  - first_message_language_detection
+  - profile_display_language
+  - english_fallback
+
+active_language_state:
+  field: active_language
+  set_once_during_onboarding: true
+  user_can_change_later: true
+
+low_confidence_behavior:
+  show_language_picker: true
+  fallback_language: en
+
+notes:
+  - First-message detection can be unreliable for short or mixed-language messages.
+  - Desktop interface language is not the same as conversation language.

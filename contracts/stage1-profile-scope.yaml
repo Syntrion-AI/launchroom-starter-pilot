@@ -1,0 +1,43 @@
+contract_id: launchroom_stage1_profile_scope_v0_1
+status: pilot
+canonical_language: en
+authority_status: pilot repo candidate / not AIRMIDA authority
+
+scope_model:
+  global_desktop_state:
+    description: Desktop or app-level state that may affect more than one profile.
+    pilot_behavior: explain only; do not mutate automatically.
+
+  profile_non_secret_config:
+    examples:
+      - config.yaml
+      - model selection metadata
+      - terminal cwd
+      - display language
+      - memory limits
+      - compression
+      - approval mode
+    pilot_behavior: inspect only when safe; recommend manual changes instead of mutating.
+
+  profile_secret_or_auth_state:
+    examples:
+      - profile env file
+      - auth mechanism state
+      - OAuth state
+    pilot_behavior: never read, print, copy, or store values.
+
+  profile_memory_state:
+    examples:
+      - memory store
+      - user profile store
+    pilot_behavior: explain policy; do not require migration.
+
+  project_instruction_state:
+    examples:
+      - AGENTS.md
+      - SKILL.md
+      - LaunchRoom contracts
+    pilot_behavior: use as machine-readable guidance for the pilot.
+
+profile_copying_rule:
+  beginner_default: do not copy credential stores, auth state, state databases, or memory stores between profiles.

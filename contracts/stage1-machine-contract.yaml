@@ -1,0 +1,53 @@
+contract_id: launchroom_stage1_machine_contract_v0_1
+status: pilot
+canonical_language: en
+authority_status: pilot repo candidate / not AIRMIDA authority
+secrets_rule: no secrets, tokens, private keys, OAuth values, credential values, connection strings, or private runtime identifiers belong in this contract
+
+stage: Stage_1_Starter
+purpose: Turn a fresh or default Hermes profile into a safe first working room.
+
+required_user_visible_outputs:
+  - language_choice_or_confirmation
+  - model_path_status
+  - profile_and_workspace_status
+  - secret_handling_rule
+  - memory_explanation
+  - basic_settings_summary
+  - readiness_report
+  - one_next_action
+
+must_not_do:
+  - request_secret_values_in_chat
+  - mutate_global_settings_automatically
+  - mutate_profile_settings_automatically
+  - create_or_clone_profiles_automatically
+  - start_gateway_setup_automatically
+  - mutate_provider_runtime_cloud_or_mcp_surfaces
+  - perform_remote_publication_actions
+
+readiness_status_values:
+  allowed:
+    - ready
+    - needs_setup
+    - needs_review
+    - blocked_by_gate
+    - unknown
+
+next_stage_values:
+  allowed:
+    - Stage_1_continue
+    - Stage_2_Creator_candidate
+    - Stage_3_Builder_candidate
+    - Stage_4_Governed_Operator_candidate
+    - blocked
+
+minimum_readiness_report_shape:
+  language: selected | needs_choice
+  model_path: connected | needs_setup | unknown
+  profile: default_profile_test | selected | needs_review
+  workspace: selected | needs_review
+  secrets: no_secrets_in_chat
+  memory: explained | needs_review
+  settings: basic_safe | needs_review
+  next_action: one concrete action
