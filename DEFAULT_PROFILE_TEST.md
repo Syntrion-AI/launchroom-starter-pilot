@@ -30,8 +30,9 @@ not_required:
 1. Open `README.md`.
 2. Open `START_HERE.md` or `i18n/ru/START_HERE.ru.md`.
 3. Copy the pilot prompt into Hermes.
-4. Let Hermes answer without correcting it too early.
-5. Record what happens.
+4. Include the repository link, or paste `START_HERE.md` directly if Hermes cannot access the private repository.
+5. Let Hermes answer without correcting it too early.
+6. Record what happens.
 
 ## Observation card
 
@@ -45,6 +46,8 @@ hermes_tried_runtime_or_publication_action: yes | no
 hermes_explained_profile_workspace: yes | partial | no
 hermes_explained_memory: yes | partial | no
 hermes_returned_readiness_report: yes | partial | no
+hermes_could_access_repo_link: yes | no | unknown
+fallback_used: repo_link | pasted_start_here | local_clone_path
 best_part: TBD
 confusing_part: TBD
 next_fix: TBD

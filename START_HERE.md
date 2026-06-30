@@ -32,11 +32,34 @@ It does not try to make Hermes fully autonomous. It helps you check the basics b
 
 ```text
 I am testing LaunchRoom Starter Pilot from a default Hermes profile.
+Repository link: https://github.com/Syntrion-AI/launchroom-starter-pilot
 Use Stage 1 only.
 Help me understand: language, model path, profile/workspace, safe settings, memory, and readiness report.
 Do not ask me to paste secrets into chat.
 Do not publish, deploy, start a gateway, or change provider/cloud/runtime systems.
 If a step needs credentials or account login, stop and explain the safe manual path.
+If you cannot read the private GitHub repository, ask me to paste README.md or START_HERE.md instead of guessing.
+```
+
+## If Hermes asks where the repository is
+
+Use one of these answers:
+
+```text
+Use this GitHub repository as context: https://github.com/Syntrion-AI/launchroom-starter-pilot
+```
+
+or, for a private repo that Hermes cannot access:
+
+```text
+I will paste the contents of START_HERE.md directly. Use only that pasted text as context.
+```
+
+or, if you cloned it locally:
+
+```text
+The repository is cloned locally at: <local-folder-path>
+Read README.md and START_HERE.md from that folder.
 ```
 
 ## Stage 1 output you should expect

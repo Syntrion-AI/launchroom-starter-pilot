@@ -29,6 +29,43 @@ If you prefer Russian, open:
 i18n/ru/START_HERE.ru.md
 ```
 
+## Important: how Hermes sees this repository
+
+Hermes does not automatically import this GitHub repository just because it exists.
+
+For the first owner test, use one of these context paths:
+
+```yaml
+option_a_browser_copy:
+  easiest: true
+  steps:
+    - open START_HERE.md in GitHub
+    - copy the pilot prompt
+    - paste it into a default Hermes profile
+
+option_b_send_repo_link:
+  steps:
+    - paste the repository link into Hermes
+    - ask Hermes to use the linked README and START_HERE as context
+  caveat: private repositories may not be readable by a default Hermes profile unless GitHub access is available
+
+option_c_local_clone:
+  most_reliable_for_private_repo: true
+  steps:
+    - clone or download this repository locally
+    - give Hermes the local folder path
+    - ask Hermes to read README.md and START_HERE.md from that path
+```
+
+Recommended first private test:
+
+```text
+Open START_HERE.md in GitHub, copy the prompt, and paste it into Hermes.
+If Hermes needs repository context, paste this link too:
+https://github.com/Syntrion-AI/launchroom-starter-pilot
+If Hermes cannot read the private link, paste the text of START_HERE.md directly.
+```
+
 ## What the user sees
 
 The user sees a simple Stage 1 path:

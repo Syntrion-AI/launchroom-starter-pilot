@@ -24,11 +24,34 @@ LaunchRoom Starter — это первый безопасный шаг для He
 
 ```text
 Я тестирую LaunchRoom Starter Pilot из default Hermes profile.
+Ссылка на репозиторий: https://github.com/Syntrion-AI/launchroom-starter-pilot
 Используй только Stage 1.
 Помоги мне понять: язык, путь к модели, профиль/workspace, безопасные настройки, память и readiness report.
 Не проси меня вставлять секреты в чат.
 Не публикуй, не деплой, не запускай gateway и не меняй provider/cloud/runtime системы.
 Если шаг требует credentials или account login, остановись и объясни безопасный ручной путь.
+Если ты не можешь прочитать private GitHub repository, попроси меня вставить README.md или START_HERE.md текстом и не угадывай содержимое.
+```
+
+## Если Hermes спрашивает, где репозиторий
+
+Ответьте одним из вариантов:
+
+```text
+Используй этот GitHub repository как контекст: https://github.com/Syntrion-AI/launchroom-starter-pilot
+```
+
+Если Hermes не может прочитать private repo:
+
+```text
+Я вставлю содержимое START_HERE.md прямо в чат. Используй только этот текст как контекст.
+```
+
+Если репозиторий склонирован локально:
+
+```text
+Репозиторий лежит локально здесь: <local-folder-path>
+Прочитай README.md и START_HERE.md из этой папки.
 ```
 
 ## Какой результат ожидать
