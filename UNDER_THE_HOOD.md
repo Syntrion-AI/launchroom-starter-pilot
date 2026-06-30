@@ -1,69 +1,42 @@
-# Under the hood
+# Under the Hood
 
-```yaml
-document_type: maintainer_and_agent_context
-canonical_language: en
-user_visible_by_default: no
-pilot_status: local_seed_not_public_release
+`public LaunchRoom test package / not AIRMIDA authority`
+
+AIRMIDA LaunchRoom is packaged as an active agentpack, not as passive documentation only.
+
+## Technical pattern
+
+```text
+source/airmida_launchroom_agentpack.v0_1.json
+-> scripts/build_agentpack.py
+-> generated active entrypoints
+-> scripts/doctor.py
+-> GitHub Actions validation
 ```
 
-## Separation rule
+## Inspired by Squad, adapted for Hermes
 
-The public beginner path must stay small.
+Adopted patterns:
 
-```yaml
-show_to_user_first:
-  - README.md
-  - START_HERE.md
-  - i18n/ru/START_HERE.ru.md when Russian is preferred
-  - DEFAULT_PROFILE_TEST.md during owner simulation
+- source-of-truth config;
+- generated active entrypoints;
+- build `--check` drift detection;
+- doctor/readiness validation;
+- repo-native agent export concept;
+- coordinator restraint;
+- state/authority/runtime separation.
 
-keep_under_the_hood:
-  - contracts
-  - validators
-  - internal strategy
-  - evidence and closeouts
-  - publication gates
-```
+Not adopted:
 
-## Why this matters
+- Copilot-specific runtime assumptions;
+- large fantasy agent roster as default UX;
+- automatic cloud/runtime mutation;
+- authority transfer from local agent state.
 
-Without this split, every correction turns into a rewrite of the whole project.
+## Stage transition invariant
 
-With this split:
+The package defines Stage 1-6, but the agent must only operate inside the active stage. The next stage unlocks only after the previous stage gate passes or the owner explicitly accepts the transition.
 
-```yaml
-user_copy_changes:
-  allowed_scope: README, START_HERE, i18n pages
-  must_not_change: contracts unless the meaning changes
+## Public safety invariant
 
-contract_changes:
-  allowed_scope: contracts and validators
-  must_not_change: user copy unless user-facing behavior changes
-
-evidence_changes:
-  allowed_scope: reports/evidence outside public first path
-  must_not_change: frozen pilot entrypoint
-```
-
-## Stage ladder
-
-```yaml
-Stage_1_Starter:
-  purpose: safe first Hermes room
-  output: readiness report
-
-Stage_2_Creator:
-  purpose: voice, media, content, comfort workflows
-  gate: only after Stage 1 readiness
-
-Stage_3_Builder:
-  purpose: bounded project work and local pilots
-  gate: workspace and tool boundaries clear
-
-Stage_4_Governed_Operator:
-  purpose: packets, gates, subagents, runtime maps, serious operations
-  gate: owner-governed runtime and verification model
-```
-
-End of UNDER_THE_HOOD.
+This public package never needs secret values. Runtime, provider, cloud, n8n, git publication, billing, or production operations require separate explicit gates outside this public test package.

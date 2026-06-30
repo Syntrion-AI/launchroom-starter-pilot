@@ -1,24 +1,8 @@
-# Local secrets and runtime state
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
 .env
 .env.*
 !.env.example
-*.pem
-*.key
-*auth*.json
-state.db
-
-# Python/cache
-__pycache__/
-*.py[cod]
-.pytest_cache/
-
-# OS/editor
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# Local Hermes/runtime artifacts that should not be committed if later created
-.hermes/
-profiles/
-auth.json
+evidence/*.json

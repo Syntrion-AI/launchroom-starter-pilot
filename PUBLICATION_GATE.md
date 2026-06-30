@@ -1,28 +1,20 @@
-# Publication gate
+# Publication Gate
 
-```yaml
-document_type: owner_gate_checklist
-pilot_status: public_zero_user_test_repo
-publication_status: granted_for_public_zero_user_test
-repository: https://github.com/Syntrion-AI/launchroom-starter-pilot
-visibility: public
-public_release_status: public_pilot_not_product_release
-```
+`public LaunchRoom test package / not AIRMIDA authority`
 
-This repository is public only for zero-user testing.
+This repository is public for real testing, but it is not a production release and not AIRMIDA authority.
 
-It is not yet a product release and does not provide a final install URL.
+Allowed in this publication:
 
-## Still blocked
+- public Stage 1-6 LaunchRoom docs;
+- public Hermes skill artifact;
+- public source/config/scripts/contracts;
+- CI validation.
 
-```yaml
-blocked_until_separate_gate:
-  - product release announcement
-  - final install URL assignment
-  - provider/runtime/gateway setup automation
-  - cloud or MCP runtime mutation
-  - collecting user secrets
-  - billing or paid-plan automation
-```
+Not authorized by this publication:
 
-End of PUBLICATION_GATE.
+- secrets;
+- runtime/cloud/provider/n8n mutation;
+- production deployment;
+- AIRMIDA authority/canon/registry mutation;
+- autonomous production agents.

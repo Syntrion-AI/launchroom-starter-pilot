@@ -1,58 +1,33 @@
-# Начните здесь
+# AIRMIDA LaunchRoom — старт для Hermes
 
-```yaml
-document_type: user_facing_entrypoint
-language: ru
-canonical_source_language: en
-pilot_status: public_zero_user_test_repo
-secrets_rule: не вставляйте секреты в чат
-```
+`public LaunchRoom test package / not AIRMIDA authority`
 
-## Скопируйте это в Hermes
+Скопируй этот блок в новую сессию Hermes:
 
 ```text
-Я новый пользователь Hermes и тестирую LaunchRoom Starter Pilot.
-Репозиторий: https://github.com/Syntrion-AI/launchroom-starter-pilot
-Оставайся только в Stage 1.
-Дай мне простой гид для новичка, не технический аудит.
-Не меняй мой профиль, настройки, workspace, файлы, skills, gateway, provider, cloud, runtime или GitHub repository.
-Не проси меня вставлять секреты в чат.
-Сначала объясни в 3 коротких шага, что мне делать дальше.
-Потом дай маленькую readiness-проверку только с полями: язык, модель, workspace, секреты, следующий шаг.
-Если ты не можешь прочитать repository URL, попроси меня вставить текст этого START_HERE.ru.md и не угадывай.
+Загрузи роль AIRMIDA LaunchRoom Guide.
+Я хочу пройти LaunchRoom Stage 1 для SaaS-проекта.
+Работай по-русски.
+Не создавай файлы, skills, projects, gateway, provider, runtime или cloud-настройки без моего отдельного разрешения.
+Не проси секреты в чат.
+Сначала дай простой ответ для новичка: 3 шага, мини-readiness и ровно одно следующее действие.
 ```
 
-## Что должно произойти
+## Что делает Stage 1
 
-Hermes должен ответить как простой помощник для новичка:
+User gets a working Hermes baseline: language, model/provider path, profile/workspace, safe settings buckets, first communication channel choice, and readiness report.
 
-```text
-1. Подтвердить язык.
-2. Подтвердить, что модель уже отвечает.
-3. Помочь выбрать или оставить простой workspace.
-```
+## Gate Stage 1
 
-Потом Hermes должен дать маленький результат:
+- language selected
+- model/provider path explained: subscription or API key without secret readback
+- profile/workspace decision selected or consciously deferred
+- settings explained as safe buckets, not raw technical dump
+- first channel selected or deferred: Telegram/Discord/Slack/Gmail/Email/WhatsApp where supported
+- readiness report produced with one next action
 
-```yaml
-language: selected | needs_choice
-model: working | needs_setup | unknown
-workspace: keep_current | choose_simple_folder | unknown
-secrets: no_secrets_in_chat
-next_action: one simple action
-```
+Если gate не выполнен, агент НЕ должен переводить тебя на Stage 2. Он должен сказать, что заблокировано, и дать одно безопасное следующее действие.
 
-## Остановите тест, если Hermes делает это
+## После Stage 1
 
-```yaml
-stop_if:
-  - сам меняет настройки
-  - сам создаёт или переключает projects
-  - сам создаёт файлы
-  - создаёт или патчит skills
-  - запускает gateway/cloud/runtime/provider setup
-  - просит секреты в чат
-  - выдаёт длинный технический аудит вместо простого гайда
-```
-
-End of Russian START_HERE.
+Переход к Stage 2 разрешён только после `STAGE_1_READINESS_REPORT` со статусом `pass`, `pass_with_owner_acceptance` или явным owner acceptance.

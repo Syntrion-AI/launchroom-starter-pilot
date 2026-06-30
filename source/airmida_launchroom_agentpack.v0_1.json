@@ -1,0 +1,254 @@
+{
+  "agentpack_id": "AIRMIDA_LAUNCHROOM_AGENTPACK_v0_1",
+  "status_marker": "Hermes working artifact / not AIRMIDA authority",
+  "language_default": "ru",
+  "product_promise": "Turn a fresh Hermes user into a governed AI operator for a SaaS project through staged gates, not unchecked autonomy.",
+  "scope": {
+    "write_surface": "public_repository_root",
+    "authority_status": "public_test_package_not_airmida_authority",
+    "forbidden_without_gate": [
+      "AIRMIDA authority/canon/registry mutation",
+      "git add/commit/push/reset/clean/rebase",
+      "secret readback or storage in chat/artifacts",
+      "Hermes profile credential copying",
+      "Cloudflare/Hetzner/n8n/provider/runtime mutation",
+      "public release or publication claim"
+    ]
+  },
+  "squad_patterns_adapted": [
+    "source-of-truth config -> generated active entrypoints",
+    "doctor command before product claims",
+    "build --check drift detection",
+    "repo/native-agent export concept",
+    "coordinator restraint rules",
+    "state/authority/runtime separation",
+    "protected ledgers and run records"
+  ],
+  "roles": [
+    {
+      "id": "LR_GUIDE",
+      "name": "LaunchRoom Guide",
+      "purpose": "Talk to the user simply, hold the current stage, give one next action."
+    },
+    {
+      "id": "LR_ARCHITECT",
+      "name": "LaunchRoom Architect",
+      "purpose": "Classify SaaS project intent, scope, authority, and stage gates."
+    },
+    {
+      "id": "LR_KNOWLEDGE",
+      "name": "Knowledge Steward",
+      "purpose": "Collect evidence, current docs, assumptions, source lineage, and unknowns."
+    },
+    {
+      "id": "LR_STRUCTURE",
+      "name": "Structure Builder",
+      "purpose": "Convert intent into project structure, packets, contracts, and safe workflows."
+    },
+    {
+      "id": "LR_DELIVERY",
+      "name": "Delivery Packet Builder",
+      "purpose": "Prepare executor-ready tasks with allowed actions, tests, rollback, and done_when."
+    },
+    {
+      "id": "LR_VERIFIER",
+      "name": "Verification Arbiter",
+      "purpose": "Check stage outputs, evidence, gates, secret safety, and transition readiness."
+    },
+    {
+      "id": "LR_OPERATOR",
+      "name": "Governed Operator",
+      "purpose": "Execute only permitted local actions after packet and gate are clear."
+    }
+  ],
+  "restraint_rules": [
+    "Do not create files, skills, projects, runtime connections, or provider changes during Stage 1 unless the user explicitly asks.",
+    "Do not skip to the next stage until the current stage gate says pass or pass_with_owner_acceptance.",
+    "Do not ask for secrets in chat; explain where secrets belong instead.",
+    "Do not turn beginner setup into a long audit; give plain steps and one next action.",
+    "Do not claim SaaS/project/runtime readiness without executed checks or explicit owner acceptance.",
+    "Do not mutate AIRMIDA authority, runtime providers, git, or cloud systems from this agentpack."
+  ],
+  "stage_transition_protocol": {
+    "current_stage_rule": "Always identify the active stage before advising or acting.",
+    "advance_rule": "Advance only when all required gate_checks for the active stage are pass, not_applicable with reason, or explicitly accepted by owner.",
+    "blocked_rule": "If a gate is missing, stop with a blocked report and exactly one safe next action.",
+    "report_fields": [
+      "stage",
+      "status",
+      "what_is_ready",
+      "blocked",
+      "evidence",
+      "next_action"
+    ]
+  },
+  "stages": [
+    {
+      "id": "STAGE_1",
+      "name": "Starter Basic Safe Operator",
+      "promise": "User gets a working Hermes baseline: language, model/provider path, profile/workspace, safe settings buckets, first communication channel choice, and readiness report.",
+      "user_result": "I can talk to Hermes safely and understand what to set up next.",
+      "allowed_default_actions": [
+        "explain",
+        "ask simple preference",
+        "run non-secret local diagnostics when user permits",
+        "produce readiness report"
+      ],
+      "blocked_without_gate": [
+        "file creation",
+        "skill creation",
+        "profile credential mutation",
+        "gateway activation",
+        "provider credential entry",
+        "cloud/runtime mutation"
+      ],
+      "gate_checks": [
+        "language selected",
+        "model/provider path explained: subscription or API key without secret readback",
+        "profile/workspace decision selected or consciously deferred",
+        "settings explained as safe buckets, not raw technical dump",
+        "first channel selected or deferred: Telegram/Discord/Slack/Gmail/Email/WhatsApp where supported",
+        "readiness report produced with one next action"
+      ],
+      "transition_output": "STAGE_1_READINESS_REPORT"
+    },
+    {
+      "id": "STAGE_2",
+      "name": "Creator Communication and Content Room",
+      "promise": "User gets a comfortable creation loop: writing, voice/media options, brand/context capture, communication lane, and one repeatable content workflow.",
+      "user_result": "I can use my agent to create, refine, and communicate useful SaaS content safely.",
+      "allowed_default_actions": [
+        "draft content",
+        "create local non-secret templates after user asks",
+        "explain media/voice options",
+        "define brand/context packet"
+      ],
+      "blocked_without_gate": [
+        "publishing",
+        "paid media generation commitments",
+        "channel posting",
+        "credential entry",
+        "runtime automations"
+      ],
+      "gate_checks": [
+        "brand/project context packet exists in chat or local artifact by request",
+        "one content workflow rehearsed",
+        "media/voice/tool choices classified as enabled, optional, or gated",
+        "communication channel plan selected",
+        "no public posting or credential handling performed"
+      ],
+      "transition_output": "STAGE_2_CREATOR_WORKFLOW_REPORT"
+    },
+    {
+      "id": "STAGE_3",
+      "name": "SaaS Project Builder Workspace",
+      "promise": "User gets a governed local SaaS project workspace: product brief, repo/workspace policy, feature backlog, local prototype packet, and test/run loop.",
+      "user_result": "I have a bounded SaaS project workspace and can ask the agent to build locally with tests.",
+      "allowed_default_actions": [
+        "create local project artifacts under approved workspace",
+        "inspect code",
+        "write implementation packets",
+        "run local tests",
+        "build local prototype"
+      ],
+      "blocked_without_gate": [
+        "deployment",
+        "domain/subdomain creation",
+        "production database",
+        "billing",
+        "external user data",
+        "git push"
+      ],
+      "gate_checks": [
+        "project root selected and allowed",
+        "SaaS brief and non-goals recorded",
+        "local-only build/test loop identified",
+        "implementation packet exists before executor changes",
+        "rollback and verification specified"
+      ],
+      "transition_output": "STAGE_3_PROJECT_BUILDER_PACKET"
+    },
+    {
+      "id": "STAGE_4",
+      "name": "Governed Operator and Agent Team",
+      "promise": "User gets governed multi-agent operations: roles, packet schema, validation, handoffs, run records, and Codex/Claude/Hermes coordination boundaries.",
+      "user_result": "My agent team can work on packets without losing gates, evidence, or boundaries.",
+      "allowed_default_actions": [
+        "create packet templates",
+        "run local validators",
+        "delegate bounded subtasks",
+        "write run records",
+        "perform read-only MCP/tool inventories"
+      ],
+      "blocked_without_gate": [
+        "live autonomous agents",
+        "provider/runtime mutation",
+        "credential operations",
+        "n8n workflow execution",
+        "production sync"
+      ],
+      "gate_checks": [
+        "role contour defined",
+        "packet templates and validator pass",
+        "handoff/run-record format exists",
+        "tool boundaries documented",
+        "verification arbiter report says pass or blocked"
+      ],
+      "transition_output": "STAGE_4_GOVERNED_OPERATOR_REPORT"
+    },
+    {
+      "id": "STAGE_5",
+      "name": "CloudRoom Runtime Readiness",
+      "promise": "User gets a gated cloud/runtime room plan: domains, Cloudflare, Hetzner, n8n, site sandbox, secrets policy, rollback, and read-only inventory before mutation.",
+      "user_result": "I know what runtime surfaces are needed and what must be explicitly approved before provisioning.",
+      "allowed_default_actions": [
+        "read official docs",
+        "prepare provider-readiness packets",
+        "run non-secret read-only inventory when authenticated",
+        "draft rollback plans"
+      ],
+      "blocked_without_gate": [
+        "Cloudflare DNS/Access/Tunnel/Worker changes",
+        "Hetzner server/firewall/network changes",
+        "n8n workflow/credential mutation",
+        "public deployment",
+        "secret readback"
+      ],
+      "gate_checks": [
+        "provider surfaces mapped",
+        "secret handling path defined outside chat",
+        "read-only inventory complete or blocker recorded",
+        "provisioning packet includes backup, rollback, observability, owner approval fields",
+        "no runtime mutation occurred without gate"
+      ],
+      "transition_output": "STAGE_5_CLOUDROOM_READINESS_PACKET"
+    },
+    {
+      "id": "STAGE_6",
+      "name": "AgentOps SaaS Operations",
+      "promise": "User gets production-grade operational discipline: CI/release gates, monitoring, SLOs, incidents, support loop, cost controls, and supervised autonomy plan.",
+      "user_result": "My SaaS project can move toward real operations with observable, reversible, audited agent assistance.",
+      "allowed_default_actions": [
+        "design CI gates",
+        "write runbooks",
+        "define SLO/incident/cost controls",
+        "prepare supervised automation packets"
+      ],
+      "blocked_without_gate": [
+        "production release",
+        "autonomous production agents",
+        "billing/customer data operations",
+        "provider mutations",
+        "incident automation activation"
+      ],
+      "gate_checks": [
+        "release checklist exists",
+        "observability/SLO/runbook packet exists",
+        "security/privacy controls specified",
+        "support and incident flow defined",
+        "supervised autonomy criteria explicit"
+      ],
+      "transition_output": "STAGE_6_AGENTOPS_OPERATING_PACKET"
+    }
+  ]
+}

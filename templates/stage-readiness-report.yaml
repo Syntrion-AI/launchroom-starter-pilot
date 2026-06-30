@@ -1,0 +1,10 @@
+stage: STAGE_1
+status: not_started
+what_is_ready: []
+blocked: []
+evidence: []
+next_action: exactly_one_safe_next_action
+forbidden_actions_preserved:
+  - secret_readback
+  - runtime_provider_mutation_without_gate
+  - git_publication_without_gate

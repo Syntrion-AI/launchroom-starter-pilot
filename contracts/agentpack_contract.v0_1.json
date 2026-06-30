@@ -1,0 +1,36 @@
+{
+  "agentpack_id": "AIRMIDA_LAUNCHROOM_AGENTPACK_v0_1",
+  "publication_status": "public_test_package",
+  "status_marker": "public LaunchRoom test package / not AIRMIDA authority",
+  "stage_count": 6,
+  "required_generated_files": [
+    "START_HERE_RU.md",
+    "SKILL.md",
+    "INSTALL_RU.md",
+    "generated/START_HERE_RU.md",
+    "generated/HERMES_SKILL.md",
+    "generated/STAGE_MAP_RU.md",
+    "generated/github-agents/airmida-launchroom.agent.md"
+  ],
+  "blocked_without_gate": [
+    "AIRMIDA authority/canon/registry mutation",
+    "git add/commit/push/reset/clean/rebase",
+    "secret readback or storage in chat/artifacts",
+    "Hermes profile credential copying",
+    "Cloudflare/Hetzner/n8n/provider/runtime mutation",
+    "public release or publication claim"
+  ],
+  "transition_protocol": {
+    "current_stage_rule": "Always identify the active stage before advising or acting.",
+    "advance_rule": "Advance only when all required gate_checks for the active stage are pass, not_applicable with reason, or explicitly accepted by owner.",
+    "blocked_rule": "If a gate is missing, stop with a blocked report and exactly one safe next action.",
+    "report_fields": [
+      "stage",
+      "status",
+      "what_is_ready",
+      "blocked",
+      "evidence",
+      "next_action"
+    ]
+  }
+}

@@ -1,77 +1,78 @@
-# LaunchRoom Starter Pilot
+# AIRMIDA LaunchRoom
 
-```yaml
-authority_status: pilot repo candidate / not AIRMIDA authority
-pilot_status: public_zero_user_test_repo
-public_release_status: public_pilot_not_product_release
-canonical_language: en
-secrets_rule: no secrets, tokens, private keys, OAuth values, credential values, connection strings, or private runtime identifiers belong in this repository
-```
+`public LaunchRoom test package / not AIRMIDA authority`
 
-LaunchRoom Starter Pilot is a first-run Stage 1 skill for Hermes Agent.
+AIRMIDA LaunchRoom is a staged Hermes Agent package for turning a fresh AI-agent user into a governed operator for a SaaS project.
+
+This is a **public testing package**, not a production release and not AIRMIDA authority.
 
 ## Start here
 
-Russian guide:
+If you use Hermes Agent, start with:
 
 ```text
-INSTALL_RU.md
+START_HERE_RU.md
 ```
 
-Install command:
+Or install the active skill from this repository:
 
 ```bash
 hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md --yes
 ```
 
-Current direct-URL install name is:
+Then open a new Hermes session and load the installed skill. If Hermes installs direct raw URLs under a branch-derived name, use the name shown by `hermes skills list`.
 
 ```text
-main
+/skill launchroom-starter-pilot
+Я хочу пройти LaunchRoom Stage 1 для SaaS-проекта.
 ```
 
-Then in a new Hermes session:
+Fallback if the skill name differs:
 
 ```text
 /skill main
-Я новый пользователь Hermes. Запусти LaunchRoom Stage 1.
+Я хочу пройти LaunchRoom Stage 1 для SaaS-проекта.
 ```
 
-## Why the link-only test failed
+## What this repo contains
 
-A GitHub link is just context. It does not automatically become an active Hermes instruction.
+- `SKILL.md` — active Hermes skill for the LaunchRoom guide.
+- `START_HERE_RU.md` — paste-first Russian beginner entrypoint.
+- `INSTALL_RU.md` — install/use instructions.
+- `generated/` — generated active entrypoints and stage map.
+- `source/airmida_launchroom_agentpack.v0_1.json` — source of truth.
+- `scripts/build_agentpack.py` — regenerates active files and supports `--check`.
+- `scripts/doctor.py` — validates the public package.
+- `.github/workflows/validate.yml` — public CI validation.
 
-A fresh Hermes profile needs one of these:
+## Stage ladder
+
+| Stage | Name | Unlocks | Gate output |
+|---|---|---|---|
+| STAGE_1 | Starter Basic Safe Operator | I can talk to Hermes safely and understand what to set up next. | `STAGE_1_READINESS_REPORT` |
+| STAGE_2 | Creator Communication and Content Room | I can use my agent to create, refine, and communicate useful SaaS content safely. | `STAGE_2_CREATOR_WORKFLOW_REPORT` |
+| STAGE_3 | SaaS Project Builder Workspace | I have a bounded SaaS project workspace and can ask the agent to build locally with tests. | `STAGE_3_PROJECT_BUILDER_PACKET` |
+| STAGE_4 | Governed Operator and Agent Team | My agent team can work on packets without losing gates, evidence, or boundaries. | `STAGE_4_GOVERNED_OPERATOR_REPORT` |
+| STAGE_5 | CloudRoom Runtime Readiness | I know what runtime surfaces are needed and what must be explicitly approved before provisioning. | `STAGE_5_CLOUDROOM_READINESS_PACKET` |
+| STAGE_6 | AgentOps SaaS Operations | My SaaS project can move toward real operations with observable, reversible, audited agent assistance. | `STAGE_6_AGENTOPS_OPERATING_PACKET` |
+
+## Safety boundary
+
+LaunchRoom does **not** ask for secrets in chat. It does **not** mutate cloud/runtime/provider/n8n/git/authority surfaces without separate explicit gates. Stage 5 and Stage 6 are readiness and operations design stages until an owner separately authorizes live action.
+
+## Validate locally
+
+```bash
+python scripts/build_agentpack.py --check
+python scripts/doctor.py
+```
+
+## Publication status
 
 ```yaml
-best_available_now: install SKILL.md as a Hermes skill, then load /skill main
-acceptable_fallback: paste SKILL.md text into chat as active instruction
-weak: paste only the repository link and hope the model reads the right files
+repo: Syntrion-AI/launchroom-starter-pilot
+visibility: public
+status: public_test_package
+not_authority: true
+not_production_release: true
 ```
-
-## What Stage 1 should do
-
-```yaml
-expected_user_experience:
-  - short welcome
-  - language confirmation
-  - model works because Hermes is answering
-  - no automatic settings/profile/workspace changes
-  - no file creation unless user asks
-  - no skill creation or self-improvement during beginner test
-  - no gateway/cloud/provider/runtime setup
-  - tiny readiness check
-  - one next action
-```
-
-## Known pilot issue
-
-```yaml
-known_issue:
-  direct_url_skill_install_name: main
-  desired_name: launchroom-starter-pilot
-  reason: current Hermes URL installer derives install name from branch/path shape
-  workaround: load /skill main after install
-```
-
-End of README.
