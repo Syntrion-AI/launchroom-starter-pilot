@@ -10,42 +10,42 @@ secrets_rule: no secrets, tokens, private keys, OAuth values, credential values,
 
 LaunchRoom Starter Pilot is a first-run Stage 1 skill for Hermes Agent.
 
-The important part is not browsing this repository. The important part is loading the skill:
-
-```text
-SKILL.md
-```
-
 ## Start here
 
-Russian:
+Russian guide:
 
 ```text
 INSTALL_RU.md
 ```
 
-English quick path:
+Install command:
+
+```bash
+hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md --yes
+```
+
+Current direct-URL install name is:
 
 ```text
-hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md
+main
 ```
 
 Then in a new Hermes session:
 
 ```text
-/skill launchroom-starter-pilot
-I am a new Hermes user. Start LaunchRoom Stage 1.
+/skill main
+Я новый пользователь Hermes. Запусти LaunchRoom Stage 1.
 ```
 
-## Why the previous link-only test failed
+## Why the link-only test failed
 
 A GitHub link is just context. It does not automatically become an active Hermes instruction.
 
 A fresh Hermes profile needs one of these:
 
 ```yaml
-best: install SKILL.md as a Hermes skill
-acceptable: paste SKILL.md text into chat as active instruction
+best_available_now: install SKILL.md as a Hermes skill, then load /skill main
+acceptable_fallback: paste SKILL.md text into chat as active instruction
 weak: paste only the repository link and hope the model reads the right files
 ```
 
@@ -64,33 +64,14 @@ expected_user_experience:
   - one next action
 ```
 
-## What this pilot must not do
+## Known pilot issue
 
 ```yaml
-must_not_do:
-  - ask for secrets in chat
-  - change Hermes global settings automatically
-  - change Hermes profile settings automatically
-  - create or clone Hermes profiles automatically
-  - switch workspace/project automatically
-  - create local files unless the user explicitly asks
-  - create or patch skills during the beginner test
-  - start gateway setup
-  - connect cloud or runtime services
-  - publish or deploy anything
-```
-
-## Maintainer files
-
-```text
-SKILL.md
-START_HERE.md
-START_HERE_RU.md
-INSTALL_RU.md
-DEFAULT_PROFILE_TEST.md
-UNDER_THE_HOOD.md
-contracts/
-scripts/validate_pilot_seed.py
+known_issue:
+  direct_url_skill_install_name: main
+  desired_name: launchroom-starter-pilot
+  reason: current Hermes URL installer derives install name from branch/path shape
+  workaround: load /skill main after install
 ```
 
 End of README.

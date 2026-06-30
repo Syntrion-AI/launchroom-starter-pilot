@@ -7,31 +7,32 @@ pilot_status: public_zero_user_test_repo
 secrets_rule: не вставляйте секреты в чат
 ```
 
-## Важное исправление
+## Главный вывод
 
-Просто дать Hermes ссылку на GitHub репозиторий недостаточно.
+Не начинайте с простой ссылки на репозиторий.
 
-Чтобы LaunchRoom реально заработал как сценарий, нужно загрузить `SKILL.md`.
-
-## Лучший тест
-
-Откройте:
+Сначала откройте:
 
 ```text
 INSTALL_RU.md
 ```
 
-И следуйте установке skill.
+И установите skill.
 
-## Быстрый fallback без установки
+## Быстрый путь
 
-Если вы не хотите устанавливать skill, откройте `SKILL.md`, скопируйте его целиком и вставьте в Hermes с сообщением:
+```bash
+hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md --yes
+```
+
+Потом в новой сессии Hermes:
 
 ```text
-Используй этот SKILL.md как активную инструкцию для LaunchRoom Stage 1.
-Я новый пользователь Hermes.
-Оставайся только в Stage 1.
+/skill main
+Я новый пользователь Hermes. Запусти LaunchRoom Stage 1.
 ```
+
+Да, сейчас skill загружается как `/skill main`. Это известная проблема пилота и будет исправляться упаковкой/registry path позже.
 
 ## Что должен ответить Hermes
 
