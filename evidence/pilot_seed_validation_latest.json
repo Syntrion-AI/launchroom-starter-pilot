@@ -1,7 +1,7 @@
 {
   "status": "pass",
   "root": "D:/AIRMIDA_CORE/.hermes/launchroom-incubator/pilots/pilot-001-default-profile-repo-seed/repo-candidate",
-  "files_scanned": 11,
+  "files_scanned": 12,
   "missing": [],
   "yaml_errors": [],
   "secret_hits": [],
@@ -9,15 +9,16 @@
   "concept_missing": [],
   "hashes": {
     "UNDER_THE_HOOD.md": "6adb5c36dc3db76b36639b738e6fdd6d7d3cca7eda9925fd9beac66eafcc2f79",
-    "README.md": "3a113ce1a4b75ca05fe0725d03d458d1826740df4fd0ac47a97beabc54ebc70a",
     "START_HERE.md": "e2ebeb4d0ff026fc92d82771d164ac54267c59293126f1b99c474105a80a5971",
-    "DEFAULT_PROFILE_TEST.md": "3f72b8c43408fb90950496e8900d95163844e73039b9935f88b89ac2335fbd57",
     "PUBLICATION_GATE.md": "b8af6eb3a2a3aaa2a3eb3c32ebebc1747aa8b975ad8e6c830f9c71ed5295dcef",
+    "START_HERE_RU.md": "8159189afa19371ab0bf15ce22885026ee35ddb77ee1dae81a3c287ab43e5bb4",
+    "README.md": "958eb67797b8e5cac352ad7cc3ddca98996e9ad7d0ade6c71f28bead430abf40",
+    "DEFAULT_PROFILE_TEST.md": "b107f347c6e84eafc77e427e38d3850cd1214ce94511872e809bb4cbd178d01f",
     "i18n/ru/START_HERE.ru.md": "8159189afa19371ab0bf15ce22885026ee35ddb77ee1dae81a3c287ab43e5bb4",
     "contracts/stage1-language-policy.yaml": "eece5c231c8c4cd5f267c05cd555e5120ed88ab7fa34d4c89a76654bbbb26b0e",
     "contracts/stage1-memory-policy.yaml": "95ec6fdec55a5e6fb6b52898d849ae890bc726de8f9374cacd5591815c3ba5d0",
     "contracts/stage1-profile-scope.yaml": "b01cb559f939664402e680d860094a1343e4a2a0ce4c343d8bc2ef05b7b8b80c",
     "contracts/stage1-machine-contract.yaml": "fe3c85e283268ee2dd132a26c16fced6fed7cb49d1b3d4af6600b7e91eba2ab6",
-    "scripts/validate_pilot_seed.py": "1417a4764bbc163a49e34e6a39c6cea6e80c8f170ba583442c587eab3311e848"
+    "scripts/validate_pilot_seed.py": "f71995d13c070a69ef3e58d031703a36a44804e0d0a43b89e8f10812f4ebea0f"
   }
 }

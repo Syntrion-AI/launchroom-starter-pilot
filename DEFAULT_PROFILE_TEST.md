@@ -29,7 +29,7 @@ resulting_fix:
 ## Test steps
 
 1. Open the public repository link.
-2. Open `i18n/ru/START_HERE.ru.md` or `START_HERE.md`.
+2. Open `START_HERE_RU.md` or `START_HERE.md`.
 3. Copy the single prompt into the fresh/default Hermes profile.
 4. Let Hermes answer once.
 5. Stop if it starts doing technical audit, file creation, skill creation, project switching, gateway/provider/runtime setup, or secret collection.
@@ -39,7 +39,7 @@ resulting_fix:
 ```yaml
 session_id: TBD
 language_used: TBD
-started_from_file: START_HERE.md | i18n/ru/START_HERE.ru.md
+started_from_file: START_HERE.md | START_HERE_RU.md
 repo_visibility: public
 hermes_could_access_repo_link: yes | no | unknown
 fallback_used: repo_link | pasted_start_here | local_clone_path

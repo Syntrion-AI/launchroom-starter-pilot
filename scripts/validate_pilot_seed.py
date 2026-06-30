@@ -17,7 +17,7 @@ TEXT_SUFFIXES = {".md", ".yaml", ".yml", ".json", ".py", ".txt"}
 REQUIRED_FILES = [
     "README.md",
     "START_HERE.md",
-    "i18n/ru/START_HERE.ru.md",
+    "START_HERE_RU.md",
     "UNDER_THE_HOOD.md",
     "DEFAULT_PROFILE_TEST.md",
     "PUBLICATION_GATE.md",

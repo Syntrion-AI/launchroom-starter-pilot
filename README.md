@@ -27,7 +27,7 @@ START_HERE.md
 If you speak Russian, open:
 
 ```text
-i18n/ru/START_HERE.ru.md
+START_HERE_RU.md
 ```
 
 Then copy the single prompt from that file into Hermes.
@@ -36,7 +36,7 @@ Then copy the single prompt from that file into Hermes.
 
 Hermes can read this repository only if its web/GitHub access works. This repository is public, so a fresh Hermes profile should be able to open it by URL.
 
-If Hermes still cannot open the URL, paste the text of `START_HERE.md` or `i18n/ru/START_HERE.ru.md` directly into chat.
+If Hermes still cannot open the URL, paste the text of `START_HERE.md` or `START_HERE_RU.md` directly into chat.
 
 ## What the user should experience
 
