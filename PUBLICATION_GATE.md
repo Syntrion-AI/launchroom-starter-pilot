@@ -2,55 +2,27 @@
 
 ```yaml
 document_type: owner_gate_checklist
-pilot_status: private_pilot_repo_for_owner_test
-publication_status: granted_for_private_owner_test
+pilot_status: public_zero_user_test_repo
+publication_status: granted_for_public_zero_user_test
 repository: https://github.com/Syntrion-AI/launchroom-starter-pilot
-visibility: private
-public_release_status: not_public_release
+visibility: public
+public_release_status: public_pilot_not_product_release
 ```
 
-This repo candidate has been published as a private owner-test repository. Public release, public install URL, provider/runtime setup, and broader distribution remain blocked until a separate owner gate.
+This repository is public only for zero-user testing.
 
-## Owner decisions required
+It is not yet a product release and does not provide a final install URL.
+
+## Still blocked
 
 ```yaml
-required_decisions:
-  repo_name: TBD
-  visibility: public | private
-  organization_or_user_account: TBD
-  include_only_repo_candidate: true
-  exclude_internal_evidence: true
-  allow_remote_publication_actions: yes | no
-```
-
-## Pre-publication checks
-
-```yaml
-must_pass:
-  - python scripts/validate_pilot_seed.py --root . --out evidence/pilot_seed_validation_latest.json
-  - no secret hits
-  - no unguarded runtime or remote publication wording
-  - no internal AIRMIDA evidence folders
-  - README and START_HERE are present
-  - English and Russian first-contact pages are present
-  - contracts are present
-```
-
-## Files to publish
-
-Publish only the contents of:
-
-```text
-repo-candidate/
-```
-
-Do not publish:
-
-```text
-../PILOT_001_STRATEGY_AND_SCOPE_v0_1.md
-../evidence from AIRMIDA incubator
-../starter productization reports
-../private workspace artifacts
+blocked_until_separate_gate:
+  - product release announcement
+  - final install URL assignment
+  - provider/runtime/gateway setup automation
+  - cloud or MCP runtime mutation
+  - collecting user secrets
+  - billing or paid-plan automation
 ```
 
 End of PUBLICATION_GATE.

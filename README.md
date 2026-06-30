@@ -2,134 +2,91 @@
 
 ```yaml
 authority_status: pilot repo candidate / not AIRMIDA authority
-pilot_status: private_pilot_repo_for_owner_test
+pilot_status: public_zero_user_test_repo
+public_release_status: public_pilot_not_product_release
 canonical_language: en
 secrets_rule: no secrets, tokens, private keys, OAuth values, credential values, connection strings, or private runtime identifiers belong in this repository
 ```
 
-LaunchRoom Starter Pilot is a small first-run test for Hermes Agent.
+LaunchRoom Starter Pilot is a small public test for a fresh Hermes user.
 
-It helps a new user answer one question:
+It should answer one simple question:
 
 ```text
-Can I turn a fresh or default Hermes profile into a safe first working room without mixing secrets, cloud, publishing, and advanced automation?
+Can a new Hermes user get a safe first working room without learning GitHub, agents, cloud, or advanced automation first?
 ```
 
-## Start here
+## Start in 30 seconds
 
-Open:
+If you speak English, open:
 
 ```text
 START_HERE.md
 ```
 
-If you prefer Russian, open:
+If you speak Russian, open:
 
 ```text
 i18n/ru/START_HERE.ru.md
 ```
 
-## Important: how Hermes sees this repository
+Then copy the single prompt from that file into Hermes.
 
-Hermes does not automatically import this GitHub repository just because it exists.
+## Important
 
-For the first owner test, use one of these context paths:
+Hermes can read this repository only if its web/GitHub access works. This repository is public, so a fresh Hermes profile should be able to open it by URL.
 
-```yaml
-option_a_browser_copy:
-  easiest: true
-  steps:
-    - open START_HERE.md in GitHub
-    - copy the pilot prompt
-    - paste it into a default Hermes profile
+If Hermes still cannot open the URL, paste the text of `START_HERE.md` or `i18n/ru/START_HERE.ru.md` directly into chat.
 
-option_b_send_repo_link:
-  steps:
-    - paste the repository link into Hermes
-    - ask Hermes to use the linked README and START_HERE as context
-  caveat: private repositories may not be readable by a default Hermes profile unless GitHub access is available
-
-option_c_local_clone:
-  most_reliable_for_private_repo: true
-  steps:
-    - clone or download this repository locally
-    - give Hermes the local folder path
-    - ask Hermes to read README.md and START_HERE.md from that path
-```
-
-Recommended first private test:
-
-```text
-Open START_HERE.md in GitHub, copy the prompt, and paste it into Hermes.
-If Hermes needs repository context, paste this link too:
-https://github.com/Syntrion-AI/launchroom-starter-pilot
-If Hermes cannot read the private link, paste the text of START_HERE.md directly.
-```
-
-## What the user sees
-
-The user sees a simple Stage 1 path:
+## What the user should experience
 
 ```yaml
-Stage_1:
-  - choose language
-  - understand model path
-  - understand profile and workspace
-  - understand where secrets belong
-  - run or simulate a readiness check
-  - receive one next action
+expected_user_experience:
+  - a short welcome
+  - language confirmation
+  - one simple explanation of Stage 1
+  - no secret request in chat
+  - no automatic profile/config/workspace changes
+  - no gateway/cloud/provider/runtime setup
+  - a tiny readiness result
+  - one next action
 ```
 
-## What stays under the hood
-
-Maintainers and Hermes Agent use:
+## What this pilot must not do
 
 ```yaml
-under_the_hood:
-  - UNDER_THE_HOOD.md
-  - contracts/stage1-machine-contract.yaml
-  - contracts/stage1-language-policy.yaml
-  - contracts/stage1-memory-policy.yaml
-  - contracts/stage1-profile-scope.yaml
-  - scripts/validate_pilot_seed.py
-```
-
-## What this pilot will not do
-
-```yaml
-blocked_in_pilot:
+must_not_do:
   - ask for secrets in chat
-  - change Hermes global settings
+  - change Hermes global settings automatically
   - change Hermes profile settings automatically
-  - create or clone profiles automatically
-  - start messaging gateway setup
+  - create or clone Hermes profiles automatically
+  - switch workspace/project automatically
+  - create local files unless the user explicitly asks
+  - create or patch skills during the beginner test
+  - start gateway setup
   - connect cloud or runtime services
   - publish or deploy anything
 ```
 
-## Default-profile simulation
+## For maintainers only
 
-The intended first test is:
-
-```text
-1. Publish or open this repo candidate.
-2. Open it from a default Hermes profile.
-3. Use START_HERE.md as the first user-facing entrypoint.
-4. Record what was clear and what failed.
-```
-
-See:
+Under-the-hood contracts and validators are kept in:
 
 ```text
+UNDER_THE_HOOD.md
+contracts/
+scripts/validate_pilot_seed.py
 DEFAULT_PROFILE_TEST.md
 ```
 
-## Pilot repository
+A beginner should not need to read those first.
+
+## Repository
 
 ```yaml
 repository: https://github.com/Syntrion-AI/launchroom-starter-pilot
-visibility: private
-public_release_status: not_public_release
+visibility: public
+public_release_status: public_pilot_not_product_release
 ```
 
 End of README.

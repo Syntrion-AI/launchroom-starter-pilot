@@ -1,20 +1,24 @@
-contract_id: launchroom_stage1_machine_contract_v0_1
-status: pilot
+contract_id: launchroom_stage1_machine_contract_v0_2
+status: public_pilot
 canonical_language: en
 authority_status: pilot repo candidate / not AIRMIDA authority
 secrets_rule: no secrets, tokens, private keys, OAuth values, credential values, connection strings, or private runtime identifiers belong in this contract
 
 stage: Stage_1_Starter
-purpose: Turn a fresh or default Hermes profile into a safe first working room.
+purpose: Give a fresh Hermes user a simple first working-room guide without advanced automation.
+
+beginner_response_style:
+  max_first_answer_steps: 3
+  avoid_technical_audit_first: true
+  ask_at_most_one_question: true
+  explain_before_action: true
 
 required_user_visible_outputs:
   - language_choice_or_confirmation
   - model_path_status
-  - profile_and_workspace_status
+  - workspace_choice_or_confirmation
   - secret_handling_rule
-  - memory_explanation
-  - basic_settings_summary
-  - readiness_report
+  - tiny_readiness_result
   - one_next_action
 
 must_not_do:
@@ -22,32 +26,26 @@ must_not_do:
   - mutate_global_settings_automatically
   - mutate_profile_settings_automatically
   - create_or_clone_profiles_automatically
+  - switch_project_or_workspace_automatically
+  - create_files_without_explicit_user_request
+  - create_or_patch_skills_during_beginner_test
   - start_gateway_setup_automatically
   - mutate_provider_runtime_cloud_or_mcp_surfaces
   - perform_remote_publication_actions
 
 readiness_status_values:
   allowed:
-    - ready
+    - working
     - needs_setup
-    - needs_review
-    - blocked_by_gate
+    - keep_current
+    - choose_simple_folder
+    - no_secrets_in_chat
     - unknown
-
-next_stage_values:
-  allowed:
-    - Stage_1_continue
-    - Stage_2_Creator_candidate
-    - Stage_3_Builder_candidate
-    - Stage_4_Governed_Operator_candidate
-    - blocked
+    - blocked_by_gate
 
 minimum_readiness_report_shape:
   language: selected | needs_choice
-  model_path: connected | needs_setup | unknown
-  profile: default_profile_test | selected | needs_review
-  workspace: selected | needs_review
+  model: working | needs_setup | unknown
+  workspace: keep_current | choose_simple_folder | unknown
   secrets: no_secrets_in_chat
-  memory: explained | needs_review
-  settings: basic_safe | needs_review
-  next_action: one concrete action
+  next_action: one simple action
