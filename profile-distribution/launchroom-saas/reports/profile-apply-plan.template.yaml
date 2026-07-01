@@ -1,0 +1,40 @@
+artifact_id: LAUNCHROOM_PROFILE_APPLY_PLAN_TEMPLATE_v0_1
+artifact_type: profile_apply_plan_template
+status: template
+stage: stage_1_profile_foundation
+
+profile:
+  name: __LAUNCHROOM_RESOLVE__PROFILE_NAME
+  profile_path: __LAUNCHROOM_RESOLVE__PROFILE_PATH
+
+apply_plan:
+  config_yaml:
+    source: profile-distribution/launchroom-saas/config.yaml.template
+    target: <profile_home>/config.yaml
+    mode: live_only_after_resolution
+    must_fail_if:
+      - unresolved_placeholders_present
+      - secret_like_values_present
+      - schema_unknown_keys_present
+  files_to_copy_or_generate:
+    - SOUL.md
+    - PROFILE_INSTRUCTIONS.md
+    - LAUNCHROOM_PROFILE_CONTRACT.yaml
+    - .env.EXAMPLE
+    - reports/profile-foundation-report.yaml
+  skills_to_install:
+    - launchroom-profile-operator
+    - launchroom-hermes-settings-guide
+    - launchroom-saas-operator
+  non_config_actions:
+    - action: enable_toolsets
+      preferred_command: hermes tools enable <toolset>
+      requires_reset_or_new_session: true
+    - action: model_provider_setup
+      preferred_command: hermes model or hermes setup model
+      secrets_in_chat: forbidden
+
+rollback_notes:
+  - Keep previous config.yaml backup before live write.
+  - Do not delete existing profile data without explicit reviewed gate.
+  - If verification fails, mark report partial or blocked and leave next_action.

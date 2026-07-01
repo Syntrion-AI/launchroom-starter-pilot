@@ -1,0 +1,141 @@
+name: launchroom-saas
+version: 0.1.0
+kind: hermes_profile_distribution
+status: draft_for_owner_review
+description: Ready-to-use Hermes profile distribution for beginner-safe SaaS/project setup.
+hermes_requires: '>=0.12.0'
+author: Syntrion / AIRMIDA LaunchRoom
+license: MIT
+language_policy:
+  canonical_files: English
+  user_conversation: mirror_user_language
+  localized_examples_allowed: true
+
+source_contracts:
+  research_ledger:
+    path: ../../source/settings/launchroom-settings-research-ledger.yaml
+    artifact_id: LAUNCHROOM_SETTINGS_RESEARCH_LEDGER_v0_1
+  config_baseline:
+    path: ../../source/settings/launchroom-saas-config-baseline.yaml
+    artifact_id: LAUNCHROOM_SAAS_CONFIG_BASELINE_v0_1
+  stage_1_wizard:
+    path: ../../source/stages/stage-1-profile-foundation-wizard.yaml
+    artifact_id: LAUNCHROOM_STAGE_1_PROFILE_FOUNDATION_WIZARD_v0_1
+  config_generator:
+    path: ../../source/generators/profile-config-generator.yaml
+    artifact_id: LAUNCHROOM_PROFILE_CONFIG_GENERATOR_v0_1
+
+distribution_role:
+  summary: Baseline profile package for LaunchRoom Starter, not immutable canon.
+  update_policy:
+    official_docs_override_stale_distribution: true
+    agent_may_propose_improvements: true
+    improvements_require_sources_and_verification: true
+    no_hallucinated_settings: true
+
+includes:
+  soul: SOUL.md
+  config_template: config.yaml.template
+  profile_instructions: PROFILE_INSTRUCTIONS.md
+  profile_contract: LAUNCHROOM_PROFILE_CONTRACT.yaml
+  env_example: .env.EXAMPLE
+  skills:
+    - skills/launchroom-profile-operator/SKILL.md
+    - skills/launchroom-hermes-settings-guide/SKILL.md
+    - skills/launchroom-saas-operator/SKILL.md
+  report_templates:
+    - reports/profile-foundation-report.template.yaml
+    - reports/profile-apply-plan.template.yaml
+  selected_settings_example: ../../source/stages/output/stage-1-selected-settings.example.yaml
+
+install_inputs:
+  required:
+    - profile_name
+    - language
+    - project_name
+    - project_path
+  required_or_deferred:
+    - model_provider
+    - model_default
+  do_not_collect_in_chat:
+    - api_keys
+    - oauth_tokens
+    - passwords
+    - private_keys
+    - connection_strings
+    - raw_mcp_env_values
+
+env_requires:
+  - name: OPENROUTER_API_KEY
+    required: false
+    category: model_provider
+    setup: Use Hermes model/setup or write to the installer's private .env, never chat.
+    official_docs: https://hermes-agent.nousresearch.com/docs/integrations/providers
+  - name: ANTHROPIC_API_KEY
+    required: false
+    category: model_provider
+    setup: Use Hermes model/setup or private .env.
+    official_docs: https://hermes-agent.nousresearch.com/docs/integrations/providers
+  - name: OPENAI_API_KEY
+    required: false
+    category: model_provider_or_openai_compatible
+    setup: Use Hermes model/setup or private .env.
+    official_docs: https://hermes-agent.nousresearch.com/docs/integrations/providers
+  - name: GOOGLE_API_KEY
+    required: false
+    category: model_provider
+    setup: Gemini provider key if chosen.
+    official_docs: https://hermes-agent.nousresearch.com/docs/integrations/providers
+  - name: GEMINI_API_KEY
+    required: false
+    category: model_provider
+    setup: Gemini provider alias if chosen.
+    official_docs: https://hermes-agent.nousresearch.com/docs/integrations/providers
+  - name: GITHUB_TOKEN
+    required: false
+    category: github_operations
+    setup: Only if the user enables GitHub operations.
+    official_docs: https://docs.github.com/en/authentication
+  - name: FIRECRAWL_API_KEY
+    required: false
+    category: web_tools
+    setup: Only if web tools are not supplied by the user's Hermes subscription/provider setup.
+  - name: BROWSER_USE_API_KEY
+    required: false
+    category: browser_automation
+    setup: Only if Browser Use is selected and not already managed.
+  - name: FAL_KEY
+    required: false
+    category: image_generation
+    setup: Only if image generation is selected and not already managed.
+  - name: HERMES_LANGFUSE_PUBLIC_KEY
+    required: false
+    category: observability
+    setup: Optional future AgentOps/observability stage.
+  - name: HERMES_LANGFUSE_SECRET_KEY
+    required: false
+    category: observability_secret
+    setup: Optional future AgentOps/observability stage; never commit value.
+
+forbidden_distribution_content:
+  - .env
+  - auth.json
+  - state.db
+  - sessions
+  - memories
+  - logs
+  - oauth_tokens
+  - api_key_values
+  - passwords
+  - private_keys
+  - raw_mcp_credentials
+
+verification:
+  required_before_release:
+    - YAML parse distribution.yaml
+    - YAML parse LAUNCHROOM_PROFILE_CONTRACT.yaml
+    - YAML parse config.yaml.template as template-mode YAML
+    - secret scan distribution files
+    - verify included files exist
+    - verify config template placeholders are not allowed in live mode
+    - verify starter skills have frontmatter names

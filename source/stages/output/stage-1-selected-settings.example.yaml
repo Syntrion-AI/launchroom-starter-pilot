@@ -1,0 +1,77 @@
+artifact_id: LAUNCHROOM_STAGE_1_SELECTED_SETTINGS_EXAMPLE_v0_1
+artifact_type: selected_settings_example
+status: example_not_live_user_selection
+stage: stage_1_profile_foundation
+
+profile_name: launchroom
+project_name: Example SaaS Project
+project_path: __LAUNCHROOM_RESOLVE__PROJECT_PATH
+language: auto
+
+selected_settings:
+  - key: display.personality
+    selected_button_id: recommended_technical
+    selected_value: technical
+    value_state: resolved
+    source_refs:
+      - launchroom-settings-research-ledger.yaml
+    reason: Technical style fits setup, validation, config explanation, and project-operator work.
+    verification_status: pending
+  - key: approvals.mode
+    selected_button_id: recommended_smart
+    selected_value: smart
+    value_state: resolved
+    source_refs:
+      - official.security
+      - launchroom-settings-research-ledger.yaml
+    reason: Smart approvals reduce friction while preserving high-risk prompts.
+    verification_status: pending
+  - key: security.redact_secrets
+    selected_button_id: mandatory_true
+    selected_value: true
+    value_state: resolved
+    source_refs:
+      - official.security
+      - launchroom-settings-research-ledger.yaml
+    reason: Secret redaction is mandatory for beginner-safe setup.
+    verification_status: pending
+  - key: toolsets
+    selected_button_id: recommended_starter_operator
+    selected_value:
+      - terminal
+      - file
+      - web
+      - search
+      - browser
+      - vision
+      - skills
+      - memory
+      - session_search
+      - clarify
+      - todo
+      - code_execution
+    value_state: resolved
+    source_refs:
+      - official.tools_reference
+      - launchroom-settings-research-ledger.yaml
+    reason: Starter profile must be able to inspect, write, verify, research, and ask choices.
+    verification_status: pending_reset_required
+
+deferred_settings:
+  - key: model.provider
+    reason: Example template cannot know user's provider.
+    safe_next_action: Run Hermes model/setup or choose provider in Stage 1 wizard.
+  - key: model.default
+    reason: Example template cannot know user's model.
+    safe_next_action: Select model after provider readiness.
+  - key: terminal.cwd
+    reason: Example template cannot know user's project path.
+    safe_next_action: Resolve project path in Stage 1 or Stage 2 workspace verification.
+
+custom_overrides: []
+source_refs:
+  - source/settings/launchroom-settings-research-ledger.yaml
+  - source/settings/launchroom-saas-config-baseline.yaml
+  - source/stages/stage-1-profile-foundation-wizard.yaml
+  - source/generators/profile-config-generator.yaml
+verification_status: example_only
