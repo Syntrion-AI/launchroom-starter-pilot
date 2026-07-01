@@ -1,5 +1,5 @@
 {
-  "recipe_id": "launchroom-profile-setup-v0_6",
+  "recipe_id": "launchroom-profile-setup-v0_7",
   "objective": "Install a real LaunchRoom SaaS profile-distribution layer, not only create a blank Hermes profile.",
   "discover": [
     "active profile name",
@@ -7,7 +7,10 @@
     "env path presence only",
     "memory status",
     "tool status",
-    "profile-distribution/launchroom-saas package presence"
+    "profile-distribution/launchroom-saas package presence",
+    "stage-2 workspace/project onboarding contract presence",
+    "workspace path and project type choices",
+    "workspace onboarding report generation"
   ],
   "choices": [
     "create/select an isolated LaunchRoom profile",
@@ -16,7 +19,10 @@
     "run non-mutating installer self-test with -TestOutputRoot",
     "defer model/provider setup",
     "skip toolset enabling and report partial",
-    "pause"
+    "pause",
+    "choose workspace path",
+    "choose project type",
+    "defer workspace setup and report partial"
   ],
   "allowed_after_confirmation": [
     "generate simulated profile/workspace tree under -TestOutputRoot without calling hermes profile/config/tools",
@@ -33,7 +39,12 @@
     "write workspace README.md, AGENTS.md, and HERMES.md when compatibility templates exist",
     "install bundled LaunchRoom starter skills into the target profile",
     "enable selected starter toolsets where supported and report partial failures",
-    "write no-secret software inventory report"
+    "write no-secret software inventory report",
+    "validate workspace path is not root, home, Hermes runtime, or credential directory",
+    "write workspace onboarding report",
+    "write workspace README.md, AGENTS.md, and HERMES.md",
+    "verify terminal.cwd equals selected workspace",
+    "safe top-level project structure scan without reading secrets"
   ],
   "never": [
     "copy credential files",
@@ -41,7 +52,11 @@
     "write unresolved __LAUNCHROOM_RESOLVE__ placeholders into live config.yaml",
     "patch unrelated skills",
     "mutate provider/cloud/runtime/gateway credentials",
-    "self-test mode must not call hermes profile create, hermes config set, or hermes tools enable"
+    "self-test mode must not call hermes profile create, hermes config set, or hermes tools enable",
+    "read .env, auth.json, state.db, OAuth stores, or .git internals during Stage 2 scan",
+    "run git add, commit, push, reset, clean, or rebase during Stage 2",
+    "install dependencies during Stage 2",
+    "mutate n8n, Cloudflare, Hetzner, MCP, gateway, provider, or production runtime during Stage 2"
   ],
   "tool": "scripts/install_launchroom_profile.ps1",
   "source_distribution": "profile-distribution/launchroom-saas",
@@ -56,6 +71,11 @@
     "workspace AGENTS.md and HERMES.md exist or are explicitly deferred",
     "starter skills exist or are explicitly deferred",
     "profile setup report exists",
-    "installer self-test creates simulated profile files under TestOutputRoot"
-  ]
+    "installer self-test creates simulated profile files under TestOutputRoot",
+    "workspace onboarding report exists and parses as YAML",
+    "workspace README.md, AGENTS.md, and HERMES.md exist",
+    "terminal.cwd equals selected workspace or is explicitly partial/deferred",
+    "Stage 2 safe scan excludes .env, auth.json, state.db, and .git internals"
+  ],
+  "stage_2_contract": "source/stages/stage-2-workspace-project-onboarding-wizard.yaml"
 }

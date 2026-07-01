@@ -104,15 +104,19 @@ Pass requires:
 - profile setup tool run or explicitly deferred
 - profile SOUL.md and non-secret config verified or explicitly deferred
 
-### stage_2 - Workspace and project room
+### stage_2 - Workspace and project onboarding
 
-Purpose: Create or select the safe local workspace for the SaaS project.
+Purpose: Create or select the safe local workspace, classify project type, write workspace instructions, and verify terminal.cwd without touching secrets, git, or runtime surfaces.
 
 Pass requires:
 - workspace choice collected with button/clarify when available
-- workspace created/selected or deferred
-- workspace AGENTS.md and HERMES.md written or explicitly deferred
-- terminal.cwd set when approved
+- project type selected or explicitly deferred
+- workspace path validated as not root, home, Hermes runtime, or credential directory
+- workspace README.md, AGENTS.md, and HERMES.md written or explicitly deferred
+- workspace .hermes/reports/workspace-onboarding-report.yaml exists and parses as YAML
+- terminal.cwd equals selected workspace or mismatch is explicitly partial/deferred
+- Stage 2 safe scan excludes .env, auth.json, state.db, and .git internals
+- no git, provider, gateway, n8n, Cloudflare, Hetzner, or production runtime mutation
 
 ### stage_3 - System inventory and software package
 

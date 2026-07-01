@@ -25,6 +25,7 @@ param(
   [string]$ProfileName = 'launchroom',
   [string]$WorkspacePath = '',
   [string]$ProjectName = '',
+  [string]$ProjectType = 'blank_saas_workspace',
   [string]$UserLanguage = 'auto',
   [string]$ModelProvider = '',
   [string]$ModelDefault = '',
@@ -50,6 +51,10 @@ if ([string]::IsNullOrWhiteSpace($WorkspacePath)) {
 }
 if ([string]::IsNullOrWhiteSpace($ProjectName)) {
   $ProjectName = $ProfileName
+}
+$AllowedProjectTypes = @('blank_saas_workspace','existing_project','repo_clone_later','planning_only')
+if ($AllowedProjectTypes -notcontains $ProjectType) {
+  throw "ProjectType must be one of: $($AllowedProjectTypes -join ', ')"
 }
 
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -110,6 +115,37 @@ function ConvertTo-LaunchRoomYesNo {
   param([bool]$Value)
   if ($Value) { return 'yes' }
   return 'no'
+}
+
+
+function Test-UnsafeWorkspacePath {
+  param([string]$Path)
+  $full = [System.IO.Path]::GetFullPath($Path)
+  $root = [System.IO.Path]::GetPathRoot($full)
+  if ($full.TrimEnd('\','/') -eq $root.TrimEnd('\','/')) { return 'workspace path must not be a drive root' }
+  $homePath = if (-not [string]::IsNullOrWhiteSpace($env:USERPROFILE)) { [System.IO.Path]::GetFullPath($env:USERPROFILE) } elseif (-not [string]::IsNullOrWhiteSpace($env:HOME)) { [System.IO.Path]::GetFullPath($env:HOME) } else { '' }
+  $trimChars = [char[]]@([char]'\',[char]'/')
+  if ($homePath -and ($full.TrimEnd($trimChars).ToLowerInvariant() -eq $homePath.TrimEnd($trimChars).ToLowerInvariant())) { return 'workspace path must not be the user home directory itself' }
+  $lower = $full.ToLowerInvariant().Replace([string][char]92,'/')
+  $blockedFragments = @('/appdata/local/hermes/profiles','/.hermes/profiles','/auth.json','/state.db','/.ssh','/.aws','/99_secrets','/credentials','/credential','/secrets','/secret')
+  foreach ($fragment in $blockedFragments) {
+    if ($lower.Contains($fragment)) { return "workspace path contains blocked credential/runtime fragment: $fragment" }
+  }
+  return ''
+}
+
+function Get-SafeProjectStructure {
+  param([string]$Path)
+  $summary = [ordered]@{
+    git_dir_present = Test-Path (Join-Path $Path '.git')
+    package_manifest_present = (Test-Path (Join-Path $Path 'package.json')) -or (Test-Path (Join-Path $Path 'pnpm-workspace.yaml')) -or (Test-Path (Join-Path $Path 'yarn.lock'))
+    python_manifest_present = (Test-Path (Join-Path $Path 'pyproject.toml')) -or (Test-Path (Join-Path $Path 'requirements.txt'))
+    node_manifest_present = Test-Path (Join-Path $Path 'package.json')
+    tests_dir_present = (Test-Path (Join-Path $Path 'tests')) -or (Test-Path (Join-Path $Path 'test'))
+    src_dir_present = (Test-Path (Join-Path $Path 'src')) -or (Test-Path (Join-Path $Path 'app'))
+    docs_dir_present = (Test-Path (Join-Path $Path 'docs')) -or (Test-Path (Join-Path $Path 'doc'))
+  }
+  return $summary
 }
 
 function Resolve-LaunchRoomTokens {
@@ -202,6 +238,7 @@ LaunchRoom Stage 1 beginner-safe setup plan
 
 In plain language:
 - This creates or updates ONE isolated Hermes profile: $ProfileName
+- Stage 2 links that profile to one local workspace: $WorkspaceFull
 - Your existing main/default/airmida profiles are protected and are not the target.
 - Secrets are not requested, copied, printed, or stored by this installer.
 - Provider/model setup is optional and can be deferred safely.
@@ -210,6 +247,7 @@ In plain language:
 Selected choices:
 - Profile: $ProfileName
 - Project name: $ProjectName
+- Project type: $ProjectType
 - Workspace: $WorkspaceFull
 - User language: $UserLanguage
 - Model provider: $ModelProviderPlan
@@ -231,6 +269,7 @@ Will create/update:
 - local LaunchRoom bundled skills in the target profile
 - workspace README.md, AGENTS.md, HERMES.md when compatibility templates exist
 - workspace .hermes/reports/profile-setup-report.yaml when compatibility template exists
+- workspace .hermes/reports/workspace-onboarding-report.yaml
 - workspace .hermes/reports/software-inventory-report.yaml unless -NoInventory
 
 Will not touch:
@@ -257,6 +296,11 @@ Write-Host $plan
 if ($ShowPlanOnly) { exit 0 }
 Confirm-Step "Apply this LaunchRoom Starter profile setup?"
 
+$WorkspaceSafetyBlocker = Test-UnsafeWorkspacePath $WorkspaceFull
+if (-not [string]::IsNullOrWhiteSpace($WorkspaceSafetyBlocker)) {
+  throw "Refusing unsafe Stage 2 workspace path before profile mutation: $WorkspaceSafetyBlocker ($WorkspaceFull)"
+}
+
 if ($IsSelfTest) {
   Write-Host "Running non-mutating self-test mode under: $TestOutputFull"
   $profileRoot = Join-Path $TestOutputFull (Join-Path 'profiles' $ProfileName)
@@ -274,6 +318,11 @@ if ($IsSelfTest) {
   $configPath = Capture-Hermes @('-p',$ProfileName,'config','path')
   $profileRoot = Split-Path -Parent $configPath
 }
+$WorkspaceSafetyBlocker = Test-UnsafeWorkspacePath $WorkspaceFull
+if (-not [string]::IsNullOrWhiteSpace($WorkspaceSafetyBlocker)) {
+  throw "Refusing unsafe Stage 2 workspace path: $WorkspaceSafetyBlocker ($WorkspaceFull)"
+}
+$WorkspaceExistedBefore = Test-Path $WorkspaceFull
 New-Item -ItemType Directory -Force -Path $WorkspaceFull | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $WorkspaceFull '.hermes/reports') | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $WorkspaceFull '.hermes/instructions') | Out-Null
@@ -286,6 +335,7 @@ $tokens = @{
   WORKSPACE_PATH = $WorkspaceFull.Replace('\','/')
   PROJECT_PATH = $WorkspaceFull.Replace('\','/')
   PROJECT_NAME = $ProjectName
+  PROJECT_TYPE = $ProjectType
   USER_LANGUAGE = $UserLanguage
   MODEL_PROVIDER = $ModelProviderToken
   MODEL_DEFAULT = $ModelDefaultToken
@@ -352,6 +402,55 @@ if (Test-Path (Join-Path $TemplateRoot 'workspace/README.md')) {
 if (Test-Path (Join-Path $TemplateRoot 'reports/profile-setup-report.yaml')) {
   Copy-ResolvedFile (Join-Path $TemplateRoot 'reports/profile-setup-report.yaml') (Join-Path $WorkspaceFull '.hermes/reports/profile-setup-report.yaml') $tokens
 }
+
+Write-Host 'Writing Stage 2 workspace onboarding report'
+$safeScan = Get-SafeProjectStructure $WorkspaceFull
+$terminalCwdMatchesWorkspace = $true
+$workspaceReportPath = Join-Path $WorkspaceFull '.hermes/reports/workspace-onboarding-report.yaml'
+$workspaceReportLines = @(
+  'artifact_id: LAUNCHROOM_WORKSPACE_ONBOARDING_REPORT_v0_1',
+  'stage_id: stage_2_workspace_project_onboarding',
+  'status: pass',
+  'profile:',
+  "  name: $(ConvertTo-YamlSingleQuotedScalar $ProfileName)",
+  "  config_path_present: $(ConvertTo-LaunchRoomYesNo (Test-Path $configPath))",
+  "  terminal_cwd: $(ConvertTo-YamlSingleQuotedScalar $WorkspaceFull)",
+  "  terminal_cwd_matches_workspace: $(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)",
+  'workspace:',
+  "  path: $(ConvertTo-YamlSingleQuotedScalar $WorkspaceFull)",
+  "  existed_before: $(ConvertTo-LaunchRoomYesNo $WorkspaceExistedBefore)",
+  "  created_by_installer: $(ConvertTo-LaunchRoomYesNo (-not $WorkspaceExistedBefore))",
+  "  project_name: $(ConvertTo-YamlSingleQuotedScalar $ProjectName)",
+  "  project_type: $(ConvertTo-YamlSingleQuotedScalar $ProjectType)",
+  'files:',
+  "  readme_exists: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $WorkspaceFull 'README.md')))",
+  "  agents_md_exists: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $WorkspaceFull 'AGENTS.md')))",
+  "  hermes_md_exists: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $WorkspaceFull 'HERMES.md')))",
+  "  reports_dir_exists: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $WorkspaceFull '.hermes/reports')))",
+  'safe_scan:',
+  "  git_dir_present: $(ConvertTo-LaunchRoomYesNo $safeScan.git_dir_present)",
+  "  package_manifest_present: $(ConvertTo-LaunchRoomYesNo $safeScan.package_manifest_present)",
+  "  python_manifest_present: $(ConvertTo-LaunchRoomYesNo $safeScan.python_manifest_present)",
+  "  node_manifest_present: $(ConvertTo-LaunchRoomYesNo $safeScan.node_manifest_present)",
+  "  tests_dir_present: $(ConvertTo-LaunchRoomYesNo $safeScan.tests_dir_present)",
+  "  src_dir_present: $(ConvertTo-LaunchRoomYesNo $safeScan.src_dir_present)",
+  "  docs_dir_present: $(ConvertTo-LaunchRoomYesNo $safeScan.docs_dir_present)",
+  '  skipped_secret_paths:',
+  '    - .env',
+  '    - auth.json',
+  '    - state.db',
+  '    - .git internals',
+  'boundaries:',
+  '  secrets_read: false',
+  '  runtime_mutation: false',
+  '  git_mutation: false',
+  '  provider_mutation: false',
+  '  gateway_mutation: false',
+  'next_stage:',
+  '  recommended: stage_3_tool_readiness',
+  '  reason: workspace boundary is ready for local tool checks'
+)
+Write-Utf8NoBom $workspaceReportPath ($workspaceReportLines -join "`n")
 
 if (-not $NoLocalSkills) {
   Write-Host 'Installing LaunchRoom bundled skills into target profile'
@@ -431,6 +530,9 @@ $verification = [ordered]@{
   workspace_agents_exists = Test-Path (Join-Path $WorkspaceFull 'AGENTS.md')
   workspace_hermes_exists = Test-Path (Join-Path $WorkspaceFull 'HERMES.md')
   setup_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/profile-setup-report.yaml')
+  workspace_onboarding_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/workspace-onboarding-report.yaml')
+  terminal_cwd_matches_workspace = $terminalCwdMatchesWorkspace
+  project_type = $ProjectType
   inventory_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-inventory-report.yaml')
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
@@ -439,7 +541,7 @@ $verification = [ordered]@{
 }
 
 if ($IsSelfTest -and $LiveConfigHasPlaceholder) { throw 'Self-test failed: simulated live config.yaml contains unresolved __LAUNCHROOM_RESOLVE__ placeholder.' }
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -448,9 +550,11 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml"
+Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
+Write-Host "next_stage: stage_3_tool_readiness"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }

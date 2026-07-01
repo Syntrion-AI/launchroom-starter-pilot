@@ -1,0 +1,250 @@
+artifact_id: LAUNCHROOM_STAGE_2_WORKSPACE_PROJECT_ONBOARDING_WIZARD_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_2_workspace_project_onboarding
+stage_name: Workspace & Project Onboarding Wizard
+language: en
+
+purpose:
+  summary: >-
+    Define the Stage 2 wizard that turns a working LaunchRoom Hermes profile into
+    a safe local project/workspace operating room. Stage 2 confirms or creates the
+    workspace folder, writes workspace-local instructions and reports, classifies
+    the project type, checks non-secret local structure, and prepares Stage 3
+    without touching provider, runtime, cloud, gateway, or credential surfaces.
+  not_purpose:
+    - not provider/model credential setup
+    - not gateway setup
+    - not MCP server wiring
+    - not n8n, Cloudflare, Hetzner, or production runtime mutation
+    - not git publication
+    - not dependency installation
+    - not cloning private repositories unless separately gated
+    - not secret collection
+
+stage_boundary:
+  owns:
+    - workspace path confirmation
+    - workspace folder creation when user chooses create
+    - project type selection
+    - workspace-local instruction files
+    - workspace-local .hermes reports
+    - basic non-secret project structure scan
+    - terminal.cwd verification against selected workspace
+    - safe next-step handoff to Stage 3
+  does_not_own:
+    - model/provider setup
+    - API keys or OAuth
+    - gateway channels
+    - MCP credentials
+    - cloud runtime
+    - n8n workflows
+    - Cloudflare or Hetzner
+    - Docker service mutation
+    - git push, commit, reset, clean, or publication
+    - installing missing software
+
+required_inputs:
+  profile_name:
+    source: Stage 1
+    validation:
+      required: true
+      protected_names_rejected: [default, airmida, main]
+  workspace_path:
+    prompt: Choose or confirm the local workspace folder for this LaunchRoom profile.
+    default_suggestion: "%USERPROFILE%/LaunchRoom/<profile_name>"
+    validation:
+      required: true
+      must_not_be_root_drive: true
+      must_not_be_user_home_directly: true
+      must_not_be_hermes_runtime_profile_dir: true
+      must_not_contain_secret_like_segments: true
+    buttons:
+      - id: recommended_profile_workspace
+        label: Use recommended LaunchRoom workspace
+        value: "%USERPROFILE%/LaunchRoom/<profile_name>"
+      - id: existing_folder
+        label: Use existing project folder
+        value: "<custom_path>"
+      - id: custom_empty_folder
+        label: Create custom empty workspace
+        value: "<custom_path>"
+      - id: defer
+        label: Defer workspace setup
+        value: "<deferred>"
+  project_name:
+    prompt: Give this workspace a human-readable project name.
+    default_suggestion: "<profile_name>"
+    validation:
+      required: true
+      no_secret_like_values: true
+  project_type:
+    prompt: What kind of workspace is this?
+    allowed_values:
+      - blank_saas_workspace
+      - existing_project
+      - repo_clone_later
+      - planning_only
+    buttons:
+      - id: blank_saas_workspace
+        label: New blank SaaS/operator workspace
+        value: blank_saas_workspace
+      - id: existing_project
+        label: Existing local project
+        value: existing_project
+      - id: repo_clone_later
+        label: Repository will be cloned/imported later
+        value: repo_clone_later
+      - id: planning_only
+        label: Planning-only workspace for now
+        value: planning_only
+
+interaction_model:
+  ui_mode: clarify_buttons_or_desktop_buttons
+  fallback_mode: numbered_cli_choices
+  beginner_behavior:
+    - explain what a workspace is in one short paragraph
+    - recommend a safe default path
+    - explain that no secrets or cloud systems are touched
+    - show exactly which files will be written
+    - show PASS/PARTIAL/BLOCKED result at the end
+  global_rules:
+    - never ask for secrets
+    - never inspect .env, auth.json, state.db contents
+    - never run git mutation in workspace during Stage 2
+    - never install dependencies in Stage 2
+    - every custom path must be recorded with reason
+    - every deferred decision must be explicit
+
+wizard_flow:
+  - step_id: 0_preflight
+    name: Verify Stage 1 profile foundation
+    mode: read_only
+    pass_condition: Stage 1 required files exist or self-test generated equivalents exist
+    fail_condition: missing Stage 1 foundation files
+    result_if_fail: blocked_return_to_stage_1
+  - step_id: 1_explain_workspace_boundary
+    name: Explain workspace vs profile
+    mode: user_explanation
+    message_points:
+      - The profile is the Hermes agent home.
+      - The workspace is where project files and local instructions live.
+      - Stage 2 links the profile to one workspace through terminal.cwd.
+      - This does not touch cloud, provider credentials, n8n, MCP, or gateway setup.
+  - step_id: 2_collect_workspace_choice
+    name: Choose workspace path and project type
+    mode: interactive_buttons
+    inputs: [workspace_path, project_name, project_type]
+  - step_id: 3_validate_workspace_path
+    name: Validate selected workspace path
+    mode: local_validation
+    checks:
+      - path is not root drive
+      - path is not user home directly
+      - path is not Hermes profile/runtime directory
+      - path does not include obvious secret path markers
+      - parent directory exists or can be created
+      - if existing folder, scan only safe top-level structure
+    blocked_if:
+      - path points to protected Hermes profile runtime
+      - path points to credential directory
+      - path is unsafe root/home location
+  - step_id: 4_apply_workspace_setup
+    name: Create or prepare workspace
+    mode: local_file_generation
+    allowed_actions:
+      - create workspace folder if missing and user selected create/recommended
+      - create .hermes/reports
+      - create .hermes/instructions
+      - write workspace README.md
+      - write workspace AGENTS.md
+      - write workspace HERMES.md
+      - write .hermes/reports/workspace-onboarding-report.yaml
+    forbidden_actions:
+      - read or copy .env
+      - read or copy auth.json
+      - read or copy state.db
+      - run git add, commit, push, reset, clean, or rebase
+      - install dependencies
+      - call cloud, provider, gateway, n8n, MCP, or runtime APIs
+  - step_id: 5_verify_terminal_cwd
+    name: Verify or set terminal.cwd
+    mode: profile_config_validation
+    pass_condition: terminal.cwd equals selected workspace
+    partial_condition: terminal.cwd mismatch but setup was deferred
+  - step_id: 6_safe_project_scan
+    name: Safe non-secret project structure scan
+    mode: read_only
+    scan_depth: top_level_only
+    include:
+      - README-like files
+      - package manifests
+      - project config names
+      - presence of .git directory only as yes/no
+      - presence of src, app, docs, and tests directories
+    exclude:
+      - .env
+      - auth.json
+      - state.db
+      - node_modules
+      - .venv
+      - .git internals
+      - credential stores
+      - logs
+  - step_id: 7_report_next_decision
+    name: Report result and next stage
+    mode: handoff
+    result_states:
+      pass: workspace exists, instructions exist, reports exist, terminal.cwd aligned
+      partial: workspace selected but terminal.cwd or structure scan deferred
+      blocked: unsafe path, missing Stage 1 foundation, or secret/runtime gate needed
+    next_decision: continue_to_stage_3_tool_readiness
+
+workspace_outputs:
+  required:
+    - README.md
+    - AGENTS.md
+    - HERMES.md
+    - .hermes/reports/workspace-onboarding-report.yaml
+  optional:
+    - .hermes/reports/software-inventory-report.yaml
+    - .hermes/instructions/workspace-operator-notes.md
+
+workspace_onboarding_report_schema:
+  artifact_id: LAUNCHROOM_WORKSPACE_ONBOARDING_REPORT_v0_1
+  stage_id: stage_2_workspace_project_onboarding
+  status: pass | partial | blocked
+  required_sections:
+    - profile
+    - workspace
+    - files
+    - safe_scan
+    - boundaries
+    - next_stage
+
+acceptance_criteria:
+  - Stage 1 foundation files are present or self-test generated equivalents exist.
+  - Workspace path is selected and safe.
+  - Workspace folder exists.
+  - Workspace README.md exists.
+  - Workspace AGENTS.md exists.
+  - Workspace HERMES.md exists.
+  - .hermes/reports/workspace-onboarding-report.yaml exists and parses as YAML.
+  - terminal.cwd equals selected workspace, or mismatch is explicitly partial/deferred.
+  - No secret files are read or copied.
+  - No git mutation is performed by Stage 2.
+  - No provider/runtime/gateway/cloud/n8n/MCP mutation is performed.
+  - Self-test mode can generate simulated profile/workspace tree under TestOutputRoot.
+  - CI validators pass.
+
+result_states:
+  pass:
+    meaning: Workspace is ready as the profile's local operating room.
+  partial:
+    meaning: Workspace path or files are ready, but one or more non-critical items were deferred.
+  blocked:
+    meaning: Stage 2 refused to continue because the selected path is unsafe, Stage 1 is missing, or a gated action was requested.
+
+next_stage:
+  id: stage_3_tool_readiness
+  reason: After workspace boundary exists, LaunchRoom can check local tool readiness without mixing in provider/runtime secrets.
