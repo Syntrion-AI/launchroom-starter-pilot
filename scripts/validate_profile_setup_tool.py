@@ -118,6 +118,7 @@ def main() -> int:
         ('profile-distribution/launchroom-saas','uses profile distribution package'),
         ('LaunchRoom SaaS profile-distribution package','script purpose'),
         ('TestOutputRoot','supports non-mutating self-test mode'),
+        ('--no-skills','creates LaunchRoom profile without default bundled skill noise'),
         ('Self-test mode: generating simulated live config.yaml from template; skipping hermes config set.','self-test skips config set'),
         ('never calls hermes profile/config/tools commands','self-test documentation'),
         ('config','uses hermes config'),

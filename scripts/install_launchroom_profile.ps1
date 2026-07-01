@@ -132,9 +132,17 @@ function Get-CommandStatus {
   return @{ name=$Name; status='present'; version=$version; path=$cmd.Source }
 }
 
+function ConvertTo-YamlSingleQuotedScalar {
+  param([string]$Value)
+  $clean = [regex]::Replace([string]$Value, '[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', ' ')
+  $clean = $clean.Replace("`r", ' ').Replace("`n", ' ').Replace("`t", ' ').Trim()
+  $clean = $clean.Replace("'", "''")
+  return "'$clean'"
+}
+
 function Has-UnresolvedLaunchRoomPlaceholder {
   param([string]$Path)
-  if (-not (Test-Path $Path)) { return $false }
+  if (-not (Test-Path $Path)) { return $true }
   $text = Get-Content -Raw -Encoding UTF8 $Path
   return ($text -match '__LAUNCHROOM_RESOLVE__[A-Z0-9_]+')
 }
@@ -219,7 +227,7 @@ if ($IsSelfTest) {
   $profiles = (Capture-Hermes @('profile','list'))
   if ($profiles -notmatch [regex]::Escape($ProfileName)) {
     Write-Host "Creating Hermes profile: $ProfileName"
-    Run-Hermes @('profile','create',$ProfileName,'--description','LaunchRoom Starter profile for local SaaS project setup and governed AI-operator work.')
+    Run-Hermes @('profile','create',$ProfileName,'--no-skills','--description','LaunchRoom Starter profile for local SaaS project setup and governed AI-operator work.')
   } else {
     Write-Host "Using existing Hermes profile: $ProfileName"
   }
@@ -342,10 +350,10 @@ if (-not $NoInventory) {
   $inventoryPath = Join-Path $WorkspaceFull '.hermes/reports/software-inventory-report.yaml'
   $lines = @('installed:')
   foreach ($item in $items) {
-    $safeVersion = ([string]$item.version).Replace('"','\"')
+    $safeVersion = ConvertTo-YamlSingleQuotedScalar ([string]$item.version)
     $lines += "  $($item.name):"
     $lines += "    status: $($item.status)"
-    $lines += "    version: `"$safeVersion`""
+    $lines += "    version: $safeVersion"
   }
   $missingRequired = @($items | Where-Object { $_.status -eq 'missing' -and $_.name -in @('hermes','python','git') } | ForEach-Object { $_.name })
   $missingRecommended = @($items | Where-Object { $_.status -eq 'missing' -and $_.name -in @('node','npm','docker','rg','uv','winget') } | ForEach-Object { $_.name })
