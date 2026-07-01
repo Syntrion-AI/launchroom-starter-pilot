@@ -29,11 +29,13 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 After the user chooses the relevant option, the agent may:
 
 - create the selected local workspace;
-- set non-secret Hermes config values for the active test/project profile;
+- set source-backed non-secret Hermes config values for the active test/project profile;
 - set `terminal.cwd` to the selected workspace;
-- write profile `SOUL.md` instructions;
+- write profile `SOUL.md`, `PROFILE_INSTRUCTIONS.md`, and `LAUNCHROOM_PROFILE_CONTRACT.yaml` from `profile-distribution/launchroom-saas`;
+- write `.env.EXAMPLE` with variable names only;
+- write profile reports including foundation report, apply plan, selected settings, and config draft;
 - write workspace `AGENTS.md` and `HERMES.md` instructions;
-- install local LaunchRoom starter skills into the target profile;
+- install bundled LaunchRoom starter skills into the target profile;
 - write workspace-local instructions and readiness reports;
 - recommend and optionally load/install the approved LaunchRoom starter capability pack;
 - create a local SaaS operator kit at Stage 6.

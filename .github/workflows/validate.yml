@@ -27,6 +27,8 @@ jobs:
         run: python scripts/validate_profile_recipe.py
       - name: Inventory contract
         run: python scripts/validate_inventory_contract.py
+      - name: Profile distribution
+        run: python scripts/validate_profile_distribution.py
       - name: Profile setup tool
         run: python scripts/validate_profile_setup_tool.py
       - name: Pilot seed
