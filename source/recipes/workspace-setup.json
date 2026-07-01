@@ -10,13 +10,17 @@
   "allowed_after_confirmation": [
     "create selected directory",
     "create .hermes/reports",
-    "write workspace README",
-    "write AGENTS.md or HERMES.md local instructions",
+    "create .hermes/instructions",
+    "create saas-operator-kit directory",
+    "write workspace README.md",
+    "write workspace AGENTS.md",
+    "write workspace HERMES.md",
     "set terminal.cwd to selected workspace"
   ],
   "verify": [
     "path exists",
     "all created files are under selected workspace",
     "terminal.cwd points to selected workspace or deferred"
-  ]
+  ],
+  "tool": "scripts/install_launchroom_profile.ps1"
 }

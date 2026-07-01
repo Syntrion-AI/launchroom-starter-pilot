@@ -8,6 +8,7 @@ checks = [
     ['scripts/validate_archive_policy.py'],
     ['scripts/validate_profile_recipe.py'],
     ['scripts/validate_inventory_contract.py'],
+    ['scripts/validate_profile_setup_tool.py'],
 ]
 for check in checks:
     code = subprocess.call([sys.executable] + check)

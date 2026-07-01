@@ -4,6 +4,27 @@
 
 Use this file as the executable setup route for a new or default Hermes profile. It is a guided setup wizard, not a passive article. The agent should run the staged setup below, explain each stage in the user's language, and ask for choices before any profile or workspace mutation.
 
+## Primary setup tool
+
+The primary setup path is the real profile installer, not a manual stage walkthrough:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\LaunchRoom\launchroom" -UserLanguage auto -Yes
+```
+
+When the repository is used through a raw GitHub link, ask the user to clone or download the repository before running the script. If the script cannot be run, the agent may perform the equivalent steps manually, but Stage 1/2/4 must not be marked `pass` until the same artifacts exist or are explicitly deferred:
+
+- profile `SOUL.md`;
+- non-secret Hermes config values including `terminal.cwd`, `approvals.mode`, secret redaction, and memory settings;
+- workspace `README.md`, `AGENTS.md`, and `HERMES.md`;
+- workspace `.hermes/reports/profile-setup-report.yaml`;
+- workspace `.hermes/reports/software-inventory-report.yaml`;
+- local LaunchRoom starter skills in the target profile.
+
+## Decision UI contract
+
+Use interactive decision buttons / `clarify` whenever the platform provides them. Required button decisions: profile strategy, workspace strategy, apply setup tool, software install gate, starter capability pack, communication channel, and every stage transition. If buttons are unavailable, use a short A/B/C fallback.
+
 ## Language contract
 
 - Repository documentation, source contracts, scripts, validators, and generated canonical artifacts are written in English.
@@ -29,6 +50,8 @@ The starting prompt authorizes the agent to perform non-destructive LaunchRoom c
 - Set `terminal.cwd` to the selected workspace.
 - Write workspace-local instructions and readiness reports.
 - Install or load an approved LaunchRoom starter skill pack if the user chooses it.
+
+T1 is expected to create a configured LaunchRoom profile layer. A profile that remains blank/default after Stage 1 is not pass.
 
 ### T2 - Install or external setup requires a separate install gate
 
@@ -67,15 +90,17 @@ Purpose: Make the active Hermes profile understandable and prepare it for Launch
 Pass requires:
 - active profile identified
 - model path understood
-- profile setup choice offered and applied or deferred
+- profile setup tool run or explicitly deferred
+- profile SOUL.md and non-secret config verified or explicitly deferred
 
 ### stage_2 - Workspace and project room
 
 Purpose: Create or select the safe local workspace for the SaaS project.
 
 Pass requires:
-- workspace choice collected
+- workspace choice collected with button/clarify when available
 - workspace created/selected or deferred
+- workspace AGENTS.md and HERMES.md written or explicitly deferred
 - terminal.cwd set when approved
 
 ### stage_3 - System inventory and software package
@@ -93,7 +118,8 @@ Purpose: Turn available Hermes capabilities into a starter operating profile.
 
 Pass requires:
 - tools/skills/memory status checked
-- capability pack proposed
+- LaunchRoom starter skills installed or explicitly deferred
+- capability pack report present
 - unauthorized self-patch absent
 
 ### stage_5 - Communications

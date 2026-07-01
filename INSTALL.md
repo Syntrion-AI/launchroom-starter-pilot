@@ -1,5 +1,15 @@
 # Installation and Test Guide
 
+## Real profile setup tool
+
+After cloning or downloading this repository on Windows, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\LaunchRoom\launchroom" -UserLanguage auto -Yes
+```
+
+Use `-ShowPlanOnly` first if you want to preview the exact non-secret changes.
+
 ## Clean test profile
 
 On Windows, create or reset the isolated LaunchRoom profile:

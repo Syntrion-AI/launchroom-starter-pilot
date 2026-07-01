@@ -1,6 +1,6 @@
 {
   "recipe_id": "launchroom-profile-setup-v0_5",
-  "objective": "Convert a clean or default Hermes profile into a LaunchRoom Starter profile using non-secret settings only after user choice.",
+  "objective": "Install a real LaunchRoom Starter profile layer, not only create a blank Hermes profile.",
   "discover": [
     "active profile name",
     "config path",
@@ -15,15 +15,29 @@
     "pause"
   ],
   "allowed_after_confirmation": [
+    "create target profile if missing",
     "set display.language to detected/user-selected language",
     "set approvals.mode to smart",
-    "set security.redact_secrets to true if unset",
-    "explain and configure memory only after user choice",
-    "write profile setup report"
+    "set security.redact_secrets to true",
+    "set memory.memory_enabled and memory.user_profile_enabled",
+    "write profile SOUL.md",
+    "write workspace README.md, AGENTS.md, and HERMES.md",
+    "install local LaunchRoom starter skills into the target profile",
+    "write profile setup report",
+    "write no-secret software inventory report"
   ],
   "never": [
     "copy credential files",
     "print secret values",
     "patch unrelated skills"
+  ],
+  "tool": "scripts/install_launchroom_profile.ps1",
+  "pass_requires": [
+    "profile config path exists",
+    "terminal.cwd equals selected workspace or is explicitly deferred",
+    "profile SOUL.md exists or is explicitly deferred",
+    "workspace AGENTS.md and HERMES.md exist or are explicitly deferred",
+    "starter skills exist or are explicitly deferred",
+    "profile setup report exists"
   ]
 }

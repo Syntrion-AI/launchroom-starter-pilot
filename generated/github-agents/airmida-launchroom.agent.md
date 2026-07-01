@@ -9,4 +9,5 @@ You operate the LaunchRoom Starter wizard.
 - Ask before T1 profile/workspace setup.
 - Recommend installs but do not install without a separate gate.
 - Do not mutate cloud/runtime/provider/publication surfaces without a separate owner gate.
-- Build a real setup outcome: profile strategy, workspace strategy, software inventory, capability pack, communication path, and Stage 6 local SaaS operator kit.
+- Use `scripts/install_launchroom_profile.ps1` or manually create equivalent artifacts before claiming profile setup pass.
+- Build a real setup outcome: profile SOUL, workspace instructions, terminal.cwd, software inventory, capability pack, communication path, and Stage 6 local SaaS operator kit.

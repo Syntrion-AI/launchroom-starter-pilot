@@ -19,6 +19,27 @@ def render_runbook(source: dict) -> str:
 
 Use this file as the executable setup route for a new or default Hermes profile. It is a guided setup wizard, not a passive article. The agent should run the staged setup below, explain each stage in the user's language, and ask for choices before any profile or workspace mutation.
 
+## Primary setup tool
+
+The primary setup path is the real profile installer, not a manual stage walkthrough:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\LaunchRoom\launchroom" -UserLanguage auto -Yes
+```
+
+When the repository is used through a raw GitHub link, ask the user to clone or download the repository before running the script. If the script cannot be run, the agent may perform the equivalent steps manually, but Stage 1/2/4 must not be marked `pass` until the same artifacts exist or are explicitly deferred:
+
+- profile `SOUL.md`;
+- non-secret Hermes config values including `terminal.cwd`, `approvals.mode`, secret redaction, and memory settings;
+- workspace `README.md`, `AGENTS.md`, and `HERMES.md`;
+- workspace `.hermes/reports/profile-setup-report.yaml`;
+- workspace `.hermes/reports/software-inventory-report.yaml`;
+- local LaunchRoom starter skills in the target profile.
+
+## Decision UI contract
+
+Use interactive decision buttons / `clarify` whenever the platform provides them. Required button decisions: profile strategy, workspace strategy, apply setup tool, software install gate, starter capability pack, communication channel, and every stage transition. If buttons are unavailable, use a short A/B/C fallback.
+
 ## Language contract
 
 - Repository documentation, source contracts, scripts, validators, and generated canonical artifacts are written in English.
@@ -44,6 +65,8 @@ The starting prompt authorizes the agent to perform non-destructive LaunchRoom c
 - Set `terminal.cwd` to the selected workspace.
 - Write workspace-local instructions and readiness reports.
 - Install or load an approved LaunchRoom starter skill pack if the user chooses it.
+
+T1 is expected to create a configured LaunchRoom profile layer. A profile that remains blank/default after Stage 1 is not pass.
 
 ### T2 - Install or external setup requires a separate install gate
 
@@ -111,6 +134,7 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 - Speak with the user in the language they use. Do not force a fixed language set.
 - Keep repository documentation and machine contracts in English.
 - Treat the package as a guided setup wizard, not a read-only audit.
+- Prefer the real setup tool `scripts/install_launchroom_profile.ps1` for profile/workspace installation.
 - Run safe T0 checks without extra ceremony after the user starts the wizard.
 - Ask before T1 profile/workspace setup.
 - Require separate gates for software installs, gateway setup, cloud/runtime/provider changes, git publication, and secrets.
@@ -122,6 +146,9 @@ After the user chooses the relevant option, the agent may:
 - create the selected local workspace;
 - set non-secret Hermes config values for the active test/project profile;
 - set `terminal.cwd` to the selected workspace;
+- write profile `SOUL.md` instructions;
+- write workspace `AGENTS.md` and `HERMES.md` instructions;
+- install local LaunchRoom starter skills into the target profile;
 - write workspace-local instructions and readiness reports;
 - recommend and optionally load/install the approved LaunchRoom starter capability pack;
 - create a local SaaS operator kit at Stage 6.
@@ -153,7 +180,8 @@ You operate the LaunchRoom Starter wizard.
 - Ask before T1 profile/workspace setup.
 - Recommend installs but do not install without a separate gate.
 - Do not mutate cloud/runtime/provider/publication surfaces without a separate owner gate.
-- Build a real setup outcome: profile strategy, workspace strategy, software inventory, capability pack, communication path, and Stage 6 local SaaS operator kit.
+- Use `scripts/install_launchroom_profile.ps1` or manually create equivalent artifacts before claiming profile setup pass.
+- Build a real setup outcome: profile SOUL, workspace instructions, terminal.cwd, software inventory, capability pack, communication path, and Stage 6 local SaaS operator kit.
 """
 
 def expected_files(source: dict) -> dict[Path, str]:

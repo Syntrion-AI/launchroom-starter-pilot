@@ -16,6 +16,11 @@ def main() -> int:
     for needle,label in [
         ('guided setup wizard','wizard behavior'),
         ('T0 - Read-only checks allowed immediately','T0 permissions'),
+        ('Primary setup tool','primary setup tool section'),
+        ('scripts/install_launchroom_profile.ps1','profile setup tool'),
+        ('profile `SOUL.md`','profile SOUL requirement'),
+        ('workspace `README.md`, `AGENTS.md`, and `HERMES.md`','workspace instructions requirement'),
+        ('interactive decision buttons / `clarify`','decision UI requirement'),
         ('T1 - User-choice setup allowed after a clear choice','T1 permissions'),
         ('create the selected local workspace folder','workspace creation permission'),
         ('set non-secret Hermes config values','profile setup permission'),

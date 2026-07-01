@@ -14,6 +14,16 @@ https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_
 
 Paste that link into a fresh Hermes session. The agent should use your language for conversation while keeping project documentation and machine contracts in English.
 
+## Primary setup tool
+
+The real setup path is the Windows installer script, not only a chat walkthrough:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\LaunchRoom\launchroom" -UserLanguage auto -Yes
+```
+
+The script creates or selects the Hermes profile, applies non-secret config, writes profile `SOUL.md`, creates workspace `README.md`/`AGENTS.md`/`HERMES.md`, installs local LaunchRoom starter skills, collects a no-secret software inventory, and writes setup reports. It does not copy `.env`, `auth.json`, `state.db`, OAuth stores, session stores, or secret values.
+
 ## What this package should do
 
 - Verify the Hermes execution surface.
@@ -51,6 +61,7 @@ python scripts/validate_language_policy.py
 python scripts/validate_archive_policy.py
 python scripts/validate_profile_recipe.py
 python scripts/validate_inventory_contract.py
+python scripts/validate_profile_setup_tool.py
 python scripts/validate_pilot_seed.py
 python -m py_compile scripts/*.py
 ```

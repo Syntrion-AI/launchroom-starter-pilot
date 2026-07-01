@@ -6,6 +6,19 @@
     "evidence ledger present",
     "next action is next stage, retry, report, or pause"
   ],
+  "decision_ui_contract": {
+    "interactive_buttons_required_when_available": true,
+    "fallback": "short A/B/C choices only when clarify/buttons are not available",
+    "required_decision_points": [
+      "profile strategy",
+      "workspace strategy",
+      "apply setup tool",
+      "software install gate",
+      "starter capability pack",
+      "communication channel",
+      "stage transition"
+    ]
+  },
   "stages": [
     {
       "id": "bootstrap_0",
@@ -23,7 +36,8 @@
       "pass_requires": [
         "active profile identified",
         "model path understood",
-        "profile setup choice offered and applied or deferred"
+        "profile setup tool run or explicitly deferred",
+        "profile SOUL.md and non-secret config verified or explicitly deferred"
       ]
     },
     {
@@ -31,8 +45,9 @@
       "name": "Workspace and project room",
       "purpose": "Create or select the safe local workspace for the SaaS project.",
       "pass_requires": [
-        "workspace choice collected",
+        "workspace choice collected with button/clarify when available",
         "workspace created/selected or deferred",
+        "workspace AGENTS.md and HERMES.md written or explicitly deferred",
         "terminal.cwd set when approved"
       ]
     },
@@ -52,7 +67,8 @@
       "purpose": "Turn available Hermes capabilities into a starter operating profile.",
       "pass_requires": [
         "tools/skills/memory status checked",
-        "capability pack proposed",
+        "LaunchRoom starter skills installed or explicitly deferred",
+        "capability pack report present",
         "unauthorized self-patch absent"
       ]
     },

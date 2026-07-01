@@ -1,3 +1,15 @@
-profile: null
-changes_made: []
-verification: []
+profile: "{{PROFILE_NAME}}"
+workspace: "{{WORKSPACE_PATH}}"
+generated_at: "{{GENERATED_AT}}"
+status: launchroom_profile_layer_installed
+changes_made:
+  - non_secret_config_applied
+  - profile_soul_written
+  - workspace_readme_written
+  - workspace_agents_written
+  - workspace_hermes_written
+  - starter_skills_installed_or_deferred
+  - software_inventory_written_or_deferred
+secrets_handled: false
+runtime_cloud_provider_mutation: false
+next_recommended_step: run_hermes_with_profile_and_start_saas_operator_kit

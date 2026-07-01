@@ -10,14 +10,20 @@ REQUIRED = [
     'source/launchroom.starter.v0_5.json','source/locales/examples.ru.json',
     'source/recipes/profile-setup.json','source/recipes/workspace-setup.json','source/recipes/inventory.json','source/recipes/starter-skillpack.json','source/recipes/messaging.json','source/recipes/saas-operator-kit.json',
     'contracts/launchroom-language-policy.json','contracts/launchroom-permission-tiers.json','contracts/launchroom-stage-contract.json','contracts/launchroom-profile-recipe.json','contracts/launchroom-workspace-recipe.json','contracts/launchroom-inventory-contract.json','contracts/launchroom-archive-policy.json',
-    'scripts/build_agentpack.py','scripts/doctor.py','scripts/validate_behavior_contract.py','scripts/validate_language_policy.py','scripts/validate_archive_policy.py','scripts/validate_profile_recipe.py','scripts/validate_inventory_contract.py','scripts/reset_launchroom_test_profile.ps1',
-    'templates/workspace/README.md','templates/workspace/AGENTS.md','templates/workspace/HERMES.md','templates/reports/launchroom-readiness-report.yaml',
+    'scripts/build_agentpack.py','scripts/doctor.py','scripts/validate_behavior_contract.py','scripts/validate_language_policy.py','scripts/validate_archive_policy.py','scripts/validate_profile_recipe.py','scripts/validate_inventory_contract.py','scripts/validate_profile_setup_tool.py','scripts/reset_launchroom_test_profile.ps1','scripts/install_launchroom_profile.ps1',
+    'templates/profile/SOUL.md','templates/workspace/README.md','templates/workspace/AGENTS.md','templates/workspace/HERMES.md','templates/reports/launchroom-readiness-report.yaml','templates/starter-skills/launchroom-profile-operator/SKILL.md','templates/starter-skills/launchroom-saas-operator/SKILL.md',
     'generated/RUN_ME_FIRST.md','generated/HERMES_SKILL.md','generated/github-agents/airmida-launchroom.agent.md',
     'archive/20260630-rebuild-v0_5/ARCHIVE_MANIFEST.json'
 ]
 CANONICAL_SCAN_EXTS = {'.md','.py','.ps1','.json','.yaml','.yml'}
 ALLOWED_LOCALIZED_PREFIXES = ('archive/','source/locales/','generated/locale-examples/')
-SECRET_MARKERS = ['sk' + '-', 'xoxb' + '-', 'xapp' + '-', 'ghp' + '_', '-----BEGIN ' + 'PRIVATE KEY-----']
+SECRET_PATTERNS = [
+    re.compile(r'sk-[A-Za-z0-9]{20,}'),
+    re.compile(r'xox[baprs]-[A-Za-z0-9-]{20,}'),
+    re.compile(r'xapp-[A-Za-z0-9-]{20,}'),
+    re.compile(r'ghp_[A-Za-z0-9]{20,}'),
+    re.compile(r'-----BEGIN [A-Z ]*PRIVATE KEY-----'),
+]
 
 def fail(msg: str) -> None:
     print(f'FAIL: {msg}')
@@ -50,7 +56,7 @@ def main() -> int:
             continue
         r = rel(path)
         text = path.read_text(encoding='utf-8', errors='ignore')
-        if any(marker in text for marker in SECRET_MARKERS):
+        if any(pattern.search(text) for pattern in SECRET_PATTERNS):
             fail(f'secret-like marker in {r}')
         if CYRILLIC_RE.search(text) and not r.startswith(ALLOWED_LOCALIZED_PREFIXES):
             fail(f'localized text found outside allowed locale/archive path: {r}')

@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main() -> int:
     recipe = json.loads((ROOT/'source/recipes/profile-setup.json').read_text(encoding='utf-8'))
-    required = ['set display.language to detected/user-selected language','set approvals.mode to smart','set security.redact_secrets to true if unset','write profile setup report']
+    required = ['set display.language to detected/user-selected language','set approvals.mode to smart','set security.redact_secrets to true','write profile SOUL.md','write workspace README.md, AGENTS.md, and HERMES.md','install local LaunchRoom starter skills into the target profile','write profile setup report','write no-secret software inventory report']
     text = json.dumps(recipe)
     for item in required:
         if item not in text:
