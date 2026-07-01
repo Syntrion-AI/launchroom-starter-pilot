@@ -24,7 +24,7 @@ def main() -> int:
         ('T1 - User-choice setup allowed after a clear choice','T1 permissions'),
         ('create the selected local workspace folder','workspace creation permission'),
         ('set non-secret Hermes config values','profile setup permission'),
-        ('System inventory and software package','inventory stage'),
+        ('Tool readiness and software purpose map','inventory stage'),
         ('WSL is optional for Local backend','WSL optional rule'),
         ('starter capability pack','capability pack'),
         ('SaaS operator kit','Stage 6 operator kit'),

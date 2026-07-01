@@ -118,14 +118,19 @@ Pass requires:
 - Stage 2 safe scan excludes .env, auth.json, state.db, and .git internals
 - no git, provider, gateway, n8n, Cloudflare, Hetzner, or production runtime mutation
 
-### stage_3 - System inventory and software package
+### stage_3 - Tool readiness and software purpose map
 
-Purpose: Build a no-secret inventory and recommend required/recommended/optional software.
+Purpose: Build a no-secret local tool inventory, explain what each software component is for, and prepare a gated install recommendation package without installing anything.
 
 Pass requires:
-- core tools checked
-- missing software package produced
+- core required tools checked: hermes, python, git
+- recommended tools checked: node, npm, ripgrep, uv, winget/package manager
+- optional tools checked/deferred: docker, wsl
+- software-purpose-map.yaml exists and maps every checked tool to purpose and agent use
+- software-install-recommendation.yaml exists and requires explicit install gate
+- missing software package produced without running install commands
 - WSL treated as optional unless selected
+- Docker not started or mutated by Stage 3
 
 ### stage_4 - Tools, skills, memory, starter capability pack
 

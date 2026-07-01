@@ -58,7 +58,6 @@ def run_self_test_if_available() -> None:
             '-TestOutputRoot',
             str(tmp_path),
             '-Yes',
-            '-NoInventory',
             '-NoToolsets',
         ]
         result = subprocess.run(args, cwd=ROOT, text=True, capture_output=True, timeout=120)
@@ -90,6 +89,9 @@ def run_self_test_if_available() -> None:
             workspace_root / 'AGENTS.md',
             workspace_root / 'HERMES.md',
             workspace_root / '.hermes' / 'reports' / 'workspace-onboarding-report.yaml',
+            workspace_root / '.hermes' / 'reports' / 'software-inventory-report.yaml',
+            workspace_root / '.hermes' / 'reports' / 'software-purpose-map.yaml',
+            workspace_root / '.hermes' / 'reports' / 'software-install-recommendation.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -104,6 +106,20 @@ def run_self_test_if_available() -> None:
             raise SystemExit(1)
         if workspace_report.get('boundaries', {}).get('secrets_read') is not False:
             print('FAIL: self-test workspace onboarding report does not assert secrets_read=false')
+            raise SystemExit(1)
+        inventory_report = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-inventory-report.yaml').read_text(encoding='utf-8'))
+        purpose_map = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-purpose-map.yaml').read_text(encoding='utf-8'))
+        install_rec = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-install-recommendation.yaml').read_text(encoding='utf-8'))
+        if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
+            print('FAIL: self-test software inventory has wrong stage_id')
+            raise SystemExit(1)
+        for tool in ['hermes','python','git','node','npm','ripgrep','uv','winget','docker','wsl']:
+            entry = purpose_map.get('tools', {}).get(tool)
+            if not entry or not entry.get('purpose') or not entry.get('agent_use'):
+                print('FAIL: self-test software purpose map missing purpose/agent_use for ' + tool)
+                raise SystemExit(1)
+        if install_rec.get('install_gate_required') is not True or install_rec.get('installs_executed') is not False:
+            print('FAIL: self-test install recommendation does not enforce gate/no-install')
             raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
@@ -160,6 +176,13 @@ def main() -> int:
         ('git_mutation: false','records no git mutation boundary'),
         ('runtime_mutation: false','records no runtime mutation boundary'),
         ('stage_3_tool_readiness','hands off to Stage 3 tool readiness'),
+        ('stage_4_starter_capability_pack','hands off to Stage 4 capability pack after tool readiness'),
+        ('software-purpose-map.yaml','writes software purpose map'),
+        ('software-install-recommendation.yaml','writes gated software install recommendation'),
+        ('install_gate_required: true','requires install gate for software changes'),
+        ('installs_executed: false','records no install execution'),
+        ('purpose','maps software purpose'),
+        ('agent_use','maps agent use for each software component'),
         ('Never copies .env, auth.json, state.db','secret boundary'),
         ('live_config_has_launchroom_placeholders','checks live placeholders'),
         ('hermes tools enable','enables toolsets where supported'),

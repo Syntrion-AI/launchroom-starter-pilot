@@ -189,6 +189,14 @@ function ConvertTo-YamlSingleQuotedScalar {
   return "'$clean'"
 }
 
+function ConvertTo-YamlListBlock {
+  param([string[]]$Values, [string]$Indent = '  ')
+  if (-not $Values -or $Values.Count -eq 0) { return @("${Indent}[]") }
+  $out = @()
+  foreach ($value in $Values) { $out += "${Indent}- $value" }
+  return $out
+}
+
 function Has-UnresolvedLaunchRoomPlaceholder {
   param([string]$Path)
   if (-not (Test-Path $Path)) { return $true }
@@ -471,38 +479,134 @@ if (-not $NoToolsets -and -not $IsSelfTest) {
   }
 }
 
+$Stage3Status = 'deferred_no_inventory'
+$missingRequired = @()
+$missingRecommended = @()
+$optionalLater = @('docker','wsl')
+$readyRequired = @()
+$readyRecommended = @()
+$readyOptional = @()
 if (-not $NoInventory) {
-  Write-Host 'Collecting no-secret software inventory'
-  $items = @(
-    (Get-CommandStatus 'hermes' @('--version')),
-    (Get-CommandStatus 'python' @('--version')),
-    (Get-CommandStatus 'git' @('--version')),
-    (Get-CommandStatus 'node' @('--version')),
-    (Get-CommandStatus 'npm' @('--version')),
-    (Get-CommandStatus 'docker' @('--version')),
-    (Get-CommandStatus 'rg' @('--version')),
-    (Get-CommandStatus 'uv' @('--version')),
-    (Get-CommandStatus 'winget' @('--version')),
-    (Get-CommandStatus 'wsl' @('--version'))
+  Write-Host 'Collecting Stage 3 no-secret tool readiness inventory and software purpose map'
+  $softwareCatalog = @(
+    @{ name='hermes'; command='hermes'; args=@('--version'); tier='required'; purpose='primary local AI-agent runtime and setup surface'; agent_use='profile creation, config validation, skills, tools, sessions, and later gateway-ready stages'; install_hint='install or repair Hermes Agent through the official Hermes setup path'; windows_hint='hermes setup' },
+    @{ name='python'; command='python'; args=@('--version'); tier='required'; purpose='local scripting and validator execution'; agent_use='run validators, generate reports, execute safe local scripts'; install_hint='install Python 3.11+ or use the approved Hermes runtime Python'; windows_hint='winget install Python.Python.3.11' },
+    @{ name='git'; command='git'; args=@('--version'); tier='required'; purpose='repository version control'; agent_use='inspect status/history, create gated branches/PRs, verify clean trees'; install_hint='install Git for Windows or platform package manager'; windows_hint='winget install Git.Git' },
+    @{ name='node'; command='node'; args=@('--version'); tier='recommended'; purpose='JavaScript/TypeScript and web/SaaS project workflows'; agent_use='inspect package manifests and run JS tooling later after gate'; install_hint='install Node.js LTS'; windows_hint='winget install OpenJS.NodeJS.LTS' },
+    @{ name='npm'; command='npm'; args=@('--version'); tier='recommended'; purpose='Node package manager bundled with Node.js'; agent_use='inspect and run JS package scripts later after gate'; install_hint='install with Node.js LTS'; windows_hint='winget install OpenJS.NodeJS.LTS' },
+    @{ name='ripgrep'; command='rg'; args=@('--version'); tier='recommended'; purpose='fast code and text search'; agent_use='large workspace search without slow shell fallbacks'; install_hint='install ripgrep'; windows_hint='winget install BurntSushi.ripgrep.MSVC' },
+    @{ name='uv'; command='uv'; args=@('--version'); tier='recommended'; purpose='modern Python package/project manager'; agent_use='reproducible Python tooling and local validators'; install_hint='install uv'; windows_hint='winget install astral-sh.uv' },
+    @{ name='winget'; command='winget'; args=@('--version'); tier='recommended'; purpose='Windows package manager'; agent_use='propose repeatable install commands after user gate'; install_hint='enable or install App Installer / winget'; windows_hint='install App Installer from Microsoft Store' },
+    @{ name='docker'; command='docker'; args=@('--version'); tier='optional'; purpose='containers for app stacks and local services'; agent_use='later bounded service/runtime pilots after explicit gate'; install_hint='install Docker Desktop only if container workflows are selected'; windows_hint='winget install Docker.DockerDesktop' },
+    @{ name='wsl'; command='wsl'; args=@('--version'); tier='optional'; purpose='Linux compatibility layer on Windows'; agent_use='optional Linux tooling surface; not required when local backend works'; install_hint='enable WSL only if Linux/WSL workflows are selected'; windows_hint='wsl --install' }
   )
+  $items = @()
+  foreach ($entry in $softwareCatalog) {
+    $status = Get-CommandStatus $entry.command $entry.args
+    $status.name = $entry.name
+    $status.tier = $entry.tier
+    $status.purpose = $entry.purpose
+    $status.agent_use = $entry.agent_use
+    $status.install_hint = $entry.install_hint
+    $status.windows_hint = $entry.windows_hint
+    $items += $status
+  }
+  $readyRequired = @($items | Where-Object { $_.status -eq 'present' -and $_.tier -eq 'required' } | ForEach-Object { $_.name })
+  $missingRequired = @($items | Where-Object { $_.status -eq 'missing' -and $_.tier -eq 'required' } | ForEach-Object { $_.name })
+  $readyRecommended = @($items | Where-Object { $_.status -eq 'present' -and $_.tier -eq 'recommended' } | ForEach-Object { $_.name })
+  $missingRecommended = @($items | Where-Object { $_.status -eq 'missing' -and $_.tier -eq 'recommended' } | ForEach-Object { $_.name })
+  $readyOptional = @($items | Where-Object { $_.status -eq 'present' -and $_.tier -eq 'optional' } | ForEach-Object { $_.name })
+  $optionalLater = @($items | Where-Object { $_.tier -eq 'optional' } | ForEach-Object { $_.name })
+  $Stage3Status = if ($missingRequired.Count -eq 0 -and $missingRecommended.Count -eq 0) { 'pass' } elseif ($missingRequired.Count -eq 0) { 'partial' } else { 'blocked' }
+
   $inventoryPath = Join-Path $WorkspaceFull '.hermes/reports/software-inventory-report.yaml'
-  $lines = @('installed:')
+  $lines = @(
+    'artifact_id: LAUNCHROOM_SOFTWARE_INVENTORY_REPORT_v0_2',
+    'stage_id: stage_3_tool_readiness',
+    "status: $Stage3Status",
+    'installed:'
+  )
   foreach ($item in $items) {
     $safeVersion = ConvertTo-YamlSingleQuotedScalar ([string]$item.version)
+    $safePath = ConvertTo-YamlSingleQuotedScalar ([string]$item.path)
     $lines += "  $($item.name):"
     $lines += "    status: $($item.status)"
+    $lines += "    tier: $($item.tier)"
     $lines += "    version: $safeVersion"
+    $lines += "    path: $safePath"
   }
-  $missingRequired = @($items | Where-Object { $_.status -eq 'missing' -and $_.name -in @('hermes','python','git') } | ForEach-Object { $_.name })
-  $missingRecommended = @($items | Where-Object { $_.status -eq 'missing' -and $_.name -in @('node','npm','docker','rg','uv','winget') } | ForEach-Object { $_.name })
   $lines += 'missing_required:'
-  if ($missingRequired.Count -eq 0) { $lines += '  []' } else { foreach ($m in $missingRequired) { $lines += "  - $m" } }
+  $lines += ConvertTo-YamlListBlock $missingRequired '  '
   $lines += 'missing_recommended:'
-  if ($missingRecommended.Count -eq 0) { $lines += '  []' } else { foreach ($m in $missingRecommended) { $lines += "  - $m" } }
+  $lines += ConvertTo-YamlListBlock $missingRecommended '  '
   $lines += 'optional_later:'
-  $lines += '  - wsl'
+  $lines += ConvertTo-YamlListBlock $optionalLater '  '
   $lines += 'install_gate_required: true'
+  $lines += 'installs_executed: false'
   Write-Utf8NoBom $inventoryPath ($lines -join "`n")
+
+  $purposePath = Join-Path $WorkspaceFull '.hermes/reports/software-purpose-map.yaml'
+  $purposeLines = @(
+    'artifact_id: LAUNCHROOM_SOFTWARE_PURPOSE_MAP_v0_1',
+    'stage_id: stage_3_tool_readiness',
+    "status: $Stage3Status",
+    'tools:'
+  )
+  foreach ($item in $items) {
+    $purposeLines += "  $($item.name):"
+    $purposeLines += "    tier: $($item.tier)"
+    $purposeLines += "    status: $($item.status)"
+    $purposeLines += "    purpose: $(ConvertTo-YamlSingleQuotedScalar $item.purpose)"
+    $purposeLines += "    agent_use: $(ConvertTo-YamlSingleQuotedScalar $item.agent_use)"
+    $purposeLines += "    install_hint: $(ConvertTo-YamlSingleQuotedScalar $item.install_hint)"
+  }
+  $purposeLines += 'readiness_tiers:'
+  $purposeLines += '  required:'
+  $purposeLines += ConvertTo-YamlListBlock @('hermes','python','git') '    '
+  $purposeLines += '  recommended:'
+  $purposeLines += ConvertTo-YamlListBlock @('node','npm','ripgrep','uv','winget') '    '
+  $purposeLines += '  optional:'
+  $purposeLines += ConvertTo-YamlListBlock @('docker','wsl') '    '
+  $purposeLines += 'agent_use_cases:'
+  $purposeLines += "  local_setup: 'Hermes, Python, and Git keep the starter install, validators, and repository-safe work usable.'"
+  $purposeLines += "  saas_project_work: 'Node/npm, ripgrep, and uv improve web/SaaS project work after user gates.'"
+  $purposeLines += "  later_runtime_pilots: 'Docker and WSL stay optional until container/Linux workflows are selected.'"
+  $purposeLines += 'boundaries:'
+  $purposeLines += '  secrets_read: false'
+  $purposeLines += '  installs_executed: false'
+  $purposeLines += '  service_mutation: false'
+  $purposeLines += '  runtime_mutation: false'
+  Write-Utf8NoBom $purposePath ($purposeLines -join "`n")
+
+  $recommendationPath = Join-Path $WorkspaceFull '.hermes/reports/software-install-recommendation.yaml'
+  $recommendationLines = @(
+    'artifact_id: LAUNCHROOM_SOFTWARE_INSTALL_RECOMMENDATION_v0_1',
+    'stage_id: stage_3_tool_readiness',
+    "status: $Stage3Status",
+    'install_gate_required: true',
+    'do_not_run_without_gate: true',
+    'installs_executed: false',
+    'required_missing:'
+  )
+  $recommendationLines += ConvertTo-YamlListBlock $missingRequired '  '
+  $recommendationLines += 'recommended_missing:'
+  $recommendationLines += ConvertTo-YamlListBlock $missingRecommended '  '
+  $recommendationLines += 'optional_later:'
+  $recommendationLines += ConvertTo-YamlListBlock $optionalLater '  '
+  $recommendationLines += 'suggested_commands_windows:'
+  $missingForCommands = @($items | Where-Object { $_.status -eq 'missing' -and $_.tier -ne 'optional' })
+  if ($missingForCommands.Count -eq 0) {
+    $recommendationLines += '  []'
+  } else {
+    foreach ($item in $missingForCommands) {
+      $recommendationLines += "  - tool: $($item.name)"
+      $recommendationLines += "    command: $(ConvertTo-YamlSingleQuotedScalar $item.windows_hint)"
+      $recommendationLines += "    reason: $(ConvertTo-YamlSingleQuotedScalar $item.agent_use)"
+    }
+  }
+  $recommendationLines += 'manual_review_required: true'
+  $recommendationLines += "next_stage: 'stage_4_starter_capability_pack'"
+  Write-Utf8NoBom $recommendationPath ($recommendationLines -join "`n")
 }
 
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
@@ -534,6 +638,11 @@ $verification = [ordered]@{
   terminal_cwd_matches_workspace = $terminalCwdMatchesWorkspace
   project_type = $ProjectType
   inventory_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-inventory-report.yaml')
+  software_purpose_map_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-purpose-map.yaml')
+  software_install_recommendation_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-install-recommendation.yaml')
+  stage3_status = $Stage3Status
+  stage3_missing_required = ($missingRequired -join ',')
+  stage3_missing_recommended = ($missingRecommended -join ',')
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -541,7 +650,8 @@ $verification = [ordered]@{
 }
 
 if ($IsSelfTest -and $LiveConfigHasPlaceholder) { throw 'Self-test failed: simulated live config.yaml contains unresolved __LAUNCHROOM_RESOLVE__ placeholder.' }
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists
+$Stage3ReportsOk = if ($NoInventory) { $true } else { $verification.inventory_report_exists -and $verification.software_purpose_map_exists -and $verification.software_install_recommendation_exists }
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -550,11 +660,13 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 software readiness map, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
-Write-Host "next_stage: stage_3_tool_readiness"
+Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
+Write-Host "install_gate_required: true; installs_executed: false"
+Write-Host "next_stage: stage_4_starter_capability_pack"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }

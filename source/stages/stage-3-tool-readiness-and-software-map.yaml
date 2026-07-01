@@ -1,0 +1,195 @@
+artifact_id: LAUNCHROOM_STAGE_3_TOOL_READINESS_AND_SOFTWARE_MAP_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_3_tool_readiness
+stage_name: Tool Readiness & Software Purpose Map
+language: en
+
+purpose:
+  summary: >-
+    Define the Stage 3 wizard that turns local executable checks into a no-secret
+    software purpose map and gated installation recommendation package. Stage 3
+    helps the agent know which software exists, what each tool is for, whether it
+    is required, recommended, optional, or deferred, and which missing software
+    may be proposed for installation after a separate owner gate.
+  not_purpose:
+    - not automatic software installation
+    - not provider/model credential setup
+    - not gateway or messaging setup
+    - not MCP credential wiring
+    - not n8n, Cloudflare, Hetzner, Docker service, or production runtime mutation
+    - not reading .env, auth.json, state.db, OAuth stores, private keys, or credential files
+
+stage_boundary:
+  owns:
+    - local command presence/version/path probes
+    - tool purpose classification
+    - required/recommended/optional/deferred readiness tiers
+    - missing software recommendation package
+    - no-secret software inventory report
+    - no-secret software purpose map
+    - next-step handoff to Stage 4 starter capability pack
+  does_not_own:
+    - installing software without explicit install gate
+    - enabling cloud/runtime/provider integrations
+    - starting services or daemons
+    - reading or storing secrets
+    - git mutation inside user projects
+
+software_catalog:
+  required:
+    hermes:
+      purpose: primary local AI-agent runtime and setup surface
+      agent_use: profile creation, config validation, skills, tools, sessions, gateway-ready later stages
+      install_hint: install or repair Hermes Agent through official Hermes setup path
+    python:
+      purpose: local scripting and validator execution
+      agent_use: run validators, generate reports, execute safe local scripts
+      install_hint: install Python 3.11+ or use the approved Hermes runtime Python
+    git:
+      purpose: repository version control
+      agent_use: inspect status/history, create gated branches/PRs, verify clean trees
+      install_hint: install Git for Windows or platform package manager
+  recommended:
+    node:
+      purpose: JavaScript/TypeScript and web/SaaS project workflows
+      agent_use: inspect package manifests, run JS tooling later after gate
+      install_hint: install Node.js LTS
+    npm:
+      purpose: Node package manager bundled with Node.js
+      agent_use: inspect/run JS package scripts later after gate
+      install_hint: install with Node.js LTS
+    rg:
+      purpose: fast code and text search
+      agent_use: large workspace search without slow shell fallbacks
+      install_hint: install ripgrep
+    uv:
+      purpose: modern Python package/project manager
+      agent_use: reproducible Python tooling and local validators
+      install_hint: install uv
+    winget:
+      purpose: Windows package manager
+      agent_use: propose repeatable install commands after user gate
+      install_hint: enable/install App Installer or winget
+  optional:
+    docker:
+      purpose: containers for app stacks and local services
+      agent_use: later bounded service/runtime pilots after explicit gate
+      install_hint: install Docker Desktop only if container workflows are selected
+    wsl:
+      purpose: Linux compatibility layer on Windows
+      agent_use: optional Linux tooling surface; not required when local backend works
+      install_hint: enable WSL only if user selects Linux/WSL workflows
+
+required_inputs:
+  profile_name:
+    source: Stage 1
+  workspace_path:
+    source: Stage 2
+  install_gate:
+    default: false
+    rule: Stage 3 may propose install commands but must not run them without a separate explicit owner install gate.
+
+wizard_flow:
+  - step_id: 0_preflight
+    name: Verify Stage 2 workspace boundary
+    mode: read_only
+    checks:
+      - workspace exists
+      - workspace .hermes/reports/workspace-onboarding-report.yaml exists when Stage 2 was applied
+      - terminal cwd has a selected workspace value or is explicitly partial/deferred
+  - step_id: 1_probe_tools
+    name: Probe local tools without secrets
+    mode: local_read_only
+    commands:
+      - os and shell probe
+      - hermes --version
+      - python --version
+      - git --version
+      - node --version
+      - npm --version
+      - rg --version
+      - uv --version
+      - winget --version
+      - docker --version
+      - wsl --version
+    forbidden:
+      - package installation
+      - service start/stop
+      - credential file reads
+      - cloud API calls
+  - step_id: 2_classify_readiness
+    name: Classify readiness tiers
+    mode: local_reasoning
+    outputs:
+      - ready_required
+      - missing_required
+      - ready_recommended
+      - missing_recommended
+      - ready_optional
+      - optional_later
+  - step_id: 3_write_software_purpose_map
+    name: Write no-secret software purpose map
+    mode: local_file_generation
+    output: .hermes/reports/software-purpose-map.yaml
+  - step_id: 4_write_install_recommendation_package
+    name: Write gated install recommendation package
+    mode: local_file_generation
+    output: .hermes/reports/software-install-recommendation.yaml
+    rule: commands are suggestions only and require explicit install gate before execution
+  - step_id: 5_report_next_decision
+    name: Report Stage 3 result and next stage
+    mode: handoff
+    result_states:
+      pass: all required tools present and reports written
+      partial: required tools present but recommended/optional tools missing or deferred
+      blocked: required tool missing or local probe could not run safely
+    next_decision: continue_to_stage_4_starter_capability_pack
+
+outputs:
+  required:
+    - .hermes/reports/software-inventory-report.yaml
+    - .hermes/reports/software-purpose-map.yaml
+    - .hermes/reports/software-install-recommendation.yaml
+  required_report_fields:
+    software_inventory:
+      - installed
+      - missing_required
+      - missing_recommended
+      - optional_later
+      - install_gate_required
+    software_purpose_map:
+      - tools
+      - readiness_tiers
+      - agent_use_cases
+      - boundaries
+    software_install_recommendation:
+      - install_gate_required
+      - required_missing
+      - recommended_missing
+      - optional_later
+      - suggested_commands_windows
+      - do_not_run_without_gate
+
+acceptance_criteria:
+  - Tool probes do not read secrets.
+  - Required tools are classified separately from recommended and optional tools.
+  - Every probed tool has a purpose and agent_use value.
+  - Missing tools are included in a gated install recommendation package.
+  - No install command is executed by Stage 3.
+  - WSL is optional and must not block Starter when local terminal works.
+  - Docker is optional/recommended only for later container workflows and must not be started by Stage 3.
+  - YAML reports parse successfully.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: Required local toolchain is ready and the agent has a current software map.
+  partial:
+    meaning: Required toolchain is usable, but recommended/optional software remains gated or deferred.
+  blocked:
+    meaning: Required local tool is missing or tool probing cannot be completed safely.
+
+next_stage:
+  id: stage_4_starter_capability_pack
+  reason: After local software readiness is known, LaunchRoom can map Hermes tools, skills, and memory into a starter capability pack.
