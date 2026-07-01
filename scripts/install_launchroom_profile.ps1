@@ -45,7 +45,8 @@ if ($ProfileName -notmatch '^[a-z0-9][a-z0-9-]*$') {
   throw "ProfileName must use lowercase letters, numbers, and hyphens only."
 }
 if ([string]::IsNullOrWhiteSpace($WorkspacePath)) {
-  $WorkspacePath = Join-Path $env:USERPROFILE (Join-Path 'LaunchRoom' $ProfileName)
+  $HomeRoot = if (-not [string]::IsNullOrWhiteSpace($env:USERPROFILE)) { $env:USERPROFILE } elseif (-not [string]::IsNullOrWhiteSpace($env:HOME)) { $env:HOME } else { [System.IO.Path]::GetTempPath() }
+  $WorkspacePath = Join-Path $HomeRoot (Join-Path 'LaunchRoom' $ProfileName)
 }
 if ([string]::IsNullOrWhiteSpace($ProjectName)) {
   $ProjectName = $ProfileName
