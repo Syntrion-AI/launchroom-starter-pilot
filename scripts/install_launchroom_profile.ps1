@@ -14,6 +14,10 @@
   It never copies .env, auth.json, state.db, OAuth stores, memory/session stores,
   logs, or raw MCP credential values. It never asks for or writes secret values.
 
+  Use -TestOutputRoot for CI-grade non-mutating self-test mode. In that mode
+  the script writes a simulated profile/workspace tree under the supplied path
+  and never calls hermes profile/config/tools commands.
+
   The source package is profile-distribution/launchroom-saas. The old
   templates/ directory is kept only for compatibility with earlier pilot stages.
 #>
@@ -28,7 +32,8 @@ param(
   [switch]$NoLocalSkills,
   [switch]$NoToolsets,
   [switch]$NoInventory,
-  [switch]$ShowPlanOnly
+  [switch]$ShowPlanOnly,
+  [string]$TestOutputRoot = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -130,7 +135,7 @@ function Has-UnresolvedLaunchRoomPlaceholder {
   param([string]$Path)
   if (-not (Test-Path $Path)) { return $false }
   $text = Get-Content -Raw -Encoding UTF8 $Path
-  return ($text -match '__LAUNCHROOM_RESOLVE__')
+  return ($text -match '__LAUNCHROOM_RESOLVE__[A-Z0-9_]+')
 }
 
 $RequiredDistributionFiles = @(
@@ -151,7 +156,14 @@ foreach ($rel in $RequiredDistributionFiles) {
 }
 Require-Path (Join-Path $SourceRoot 'stages/output/stage-1-selected-settings.example.yaml') 'selected settings example'
 
-$WorkspaceFull = [System.IO.Path]::GetFullPath($WorkspacePath)
+$IsSelfTest = -not [string]::IsNullOrWhiteSpace($TestOutputRoot)
+$TestOutputFull = ''
+if ($IsSelfTest) {
+  $TestOutputFull = [System.IO.Path]::GetFullPath($TestOutputRoot)
+  $WorkspaceFull = Join-Path $TestOutputFull (Join-Path 'workspace' $ProfileName)
+} else {
+  $WorkspaceFull = [System.IO.Path]::GetFullPath($WorkspacePath)
+}
 $HasModelProvider = -not [string]::IsNullOrWhiteSpace($ModelProvider)
 $HasModelDefault = -not [string]::IsNullOrWhiteSpace($ModelDefault)
 $ModelProviderToken = if ($HasModelProvider) { $ModelProvider } else { 'DEFERRED_MODEL_PROVIDER' }
@@ -164,6 +176,7 @@ Project: $ProjectName
 Workspace: $WorkspaceFull
 User language mode: $UserLanguage
 Distribution source: $DistributionRoot
+Self-test mode: $IsSelfTest
 Will create/update:
 - Hermes profile if missing
 - non-secret Hermes config values from LaunchRoom Stage 1 baseline
@@ -184,6 +197,10 @@ Will not touch:
 - OAuth/session/memory stores
 - cloud/provider/runtime/gateway credentials
 - raw MCP credential values
+Self-test mode additionally will not call:
+- hermes profile create
+- hermes config set
+- hermes tools enable
 Model config:
 - provider: $(if ($HasModelProvider) { $ModelProvider } else { 'deferred' })
 - default model: $(if ($HasModelDefault) { $ModelDefault } else { 'deferred' })
@@ -192,16 +209,23 @@ Write-Host $plan
 if ($ShowPlanOnly) { exit 0 }
 Confirm-Step "Apply this LaunchRoom Starter profile setup?"
 
-$profiles = (Capture-Hermes @('profile','list'))
-if ($profiles -notmatch [regex]::Escape($ProfileName)) {
-  Write-Host "Creating Hermes profile: $ProfileName"
-  Run-Hermes @('profile','create',$ProfileName,'--description','LaunchRoom Starter profile for local SaaS project setup and governed AI-operator work.')
+if ($IsSelfTest) {
+  Write-Host "Running non-mutating self-test mode under: $TestOutputFull"
+  $profileRoot = Join-Path $TestOutputFull (Join-Path 'profiles' $ProfileName)
+  $configPath = Join-Path $profileRoot 'config.yaml'
+  New-Item -ItemType Directory -Force -Path $profileRoot | Out-Null
 } else {
-  Write-Host "Using existing Hermes profile: $ProfileName"
-}
+  $profiles = (Capture-Hermes @('profile','list'))
+  if ($profiles -notmatch [regex]::Escape($ProfileName)) {
+    Write-Host "Creating Hermes profile: $ProfileName"
+    Run-Hermes @('profile','create',$ProfileName,'--description','LaunchRoom Starter profile for local SaaS project setup and governed AI-operator work.')
+  } else {
+    Write-Host "Using existing Hermes profile: $ProfileName"
+  }
 
-$configPath = Capture-Hermes @('-p',$ProfileName,'config','path')
-$profileRoot = Split-Path -Parent $configPath
+  $configPath = Capture-Hermes @('-p',$ProfileName,'config','path')
+  $profileRoot = Split-Path -Parent $configPath
+}
 New-Item -ItemType Directory -Force -Path $WorkspaceFull | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $WorkspaceFull '.hermes/reports') | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $WorkspaceFull '.hermes/instructions') | Out-Null
@@ -210,9 +234,9 @@ New-Item -ItemType Directory -Force -Path (Join-Path $profileRoot 'reports') | O
 
 $tokens = @{
   PROFILE_NAME = $ProfileName
-  PROFILE_PATH = $profileRoot
-  WORKSPACE_PATH = $WorkspaceFull
-  PROJECT_PATH = $WorkspaceFull
+  PROFILE_PATH = $profileRoot.Replace('\','/')
+  WORKSPACE_PATH = $WorkspaceFull.Replace('\','/')
+  PROJECT_PATH = $WorkspaceFull.Replace('\','/')
   PROJECT_NAME = $ProjectName
   USER_LANGUAGE = $UserLanguage
   MODEL_PROVIDER = $ModelProviderToken
@@ -220,40 +244,45 @@ $tokens = @{
   GENERATED_AT = (Get-Date).ToString('s')
 }
 
-Write-Host 'Applying non-secret Hermes config values from LaunchRoom Stage 1 baseline'
-if ($HasModelProvider) { Set-HermesConfig 'model.provider' $ModelProvider }
-if ($HasModelDefault) { Set-HermesConfig 'model.default' $ModelDefault }
-Set-HermesConfig 'display.personality' 'technical'
-Set-HermesConfig 'display.language' $UserLanguage
-Set-HermesConfig 'display.show_reasoning' 'false'
-Set-HermesConfig 'agent.image_input_mode' 'auto'
-Set-HermesConfig 'agent.max_turns' '60'
-Set-HermesConfig 'agent.api_max_retries' '3'
-Set-HermesConfig 'agent.tool_use_enforcement' 'auto'
-Set-HermesConfig 'approvals.mode' 'smart'
-Set-HermesConfig 'approvals.timeout' '60'
-Set-HermesConfig 'approvals.cron_mode' 'deny'
-Set-HermesConfig 'approvals.mcp_reload_confirm' 'true'
-Set-HermesConfig 'approvals.destructive_slash_confirm' 'true'
-Set-HermesConfig 'security.redact_secrets' 'true'
-Set-HermesConfig 'security.allow_private_urls' 'false'
-Set-HermesConfig 'security.tirith_enabled' 'true'
-Set-HermesConfig 'browser.allow_private_urls' 'false'
-Set-HermesConfig 'browser.auto_local_for_private_urls' 'true'
-Set-HermesConfig 'checkpoints.enabled' 'true'
-Set-HermesConfig 'checkpoints.max_snapshots' '20'
-Set-HermesConfig 'terminal.backend' 'local'
-Set-HermesConfig 'terminal.cwd' $WorkspaceFull
-Set-HermesConfig 'terminal.timeout' '180'
-Set-HermesConfig 'terminal.persistent_shell' 'true'
-Set-HermesConfig 'code_execution.mode' 'project'
-Set-HermesConfig 'memory.memory_enabled' 'true'
-Set-HermesConfig 'memory.user_profile_enabled' 'true'
-Set-HermesConfig 'memory.write_approval' 'false'
-Set-HermesConfig 'file_read_max_chars' '100000'
-Set-HermesConfig 'tool_output.max_bytes' '50000'
-Set-HermesConfig 'tool_output.max_lines' '2000'
-Set-HermesConfig 'tool_output.max_line_length' '2000'
+if ($IsSelfTest) {
+  Write-Host 'Self-test mode: generating simulated live config.yaml from template; skipping hermes config set.'
+  Copy-ResolvedFile (Join-Path $DistributionRoot 'config.yaml.template') $configPath $tokens
+} else {
+  Write-Host 'Applying non-secret Hermes config values from LaunchRoom Stage 1 baseline'
+  if ($HasModelProvider) { Set-HermesConfig 'model.provider' $ModelProvider }
+  if ($HasModelDefault) { Set-HermesConfig 'model.default' $ModelDefault }
+  Set-HermesConfig 'display.personality' 'technical'
+  Set-HermesConfig 'display.language' $UserLanguage
+  Set-HermesConfig 'display.show_reasoning' 'false'
+  Set-HermesConfig 'agent.image_input_mode' 'auto'
+  Set-HermesConfig 'agent.max_turns' '60'
+  Set-HermesConfig 'agent.api_max_retries' '3'
+  Set-HermesConfig 'agent.tool_use_enforcement' 'auto'
+  Set-HermesConfig 'approvals.mode' 'smart'
+  Set-HermesConfig 'approvals.timeout' '60'
+  Set-HermesConfig 'approvals.cron_mode' 'deny'
+  Set-HermesConfig 'approvals.mcp_reload_confirm' 'true'
+  Set-HermesConfig 'approvals.destructive_slash_confirm' 'true'
+  Set-HermesConfig 'security.redact_secrets' 'true'
+  Set-HermesConfig 'security.allow_private_urls' 'false'
+  Set-HermesConfig 'security.tirith_enabled' 'true'
+  Set-HermesConfig 'browser.allow_private_urls' 'false'
+  Set-HermesConfig 'browser.auto_local_for_private_urls' 'true'
+  Set-HermesConfig 'checkpoints.enabled' 'true'
+  Set-HermesConfig 'checkpoints.max_snapshots' '20'
+  Set-HermesConfig 'terminal.backend' 'local'
+  Set-HermesConfig 'terminal.cwd' $WorkspaceFull
+  Set-HermesConfig 'terminal.timeout' '180'
+  Set-HermesConfig 'terminal.persistent_shell' 'true'
+  Set-HermesConfig 'code_execution.mode' 'project'
+  Set-HermesConfig 'memory.memory_enabled' 'true'
+  Set-HermesConfig 'memory.user_profile_enabled' 'true'
+  Set-HermesConfig 'memory.write_approval' 'false'
+  Set-HermesConfig 'file_read_max_chars' '100000'
+  Set-HermesConfig 'tool_output.max_bytes' '50000'
+  Set-HermesConfig 'tool_output.max_lines' '2000'
+  Set-HermesConfig 'tool_output.max_line_length' '2000'
+}
 
 Write-Host 'Writing LaunchRoom profile-distribution files into target profile'
 Copy-ResolvedFile (Join-Path $DistributionRoot 'SOUL.md') (Join-Path $profileRoot 'SOUL.md') $tokens
@@ -285,7 +314,7 @@ if (-not $NoLocalSkills) {
 }
 
 $toolsetResults = @()
-if (-not $NoToolsets) {
+if (-not $NoToolsets -and -not $IsSelfTest) {
   Write-Host 'Enabling LaunchRoom starter toolsets where supported by this Hermes install (preferred path: hermes tools enable <toolset>)'
   $starterToolsets = @('terminal','file','web','search','browser','vision','skills','memory','session_search','clarify','todo','code_execution')
   foreach ($toolset in $starterToolsets) {
@@ -356,9 +385,12 @@ $verification = [ordered]@{
   setup_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/profile-setup-report.yaml')
   inventory_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-inventory-report.yaml')
   toolset_partial_count = $ToolsetPartialCount
-  reset_or_new_session_required = $true
+  self_test_mode = $IsSelfTest
+  test_output_root = $TestOutputFull
+  reset_or_new_session_required = (-not $IsSelfTest)
 }
 
+if ($IsSelfTest -and $LiveConfigHasPlaceholder) { throw 'Self-test failed: simulated live config.yaml contains unresolved __LAUNCHROOM_RESOLVE__ placeholder.' }
 Write-Host 'LaunchRoom profile setup complete.'
 $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Value)" }
 Write-Host "Next: restart Hermes or start a new session, then run: hermes -p $ProfileName"

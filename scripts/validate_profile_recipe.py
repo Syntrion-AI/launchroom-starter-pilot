@@ -8,6 +8,8 @@ def main() -> int:
     recipe = json.loads((ROOT/'source/recipes/profile-setup.json').read_text(encoding='utf-8'))
     required = [
         'profile-distribution/launchroom-saas package presence',
+        'run non-mutating installer self-test with -TestOutputRoot',
+        'generate simulated profile/workspace tree under -TestOutputRoot without calling hermes profile/config/tools',
         'set source-backed non-secret Stage 1 Hermes config values',
         'set terminal.cwd to the selected workspace',
         'write profile SOUL.md from profile-distribution/launchroom-saas',
@@ -19,6 +21,7 @@ def main() -> int:
         'install bundled LaunchRoom starter skills into the target profile',
         'write no-secret software inventory report',
         'live config.yaml contains no __LAUNCHROOM_RESOLVE__ placeholders',
+        'installer self-test creates simulated profile files under TestOutputRoot',
     ]
     text = json.dumps(recipe)
     for item in required:
@@ -31,6 +34,7 @@ def main() -> int:
         'write unresolved __LAUNCHROOM_RESOLVE__ placeholders into live config.yaml',
         'patch unrelated skills',
         'mutate provider/cloud/runtime/gateway credentials',
+        'self-test mode must not call hermes profile create, hermes config set, or hermes tools enable',
     ]
     for item in forbidden_required:
         if item not in text:

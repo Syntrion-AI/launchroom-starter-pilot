@@ -13,11 +13,13 @@
     "create/select an isolated LaunchRoom profile",
     "preview install plan only",
     "apply profile-distribution package after confirmation",
+    "run non-mutating installer self-test with -TestOutputRoot",
     "defer model/provider setup",
     "skip toolset enabling and report partial",
     "pause"
   ],
   "allowed_after_confirmation": [
+    "generate simulated profile/workspace tree under -TestOutputRoot without calling hermes profile/config/tools",
     "create target profile if missing",
     "set source-backed non-secret Stage 1 Hermes config values",
     "set terminal.cwd to the selected workspace",
@@ -38,7 +40,8 @@
     "print secret values",
     "write unresolved __LAUNCHROOM_RESOLVE__ placeholders into live config.yaml",
     "patch unrelated skills",
-    "mutate provider/cloud/runtime/gateway credentials"
+    "mutate provider/cloud/runtime/gateway credentials",
+    "self-test mode must not call hermes profile create, hermes config set, or hermes tools enable"
   ],
   "tool": "scripts/install_launchroom_profile.ps1",
   "source_distribution": "profile-distribution/launchroom-saas",
@@ -52,6 +55,7 @@
     "live config.yaml contains no __LAUNCHROOM_RESOLVE__ placeholders",
     "workspace AGENTS.md and HERMES.md exist or are explicitly deferred",
     "starter skills exist or are explicitly deferred",
-    "profile setup report exists"
+    "profile setup report exists",
+    "installer self-test creates simulated profile files under TestOutputRoot"
   ]
 }
