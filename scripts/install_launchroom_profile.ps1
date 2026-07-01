@@ -99,6 +99,19 @@ function Confirm-Step {
   if ($answer -ne 'YES') { throw 'User cancelled LaunchRoom setup.' }
 }
 
+
+function Write-LaunchRoomSection {
+  param([string]$Title)
+  Write-Host ""
+  Write-Host "== $Title =="
+}
+
+function ConvertTo-LaunchRoomYesNo {
+  param([bool]$Value)
+  if ($Value) { return 'yes' }
+  return 'no'
+}
+
 function Resolve-LaunchRoomTokens {
   param([string]$Text, [hashtable]$Tokens)
   $result = $Text
@@ -178,16 +191,36 @@ $HasModelDefault = -not [string]::IsNullOrWhiteSpace($ModelDefault)
 $ModelProviderToken = if ($HasModelProvider) { $ModelProvider } else { 'DEFERRED_MODEL_PROVIDER' }
 $ModelDefaultToken = if ($HasModelDefault) { $ModelDefault } else { 'DEFERRED_MODEL_DEFAULT' }
 
+$ToolsetPlan = if ($NoToolsets) { 'skipped by -NoToolsets' } elseif ($IsSelfTest) { 'skipped in self-test mode' } else { 'starter toolsets will be enabled where supported' }
+$InventoryPlan = if ($NoInventory) { 'skipped by -NoInventory' } else { 'no-secret software inventory will be collected' }
+$LocalSkillsPlan = if ($NoLocalSkills) { 'skipped by -NoLocalSkills' } else { '3 LaunchRoom skills will be installed' }
+$ModelProviderPlan = if ($HasModelProvider) { $ModelProvider } else { 'deferred safely; run Hermes model/setup later' }
+$ModelDefaultPlan = if ($HasModelDefault) { $ModelDefault } else { 'deferred safely; run Hermes model/setup later' }
+
 $plan = @"
-LaunchRoom Starter profile setup plan
-Profile: $ProfileName
-Project: $ProjectName
-Workspace: $WorkspaceFull
-User language mode: $UserLanguage
-Distribution source: $DistributionRoot
-Self-test mode: $IsSelfTest
+LaunchRoom Stage 1 beginner-safe setup plan
+
+In plain language:
+- This creates or updates ONE isolated Hermes profile: $ProfileName
+- Your existing main/default/airmida profiles are protected and are not the target.
+- Secrets are not requested, copied, printed, or stored by this installer.
+- Provider/model setup is optional and can be deferred safely.
+- Runtime surfaces such as n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production deployments are not touched.
+
+Selected choices:
+- Profile: $ProfileName
+- Project name: $ProjectName
+- Workspace: $WorkspaceFull
+- User language: $UserLanguage
+- Model provider: $ModelProviderPlan
+- Default model: $ModelDefaultPlan
+- Toolsets: $ToolsetPlan
+- Local LaunchRoom skills: $LocalSkillsPlan
+- Inventory: $InventoryPlan
+- Self-test mode: $IsSelfTest
+
 Will create/update:
-- Hermes profile if missing
+- Hermes profile if missing, using --no-skills to avoid default bundled skill noise
 - non-secret Hermes config values from LaunchRoom Stage 1 baseline
 - profile SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml
 - profile .env.EXAMPLE with variable names only
@@ -199,6 +232,7 @@ Will create/update:
 - workspace README.md, AGENTS.md, HERMES.md when compatibility templates exist
 - workspace .hermes/reports/profile-setup-report.yaml when compatibility template exists
 - workspace .hermes/reports/software-inventory-report.yaml unless -NoInventory
+
 Will not touch:
 - .env
 - auth.json
@@ -206,14 +240,19 @@ Will not touch:
 - OAuth/session/memory stores
 - cloud/provider/runtime/gateway credentials
 - raw MCP credential values
+- n8n, Cloudflare, Hetzner, MCP, gateway, billing, or production runtime surfaces
+
 Self-test mode additionally will not call:
 - hermes profile create
 - hermes config set
 - hermes tools enable
-Model config:
-- provider: $(if ($HasModelProvider) { $ModelProvider } else { 'deferred' })
-- default model: $(if ($HasModelDefault) { $ModelDefault } else { 'deferred' })
+
+Beginner-safe result to expect:
+- PASS means the profile layer exists, required files are visible, YAML is valid, and no LaunchRoom placeholders remain.
+- PARTIAL means the profile layer is usable, but model/provider or optional tools still need a later setup step.
+- BLOCKED means the installer refused to proceed instead of guessing or touching a protected surface.
 "@
+Write-LaunchRoomSection 'Beginner-safe plan'
 Write-Host $plan
 if ($ShowPlanOnly) { exit 0 }
 Confirm-Step "Apply this LaunchRoom Starter profile setup?"
@@ -400,6 +439,23 @@ $verification = [ordered]@{
 }
 
 if ($IsSelfTest -and $LiveConfigHasPlaceholder) { throw 'Self-test failed: simulated live config.yaml contains unresolved __LAUNCHROOM_RESOLVE__ placeholder.' }
-Write-Host 'LaunchRoom profile setup complete.'
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists
+$NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
+$InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
+
+Write-LaunchRoomSection 'Machine verification'
 $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Value)" }
-Write-Host "Next: restart Hermes or start a new session, then run: hermes -p $ProfileName"
+
+Write-LaunchRoomSection 'Beginner-safe result'
+Write-Host "status: $InstallStatus"
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*"
+if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
+  Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
+}
+if ($ToolsetPartialCount -gt 0) {
+  Write-Host "remaining_safe_step: some optional toolsets were partial; run 'hermes -p $ProfileName tools list' later."
+}
+Write-Host "next_command: hermes -p $ProfileName"
+Write-Host "restart_required: $(ConvertTo-LaunchRoomYesNo (-not $IsSelfTest))"
