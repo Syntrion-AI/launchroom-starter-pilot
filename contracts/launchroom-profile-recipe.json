@@ -1,43 +1,61 @@
 {
-  "recipe_id": "launchroom-profile-setup-v0_5",
-  "objective": "Install a real LaunchRoom Starter profile layer, not only create a blank Hermes profile.",
+  "recipe_id": "launchroom-profile-setup-v0_6",
+  "objective": "Install a real LaunchRoom SaaS profile-distribution layer, not only create a blank Hermes profile.",
   "discover": [
     "active profile name",
     "config path",
     "env path presence only",
     "memory status",
-    "tool status"
+    "tool status",
+    "profile-distribution/launchroom-saas package presence"
   ],
   "choices": [
-    "convert current test profile",
-    "create/select another disposable profile",
-    "keep current profile temporarily",
+    "create/select an isolated LaunchRoom profile",
+    "preview install plan only",
+    "apply profile-distribution package after confirmation",
+    "run non-mutating installer self-test with -TestOutputRoot",
+    "defer model/provider setup",
+    "skip toolset enabling and report partial",
     "pause"
   ],
   "allowed_after_confirmation": [
+    "generate simulated profile/workspace tree under -TestOutputRoot without calling hermes profile/config/tools",
     "create target profile if missing",
-    "set display.language to detected/user-selected language",
-    "set approvals.mode to smart",
-    "set security.redact_secrets to true",
-    "set memory.memory_enabled and memory.user_profile_enabled",
-    "write profile SOUL.md",
-    "write workspace README.md, AGENTS.md, and HERMES.md",
-    "install local LaunchRoom starter skills into the target profile",
-    "write profile setup report",
+    "set source-backed non-secret Stage 1 Hermes config values",
+    "set terminal.cwd to the selected workspace",
+    "write profile SOUL.md from profile-distribution/launchroom-saas",
+    "write PROFILE_INSTRUCTIONS.md and LAUNCHROOM_PROFILE_CONTRACT.yaml",
+    "write .env.EXAMPLE with variable names only",
+    "write reports/profile-foundation-report.yaml",
+    "write reports/profile-apply-plan.yaml",
+    "write reports/stage-1-selected-settings.yaml",
+    "write reports/config.yaml.draft without applying unresolved placeholders live",
+    "write workspace README.md, AGENTS.md, and HERMES.md when compatibility templates exist",
+    "install bundled LaunchRoom starter skills into the target profile",
+    "enable selected starter toolsets where supported and report partial failures",
     "write no-secret software inventory report"
   ],
   "never": [
     "copy credential files",
     "print secret values",
-    "patch unrelated skills"
+    "write unresolved __LAUNCHROOM_RESOLVE__ placeholders into live config.yaml",
+    "patch unrelated skills",
+    "mutate provider/cloud/runtime/gateway credentials",
+    "self-test mode must not call hermes profile create, hermes config set, or hermes tools enable"
   ],
   "tool": "scripts/install_launchroom_profile.ps1",
+  "source_distribution": "profile-distribution/launchroom-saas",
   "pass_requires": [
     "profile config path exists",
     "terminal.cwd equals selected workspace or is explicitly deferred",
     "profile SOUL.md exists or is explicitly deferred",
+    "PROFILE_INSTRUCTIONS.md and LAUNCHROOM_PROFILE_CONTRACT.yaml exist or are explicitly deferred",
+    "reports/profile-foundation-report.yaml exists or is explicitly deferred",
+    "reports/stage-1-selected-settings.yaml exists or is explicitly deferred",
+    "live config.yaml contains no __LAUNCHROOM_RESOLVE__ placeholders",
     "workspace AGENTS.md and HERMES.md exist or are explicitly deferred",
     "starter skills exist or are explicitly deferred",
-    "profile setup report exists"
+    "profile setup report exists",
+    "installer self-test creates simulated profile files under TestOutputRoot"
   ]
 }

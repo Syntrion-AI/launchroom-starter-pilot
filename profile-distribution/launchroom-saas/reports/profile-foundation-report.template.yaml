@@ -1,0 +1,94 @@
+artifact_id: LAUNCHROOM_PROFILE_FOUNDATION_REPORT_TEMPLATE_v0_1
+artifact_type: profile_foundation_report_template
+status: template
+stage: stage_1_profile_foundation
+
+profile:
+  name: __LAUNCHROOM_RESOLVE__PROFILE_NAME
+  profile_path: __LAUNCHROOM_RESOLVE__PROFILE_PATH
+  language: __LAUNCHROOM_RESOLVE__USER_LANGUAGE
+  project_name: __LAUNCHROOM_RESOLVE__PROJECT_NAME
+  project_path: __LAUNCHROOM_RESOLVE__PROJECT_PATH
+
+result:
+  status: partial
+  allowed_values:
+    - pass
+    - partial
+    - blocked
+  reason: template_not_live_report
+
+source_artifacts:
+  research_ledger: LAUNCHROOM_SETTINGS_RESEARCH_LEDGER_v0_1
+  config_baseline: LAUNCHROOM_SAAS_CONFIG_BASELINE_v0_1
+  stage_1_wizard: LAUNCHROOM_STAGE_1_PROFILE_FOUNDATION_WIZARD_v0_1
+  config_generator: LAUNCHROOM_PROFILE_CONFIG_GENERATOR_v0_1
+  profile_contract: LAUNCHROOM_PROFILE_CONTRACT_v0_1
+
+created_or_required_files:
+  config_yaml: pending
+  SOUL_md: pending
+  PROFILE_INSTRUCTIONS_md: pending
+  LAUNCHROOM_PROFILE_CONTRACT_yaml: pending
+  env_example: pending
+  selected_settings_yaml: pending
+  starter_skills: pending
+
+settings_summary:
+  applied: []
+  deferred: []
+  custom_overrides: []
+  blocked: []
+
+model_readiness:
+  status: pending
+  provider: __LAUNCHROOM_RESOLVE__MODEL_PROVIDER
+  model: __LAUNCHROOM_RESOLVE__MODEL_DEFAULT
+  smoke_test: pending
+  secret_values_seen: false
+
+non_config_setup_actions:
+  toolsets:
+    status: pending
+    selected_button_id: recommended_starter_operator
+    recommended_toolsets:
+      - terminal
+      - file
+      - web
+      - search
+      - browser
+      - vision
+      - skills
+      - memory
+      - session_search
+      - clarify
+      - todo
+      - code_execution
+    reset_or_new_session_required: true
+
+secrets_policy:
+  copied_env: false
+  copied_auth_json: false
+  copied_state_db: false
+  copied_oauth_tokens: false
+  copied_sessions_or_memories: false
+  printed_secret_values: false
+  secret_scan_result: pending
+
+verification_evidence:
+  yaml_parse: pending
+  placeholders_absent_from_live_config: pending
+  selected_buttons_recorded: pending
+  official_docs_checked: []
+  installed_schema_checked: pending
+  hermes_config_check: pending
+  tools_status_check: pending
+
+what_works_now: []
+what_remains_gated:
+  - model/provider setup if not configured
+  - terminal.cwd final workspace verification if Stage 2 owns workspace creation
+  - toolset reset/new session verification
+  - gateway/MCP/remote runtime/provider mutations
+next_stage: stage_2_workspace
+next_action: Resolve report values during Stage 1 wizard execution.

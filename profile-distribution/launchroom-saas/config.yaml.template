@@ -1,0 +1,178 @@
+# LaunchRoom SaaS Hermes profile config template
+#
+# generated_from_generator_artifact_id: LAUNCHROOM_PROFILE_CONFIG_GENERATOR_v0_1
+# generated_from_baseline_artifact_id: LAUNCHROOM_SAAS_CONFIG_BASELINE_v0_1
+# generated_from_wizard_artifact_id: LAUNCHROOM_STAGE_1_PROFILE_FOUNDATION_WIZARD_v0_1
+# generation_mode: template_mode
+# unresolved_values_policy: placeholders are allowed only in this repo template; live config.yaml must not contain __LAUNCHROOM_RESOLVE__ values.
+#
+# This file is NOT a live config.yaml until the Stage 1 wizard resolves required values
+# and the generator validates them against source/generators/profile-config-generator.yaml.
+# Secrets belong in Hermes auth/setup flows or .env, never in this file.
+
+model:
+  # source_setting: model.provider
+  # selected_button_id: recommended_existing_or_portal
+  # live_write_condition: resolved provider name without API key/token value
+  provider: "__LAUNCHROOM_RESOLVE__MODEL_PROVIDER"
+
+  # source_setting: model.default
+  # selected_button_id: recommended_existing
+  # live_write_condition: resolved model name after provider readiness check
+  default: "__LAUNCHROOM_RESOLVE__MODEL_DEFAULT"
+
+display:
+  # source_setting: display.personality
+  # selected_button_id: recommended_technical
+  personality: technical
+
+  # source_setting: display.language
+  # selected_button_id: recommended_detect
+  language: "__LAUNCHROOM_RESOLVE__USER_LANGUAGE"
+
+  # source_setting: display.show_reasoning
+  # selected_button_id: recommended_false
+  show_reasoning: false
+
+agent:
+  # source_setting: agent.image_input_mode
+  # selected_button_id: recommended_auto
+  image_input_mode: auto
+
+  # source_setting: agent.max_turns
+  # selected_button_id: recommended_60
+  max_turns: 60
+
+  # source_setting: agent.api_max_retries
+  # selected_button_id: recommended_3
+  api_max_retries: 3
+
+  # source_setting: agent.tool_use_enforcement
+  # selected_button_id: recommended_auto
+  tool_use_enforcement: auto
+
+approvals:
+  # source_setting: approvals.mode
+  # selected_button_id: recommended_smart
+  mode: smart
+
+  # source_setting: approvals.timeout
+  # selected_button_id: recommended_60
+  timeout: 60
+
+  # source_setting: approvals.cron_mode
+  # selected_button_id: recommended_deny
+  cron_mode: deny
+
+  # source_setting: approvals.mcp_reload_confirm
+  # selected_button_id: recommended_true
+  mcp_reload_confirm: true
+
+  # source_setting: approvals.destructive_slash_confirm
+  # selected_button_id: recommended_true
+  destructive_slash_confirm: true
+
+security:
+  # source_setting: security.redact_secrets
+  # selected_button_id: mandatory_true
+  redact_secrets: true
+
+  # source_setting: security.allow_private_urls
+  # selected_button_id: recommended_false
+  # Enable only through the local/private URL gate.
+  allow_private_urls: false
+
+  # source_setting: security.tirith_enabled
+  # selected_button_id: mandatory_true
+  tirith_enabled: true
+
+browser:
+  # source_setting: browser.allow_private_urls
+  # selected_button_id: recommended_false
+  # Enable only through the browser/private URL gate.
+  allow_private_urls: false
+
+  # source_setting: browser.auto_local_for_private_urls
+  # selected_button_id: recommended_true
+  auto_local_for_private_urls: true
+
+checkpoints:
+  # source_setting: checkpoints.enabled
+  # selected_button_id: recommended_true
+  enabled: true
+
+  # source_setting: checkpoints.max_snapshots
+  # selected_button_id: recommended_20
+  max_snapshots: 20
+
+terminal:
+  # source_setting: terminal.backend
+  # selected_button_id: recommended_local
+  backend: local
+
+  # source_setting: terminal.cwd
+  # selected_button_id: recommended_project_path
+  # Stage policy: resolve in Stage 1 only if the chosen project path already exists or Stage 2 created/verified it.
+  cwd: "__LAUNCHROOM_RESOLVE__PROJECT_PATH"
+
+  # source_setting: terminal.timeout
+  # selected_button_id: recommended_180
+  timeout: 180
+
+  # source_setting: terminal.persistent_shell
+  # selected_button_id: recommended_true
+  persistent_shell: true
+
+code_execution:
+  # source_setting: code_execution.mode
+  # selected_button_id: recommended_project
+  mode: project
+
+memory:
+  # source_setting: memory.memory_enabled
+  # selected_button_id: mandatory_true
+  memory_enabled: true
+
+  # source_setting: memory.user_profile_enabled
+  # selected_button_id: mandatory_true
+  user_profile_enabled: true
+
+  # source_setting: memory.write_approval
+  # selected_button_id: recommended_false_with_policy
+  write_approval: false
+
+# source_setting: file_read_max_chars
+# selected_button_id: recommended_100000
+file_read_max_chars: 100000
+
+tool_output:
+  # source_setting: tool_output.max_bytes
+  # selected_button_id: recommended_50000
+  max_bytes: 50000
+
+  # source_setting: tool_output.max_lines
+  # selected_button_id: recommended_2000
+  max_lines: 2000
+
+  # source_setting: tool_output.max_line_length
+  # selected_button_id: recommended_2000
+  max_line_length: 2000
+
+# Non-config Stage 1 setup action:
+# source_setting: toolsets
+# selected_button_id: recommended_starter_operator
+# preferred_apply_path: hermes tools enable <toolset>, then reset/new session.
+# Do not write toolsets into live config.yaml unless the installed Hermes schema confirms a profile config key.
+# Recommended starter operator toolsets:
+# - terminal
+# - file
+# - web
+# - search
+# - browser
+# - vision
+# - skills
+# - memory
+# - session_search
+# - clarify
+# - todo
+# - code_execution

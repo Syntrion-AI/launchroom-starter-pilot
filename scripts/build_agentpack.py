@@ -24,17 +24,28 @@ Use this file as the executable setup route for a new or default Hermes profile.
 The primary setup path is the real profile installer, not a manual stage walkthrough:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\LaunchRoom\launchroom" -UserLanguage auto -Yes
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\\LaunchRoom\\launchroom" -UserLanguage auto -Yes
 ```
 
-When the repository is used through a raw GitHub link, ask the user to clone or download the repository before running the script. If the script cannot be run, the agent may perform the equivalent steps manually, but Stage 1/2/4 must not be marked `pass` until the same artifacts exist or are explicitly deferred:
+For CI-grade non-mutating generation checks, run the installer in self-test mode:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom-selftest -TestOutputRoot "$env:TEMP\\launchroom-selftest" -Yes -NoInventory -NoToolsets
+```
+
+`-TestOutputRoot` writes a simulated profile/workspace tree only under the supplied path and must not call `hermes profile create`, `hermes config set`, or `hermes tools enable`.
+
+When the repository is used through a raw GitHub link, ask the user to clone or download the repository before running the script. If the script cannot be run, the agent may perform the equivalent steps manually from `profile-distribution/launchroom-saas`, but Stage 1/2/4 must not be marked `pass` until the same artifacts exist or are explicitly deferred:
 
 - profile `SOUL.md`;
-- non-secret Hermes config values including `terminal.cwd`, `approvals.mode`, secret redaction, and memory settings;
+- profile `PROFILE_INSTRUCTIONS.md` and `LAUNCHROOM_PROFILE_CONTRACT.yaml`;
+- profile `.env.EXAMPLE` with variable names only;
+- non-secret Hermes config values including `terminal.cwd`, `approvals.mode`, secret redaction, Tirith safety, checkpoints, output limits, and memory settings;
+- profile `reports/profile-foundation-report.yaml`, `reports/profile-apply-plan.yaml`, and `reports/stage-1-selected-settings.yaml`;
 - workspace `README.md`, `AGENTS.md`, and `HERMES.md`;
 - workspace `.hermes/reports/profile-setup-report.yaml`;
 - workspace `.hermes/reports/software-inventory-report.yaml`;
-- local LaunchRoom starter skills in the target profile.
+- bundled LaunchRoom starter skills in the target profile.
 
 ## Decision UI contract
 
@@ -144,11 +155,13 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 After the user chooses the relevant option, the agent may:
 
 - create the selected local workspace;
-- set non-secret Hermes config values for the active test/project profile;
+- set source-backed non-secret Hermes config values for the active test/project profile;
 - set `terminal.cwd` to the selected workspace;
-- write profile `SOUL.md` instructions;
+- write profile `SOUL.md`, `PROFILE_INSTRUCTIONS.md`, and `LAUNCHROOM_PROFILE_CONTRACT.yaml` from `profile-distribution/launchroom-saas`;
+- write `.env.EXAMPLE` with variable names only;
+- write profile reports including foundation report, apply plan, selected settings, and config draft;
 - write workspace `AGENTS.md` and `HERMES.md` instructions;
-- install local LaunchRoom starter skills into the target profile;
+- install bundled LaunchRoom starter skills into the target profile;
 - write workspace-local instructions and readiness reports;
 - recommend and optionally load/install the approved LaunchRoom starter capability pack;
 - create a local SaaS operator kit at Stage 6.

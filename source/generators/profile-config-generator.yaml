@@ -1,0 +1,466 @@
+artifact_id: LAUNCHROOM_PROFILE_CONFIG_GENERATOR_v0_1
+artifact_type: launchroom_generator_contract
+status: draft_for_owner_review
+language: en
+
+purpose:
+  summary: >-
+    Define how LaunchRoom turns the researched SaaS config baseline and the
+    Stage 1 selected-settings record into a generated Hermes profile
+    config.yaml.template, and later into a live profile config.yaml only when
+    every required value is resolved and safe to write.
+  not_purpose:
+    - not a live Hermes config.yaml
+    - not a script implementation
+    - not a secret store
+    - not a gateway/MCP/runtime mutator
+    - not a replacement for official Hermes docs or installed schema checks
+
+source_contracts:
+  research_ledger:
+    path: source/settings/launchroom-settings-research-ledger.yaml
+    artifact_id: LAUNCHROOM_SETTINGS_RESEARCH_LEDGER_v0_1
+    required: true
+  config_baseline:
+    path: source/settings/launchroom-saas-config-baseline.yaml
+    artifact_id: LAUNCHROOM_SAAS_CONFIG_BASELINE_v0_1
+    required: true
+  stage_1_wizard:
+    path: source/stages/stage-1-profile-foundation-wizard.yaml
+    artifact_id: LAUNCHROOM_STAGE_1_PROFILE_FOUNDATION_WIZARD_v0_1
+    required: true
+  selected_settings:
+    path_template: source/stages/output/stage-1-selected-settings.example.yaml
+    future_live_profile_path_template: <profile_home>/reports/stage-1-selected-settings.yaml
+    required_for_live_config: true
+  official_docs:
+    role: source of truth when generator assumptions drift
+    refs:
+      - https://hermes-agent.nousresearch.com/docs/user-guide/configuration
+      - https://hermes-agent.nousresearch.com/docs/user-guide/profiles
+      - https://hermes-agent.nousresearch.com/docs/user-guide/security
+      - https://hermes-agent.nousresearch.com/docs/reference/tools-reference
+
+precedence:
+  - official_hermes_docs
+  - installed_hermes_default_config_schema
+  - research_ledger
+  - config_baseline
+  - selected_settings
+  - explicit_owner_override_with_recorded_reason
+
+generation_modes:
+  template_mode:
+    output: profile-distribution/launchroom-saas/config.yaml.template
+    allowed_placeholders: true
+    placeholder_policy: >-
+      Placeholders are allowed only in repo templates and must be visibly marked
+      as unresolved, never silently treated as defaults.
+    use_case: distribution source review before installer implementation
+  draft_mode:
+    output: <profile_home>/reports/config.yaml.draft
+    allowed_placeholders: true
+    placeholder_policy: >-
+      Draft may contain unresolved values only when profile_foundation_report
+      status is partial or blocked.
+    use_case: show user what will be written before application
+  live_mode:
+    output: <profile_home>/config.yaml
+    allowed_placeholders: false
+    placeholder_policy: >-
+      Live config generation must fail if any required value is unresolved,
+      deferred, secret-like, or schema-unknown.
+    use_case: apply verified Stage 1 profile settings after user approval
+
+input_schema:
+  selected_settings:
+    required_fields:
+      - profile_name
+      - project_name
+      - project_path
+      - language
+      - selected_settings
+      - deferred_settings
+      - custom_overrides
+      - source_refs
+      - verification_status
+    selected_setting_record:
+      key: <setting_key_or_required_input>
+      selected_button_id: <button_id>
+      selected_value: <resolved_non_secret_value>
+      value_state: resolved | deferred | unavailable | blocked | custom
+      source_refs: []
+      reason: <human_explanation>
+      owner_override: false
+      verification_status: pending | pass | partial | blocked
+    validation_rules:
+      - Every selected setting key must exist in the ledger or Stage 1 required_user_inputs.
+      - Every selected_button_id for ledger settings must exist in settings[].interaction.buttons.
+      - Every custom value must include reason and owner_override or source evidence.
+      - Every deferred value must include safe_next_action.
+      - No selected_value may contain credential-like data.
+
+secret_and_sensitive_data_policy:
+  never_read_or_write:
+    - .env values
+    - auth.json
+    - state.db
+    - OAuth tokens
+    - API keys
+    - passwords
+    - private keys
+    - raw MCP env values
+    - session transcripts copied from another profile
+  allowed_secret_references:
+    - empty .env.EXAMPLE variable names
+    - non-secret env var names such as OPENROUTER_API_KEY
+    - provider names without token values
+  live_config_rules:
+    - Do not write API keys directly to config.yaml unless official Hermes docs require a non-secret indirection pattern and owner approves.
+    - Prefer Hermes auth/setup/model flows or .env path guidance for credentials.
+    - If a setting requires a credential value, mark it deferred and route to credential setup.
+
+resolution_states:
+  resolved:
+    may_write_live_config: true
+    meaning: selected_value is concrete, non-secret, schema-known, and verified or safely verifiable
+  deferred:
+    may_write_live_config: false
+    meaning: value intentionally postponed; report must contain next_action
+  unavailable:
+    may_write_live_config: false
+    meaning: required tool/provider/capability not available in this install
+  blocked:
+    may_write_live_config: false
+    meaning: safety, secret, schema, or authority gate blocks writing
+  custom:
+    may_write_live_config: true
+    requires:
+      - owner_override_or_source_evidence
+      - type_validation
+      - reason_recorded
+      - verification_plan
+
+config_key_write_rules:
+  source_of_config_key: ledger.settings[].write_method.config_key
+  source_of_preferred_command: ledger.settings[].write_method.preferred
+  if_config_key_missing:
+    action: do_not_guess
+    result: partial
+    report: setting has no confirmed config key; use preferred command or update ledger after official docs/schema check
+  if_preferred_command_exists:
+    action: use command/setup flow before direct YAML write when appropriate
+    examples:
+      - model/provider selection may use hermes model or hermes setup
+      - toolsets may use hermes tools enable/disable and require reset/new session
+  if_value_unresolved:
+    template_mode: write visible placeholder with comment metadata
+    draft_mode: write visible placeholder and mark report partial
+    live_mode: fail generation before writing config.yaml
+  if_value_secret_like:
+    action: fail_generation
+    report: secret-like value detected and refused
+
+profile_config_generation_map:
+  model:
+    provider:
+      source_setting: model.provider
+      config_key_candidates:
+        - model.provider
+      live_write_condition: selected value is resolved and does not contain a key/token
+      fallback_if_unresolved: defer model setup and mark Stage 1 partial
+    default:
+      source_setting: model.default
+      config_key_candidates:
+        - model.default
+        - model
+      live_write_condition: selected model is resolved after provider readiness check
+      fallback_if_unresolved: defer model smoke test and mark Stage 1 partial
+  display:
+    personality:
+      source_setting: display.personality
+      config_key: display.personality
+      live_write_condition: resolved enum/string value
+    language:
+      source_setting: display.language
+      config_key: display.language
+      live_write_condition: resolved language code or explicit auto/detect policy supported by installed schema
+    show_reasoning:
+      source_setting: display.show_reasoning
+      config_key: display.show_reasoning
+      live_write_condition: boolean
+  agent:
+    image_input_mode:
+      source_setting: agent.image_input_mode
+      config_key: agent.image_input_mode
+      live_write_condition: resolved allowed mode
+    max_turns:
+      source_setting: agent.max_turns
+      config_key: agent.max_turns
+      live_write_condition: integer within bounded range
+    api_max_retries:
+      source_setting: agent.api_max_retries
+      config_key: agent.api_max_retries
+      live_write_condition: integer within bounded range
+    tool_use_enforcement:
+      source_setting: agent.tool_use_enforcement
+      config_key: agent.tool_use_enforcement
+      live_write_condition: resolved allowed mode
+  approvals:
+    mode:
+      source_setting: approvals.mode
+      config_key: approvals.mode
+      live_write_condition: manual | smart | off, with off requiring explicit owner override
+    timeout:
+      source_setting: approvals.timeout
+      config_key: approvals.timeout
+      live_write_condition: positive integer seconds
+    cron_mode:
+      source_setting: approvals.cron_mode
+      config_key: approvals.cron_mode
+      live_write_condition: resolved allowed mode
+    mcp_reload_confirm:
+      source_setting: approvals.mcp_reload_confirm
+      config_key: approvals.mcp_reload_confirm
+      live_write_condition: boolean
+    destructive_slash_confirm:
+      source_setting: approvals.destructive_slash_confirm
+      config_key: approvals.destructive_slash_confirm
+      live_write_condition: boolean
+  security:
+    redact_secrets:
+      source_setting: security.redact_secrets
+      config_key: security.redact_secrets
+      live_write_condition: true unless explicit redactor-debug gate exists
+    allow_private_urls:
+      source_setting: security.allow_private_urls
+      config_key: security.allow_private_urls
+      live_write_condition: boolean; true requires local/private-url gate
+    tirith_enabled:
+      source_setting: security.tirith_enabled
+      config_key: security.tirith_enabled
+      live_write_condition: true unless explicit security-debug gate exists
+  browser:
+    allow_private_urls:
+      source_setting: browser.allow_private_urls
+      config_key: browser.allow_private_urls
+      live_write_condition: boolean; true requires browser/private-url gate
+    auto_local_for_private_urls:
+      source_setting: browser.auto_local_for_private_urls
+      config_key: browser.auto_local_for_private_urls
+      live_write_condition: boolean
+  checkpoints:
+    enabled:
+      source_setting: checkpoints.enabled
+      config_key: checkpoints.enabled
+      live_write_condition: boolean
+    max_snapshots:
+      source_setting: checkpoints.max_snapshots
+      config_key: checkpoints.max_snapshots
+      live_write_condition: positive integer
+  terminal:
+    backend:
+      source_setting: terminal.backend
+      config_key: terminal.backend
+      live_write_condition: local for starter path unless user explicitly chooses supported alternative
+    cwd:
+      source_setting: terminal.cwd
+      config_key: terminal.cwd
+      live_write_condition: path exists or Stage 2 has created/verified it; otherwise omit from live config or mark partial
+    timeout:
+      source_setting: terminal.timeout
+      config_key: terminal.timeout
+      live_write_condition: positive integer seconds
+    persistent_shell:
+      source_setting: terminal.persistent_shell
+      config_key: terminal.persistent_shell
+      live_write_condition: boolean
+  code_execution:
+    mode:
+      source_setting: code_execution.mode
+      config_key: code_execution.mode
+      live_write_condition: resolved mode supported by installed Hermes
+  memory:
+    memory_enabled:
+      source_setting: memory.memory_enabled
+      config_key: memory.memory_enabled
+      live_write_condition: boolean
+    user_profile_enabled:
+      source_setting: memory.user_profile_enabled
+      config_key: memory.user_profile_enabled
+      live_write_condition: boolean
+    write_approval:
+      source_setting: memory.write_approval
+      config_key: memory.write_approval
+      live_write_condition: boolean or supported policy value
+  file_read_max_chars:
+    source_setting: file_read_max_chars
+    config_key: file_read_max_chars
+    live_write_condition: positive integer
+  tool_output:
+    max_bytes:
+      source_setting: tool_output.max_bytes
+      config_key: tool_output.max_bytes
+      live_write_condition: positive integer
+    max_lines:
+      source_setting: tool_output.max_lines
+      config_key: tool_output.max_lines
+      live_write_condition: positive integer
+    max_line_length:
+      source_setting: tool_output.max_line_length
+      config_key: tool_output.max_line_length
+      live_write_condition: positive integer
+
+non_config_setup_actions:
+  toolsets:
+    source_setting: toolsets
+    reason: Hermes toolsets may be managed through hermes tools and may not be a plain config.yaml key in every version.
+    preferred_apply_path:
+      - hermes tools list
+      - hermes tools enable <toolset> for selected starter toolsets
+      - reset/new session before verification
+    template_record: include selected toolset list in distribution metadata and reports
+    live_config_write: only if installed Hermes schema confirms a profile config key named toolsets or equivalent
+  provider_credentials:
+    source_settings:
+      - model.provider
+      - model.default
+    preferred_apply_path:
+      - hermes model
+      - hermes setup model
+      - hermes auth add <provider>
+      - .env path guidance without secret values
+    live_config_write: provider/model names only, never tokens
+
+output_files:
+  config_template:
+    path: profile-distribution/launchroom-saas/config.yaml.template
+    format: yaml
+    status: future_generated
+    must_include_header:
+      - generated_from_generator_artifact_id
+      - generated_from_baseline_artifact_id
+      - generated_from_selected_settings_artifact_id
+      - generation_mode
+      - unresolved_values_policy
+  selected_settings_example:
+    path: source/stages/output/stage-1-selected-settings.example.yaml
+    format: yaml
+    status: future_generated
+  profile_foundation_report_template:
+    path: profile-distribution/launchroom-saas/reports/profile-foundation-report.template.yaml
+    format: yaml
+    status: future_generated
+  apply_plan:
+    path: profile-distribution/launchroom-saas/reports/profile-apply-plan.template.yaml
+    format: yaml
+    status: optional_future_generated
+
+config_template_shape:
+  header_comment_required: true
+  top_level_sections:
+    - model
+    - display
+    - agent
+    - approvals
+    - security
+    - browser
+    - checkpoints
+    - terminal
+    - code_execution
+    - memory
+    - tool_output
+    - file_read_max_chars
+  exclude_by_default:
+    - toolsets unless schema-confirmed
+    - gateway
+    - mcp
+    - auth
+    - secrets
+    - cron
+    - provider API keys
+  comments_policy:
+    template_mode: comments may explain source setting and chosen button
+    live_mode: comments optional; do not write unresolved comments as values
+
+validation_pipeline:
+  pre_generation:
+    - parse research ledger YAML
+    - parse config baseline YAML
+    - parse Stage 1 wizard YAML
+    - parse selected-settings YAML if present
+    - verify all profile_config_generation_map source_settings exist in ledger
+    - verify baseline profile_config_baseline contains mapped sections or selected settings can override them
+    - verify no source artifact contains secret-like values
+  generation:
+    - resolve every mapped setting from selected_settings first, then baseline
+    - type-check each value against live_write_condition
+    - route non-config setup actions to apply_plan instead of config.yaml when schema is uncertain
+    - fail live_mode on unresolved placeholders
+    - fail live_mode on secret-like values
+  post_generation:
+    - parse generated YAML
+    - verify generated keys are allowed by map or schema-confirmed extension
+    - verify every non-default value has source refs and reason in selected-settings/report
+    - verify profile-foundation-report status is pass, partial, or blocked consistently
+    - run hermes config check in the target profile when live_mode is implemented
+
+status_rules:
+  pass:
+    conditions:
+      - live_mode values resolved for all required settings
+      - selected settings verified
+      - no secret-like values
+      - profile config parses and Hermes config check passes
+      - non-config actions such as toolsets are verified or explicitly not required for pass
+  partial:
+    conditions:
+      - template/draft generated successfully but one or more required live values are deferred
+      - model/provider or toolsets require user action outside chat
+      - terminal.cwd awaits Stage 2 workspace verification
+  blocked:
+    conditions:
+      - source artifacts missing or invalid
+      - official docs/schema drift detected
+      - secret-like value detected
+      - user asks to copy credentials/profile state from another profile
+      - live config would contain unresolved placeholders
+
+report_requirements:
+  generator_report_fields:
+    - generator_artifact_id
+    - generation_mode
+    - source_artifact_ids
+    - selected_settings_path
+    - output_path
+    - status
+    - written_config_keys
+    - omitted_or_deferred_keys
+    - non_config_setup_actions
+    - custom_overrides
+    - secret_scan_result
+    - schema_check_result
+    - next_action
+  every_setting_record_must_include:
+    - source_setting
+    - selected_button_id
+    - selected_value_or_deferred_reason
+    - write_target
+    - source_refs
+    - verification_status
+
+open_questions_for_owner_review:
+  - "Should toolsets be represented only as a non-config apply plan until the installed Hermes schema confirms a config key?"
+  - "Should config.yaml.template include comments for every setting, or stay minimal with explanations only in selected-settings/report?"
+  - "Should Stage 1 live_mode omit terminal.cwd until Stage 2, or write it immediately when the selected project path already exists?"
+  - "Should model provider/model be written directly to config.yaml after selection, or always routed through hermes model/setup first?"
+
+next_files_after_this_generator:
+  - profile-distribution/launchroom-saas/config.yaml.template
+  - source/stages/output/stage-1-selected-settings.example.yaml
+  - profile-distribution/launchroom-saas/reports/profile-foundation-report.template.yaml
+  - profile-distribution/launchroom-saas/distribution.yaml
+  - profile-distribution/launchroom-saas/SOUL.md
+  - profile-distribution/launchroom-saas/PROFILE_INSTRUCTIONS.md
+  - profile-distribution/launchroom-saas/LAUNCHROOM_PROFILE_CONTRACT.yaml
+  - profile-distribution/launchroom-saas/.env.EXAMPLE

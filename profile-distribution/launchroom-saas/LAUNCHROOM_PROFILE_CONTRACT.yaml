@@ -1,0 +1,181 @@
+artifact_id: LAUNCHROOM_PROFILE_CONTRACT_v0_1
+artifact_type: launchroom_profile_contract
+status: draft_for_owner_review
+profile_kind: launchroom_saas_operator
+profile_version: 0.1.0
+language: en
+
+required_profile_files:
+  - config.yaml
+  - SOUL.md
+  - PROFILE_INSTRUCTIONS.md
+  - LAUNCHROOM_PROFILE_CONTRACT.yaml
+  - reports/profile-foundation-report.yaml
+
+required_distribution_files:
+  - distribution.yaml
+  - config.yaml.template
+  - SOUL.md
+  - PROFILE_INSTRUCTIONS.md
+  - LAUNCHROOM_PROFILE_CONTRACT.yaml
+  - .env.EXAMPLE
+  - reports/profile-foundation-report.template.yaml
+  - reports/profile-apply-plan.template.yaml
+  - skills/launchroom-profile-operator/SKILL.md
+  - skills/launchroom-hermes-settings-guide/SKILL.md
+  - skills/launchroom-saas-operator/SKILL.md
+
+source_contracts:
+  research_ledger:
+    artifact_id: LAUNCHROOM_SETTINGS_RESEARCH_LEDGER_v0_1
+    path: ../../source/settings/launchroom-settings-research-ledger.yaml
+  config_baseline:
+    artifact_id: LAUNCHROOM_SAAS_CONFIG_BASELINE_v0_1
+    path: ../../source/settings/launchroom-saas-config-baseline.yaml
+  stage_1_wizard:
+    artifact_id: LAUNCHROOM_STAGE_1_PROFILE_FOUNDATION_WIZARD_v0_1
+    path: ../../source/stages/stage-1-profile-foundation-wizard.yaml
+  config_generator:
+    artifact_id: LAUNCHROOM_PROFILE_CONFIG_GENERATOR_v0_1
+    path: ../../source/generators/profile-config-generator.yaml
+
+stage_ownership:
+  stage_1_profile_foundation:
+    owns:
+      - model.provider
+      - model.default
+      - display.personality
+      - display.language
+      - display.show_reasoning
+      - agent.image_input_mode
+      - agent.max_turns
+      - agent.api_max_retries
+      - agent.tool_use_enforcement
+      - approvals.mode
+      - approvals.timeout
+      - approvals.cron_mode
+      - approvals.mcp_reload_confirm
+      - approvals.destructive_slash_confirm
+      - security.redact_secrets
+      - security.tirith_enabled
+      - checkpoints.enabled
+      - checkpoints.max_snapshots
+      - terminal.backend
+      - terminal.timeout
+      - terminal.persistent_shell
+      - code_execution.mode
+      - memory.memory_enabled
+      - memory.user_profile_enabled
+      - memory.write_approval
+      - file_read_max_chars
+      - tool_output.max_bytes
+      - tool_output.max_lines
+      - tool_output.max_line_length
+      - toolsets selection record
+    collects_or_defers:
+      - terminal.cwd
+      - project_path
+  stage_2_workspace:
+    owns:
+      - terminal.cwd final verification
+      - workspace AGENTS.md/HERMES.md/context files
+      - workspace-local .hermes reports
+  stage_4_capability_pack:
+    owns:
+      - optional/advanced tools
+      - external tool credential readiness
+      - starter skill expansion
+  stage_5_gateway_mcp:
+    owns:
+      - gateway
+      - messaging
+      - MCP
+      - remote runtime channels
+
+mandatory_policies:
+  secret_boundary:
+    copied_secret_files: forbidden
+    print_secret_values: forbidden
+    ask_for_secrets_in_chat: forbidden
+    allowed_secret_path_guidance: true
+  live_config:
+    unresolved_placeholders_allowed: false
+    secret_like_values_allowed: false
+    schema_unknown_keys_allowed: false
+  template_config:
+    unresolved_placeholders_allowed: true
+    placeholder_prefix: __LAUNCHROOM_RESOLVE__
+  official_docs_drift:
+    behavior: stop_update_ledger_then_continue
+  toolset_application:
+    behavior: prefer_hermes_tools_or_schema_confirmed_config_key
+    reset_required_after_change: true
+
+required_setting_contract:
+  approvals.mode:
+    required_policy: smart_for_starter
+    causal_effect: balances beginner safety with reduced approval fatigue
+    failure_if_wrong:
+      manual: onboarding can become slow and discouraging
+      off: destructive operations can run without safety prompts
+  security.redact_secrets:
+    required_value: true
+    causal_effect: reduces risk of exposing keys/tokens in context and logs
+    failure_if_wrong:
+      false: unacceptable for beginner setup and tool/provider work
+  security.tirith_enabled:
+    required_value: true
+    causal_effect: keeps context safety scanning active for docs/repos/web content
+    failure_if_wrong:
+      false: prompt-injection and promptware exposure increases
+  checkpoints.enabled:
+    required_value: true
+    causal_effect: enables rollback/snapshot protection during file changes
+    failure_if_wrong:
+      false: beginner has less recovery protection
+  terminal.backend:
+    required_policy: local_for_starter_unless_user_selects_supported_alternative
+    causal_effect: keeps first setup bounded to the local machine
+  toolsets:
+    required_policy: starter_operator_selection_record_required
+    causal_effect: prevents a chat-only default profile from pretending to be a working operator
+  model.provider:
+    required_policy: configured_or_explicitly_deferred
+    causal_effect: profile cannot be operational without a model route
+  model.default:
+    required_policy: configured_or_explicitly_deferred
+    causal_effect: profile quality/cost/latency depend on model choice
+
+pass_if:
+  - required profile files exist or templates are ready for installer generation
+  - required settings are selected or explicitly deferred with partial status
+  - no secret values are copied or written
+  - live config has no unresolved placeholders
+  - selected-settings report exists for live install
+  - profile-foundation report exists and is internally consistent
+  - toolsets are verified or partial with next action
+
+partial_if:
+  - model/provider setup requires user action outside chat
+  - terminal.cwd awaits Stage 2 workspace verification
+  - toolsets require reset/new session before verification
+  - optional private URL or advanced tools are gated
+
+blocked_if:
+  - required source contracts are missing
+  - official docs/schema drift is detected and not resolved
+  - secret-like value appears in generated live artifacts
+  - user requests copying credentials/profile state from another profile
+  - user requests overwrite of protected profile without explicit reviewed gate
+
+verification_commands_or_checks:
+  static:
+    - parse YAML files
+    - verify required files exist
+    - verify placeholders only in templates/drafts
+    - verify no secret-like values
+  live_future:
+    - hermes -p <profile> config check
+    - hermes -p <profile> tools list
+    - one-shot model smoke test with no secret output
+    - read reports/profile-foundation-report.yaml
