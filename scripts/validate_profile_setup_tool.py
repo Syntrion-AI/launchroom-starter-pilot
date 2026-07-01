@@ -89,6 +89,7 @@ def run_self_test_if_available() -> None:
             profile_root / 'skills' / 'launchroom' / 'launchroom-saas-operator' / 'SKILL.md',
             workspace_root / 'AGENTS.md',
             workspace_root / 'HERMES.md',
+            workspace_root / '.hermes' / 'reports' / 'workspace-onboarding-report.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -97,6 +98,13 @@ def run_self_test_if_available() -> None:
         yaml.safe_load((profile_root / 'config.yaml').read_text(encoding='utf-8'))
         yaml.safe_load((profile_root / 'LAUNCHROOM_PROFILE_CONTRACT.yaml').read_text(encoding='utf-8'))
         yaml.safe_load((profile_root / 'reports' / 'profile-foundation-report.yaml').read_text(encoding='utf-8'))
+        workspace_report = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'workspace-onboarding-report.yaml').read_text(encoding='utf-8'))
+        if workspace_report.get('stage_id') != 'stage_2_workspace_project_onboarding':
+            print('FAIL: self-test workspace onboarding report has wrong stage_id')
+            raise SystemExit(1)
+        if workspace_report.get('boundaries', {}).get('secrets_read') is not False:
+            print('FAIL: self-test workspace onboarding report does not assert secrets_read=false')
+            raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
         if re.search(r'__LAUNCHROOM_RESOLVE__[A-Z0-9_]+', live_config):
@@ -118,6 +126,7 @@ def main() -> int:
         ('profile-distribution/launchroom-saas','uses profile distribution package'),
         ('LaunchRoom SaaS profile-distribution package','script purpose'),
         ('TestOutputRoot','supports non-mutating self-test mode'),
+        ('ProjectType','supports Stage 2 project type selection'),
         ('--no-skills','creates LaunchRoom profile without default bundled skill noise'),
         ('LaunchRoom Stage 1 beginner-safe setup plan','beginner-safe plan title'),
         ('In plain language:','plain-language explanation'),
@@ -144,6 +153,13 @@ def main() -> int:
         ('.env.EXAMPLE','writes env example only'),
         ('skills/launchroom','installs bundled skills'),
         ('software-inventory-report.yaml','writes inventory report'),
+        ('workspace-onboarding-report.yaml','writes Stage 2 workspace onboarding report'),
+        ('Refusing unsafe Stage 2 workspace path before profile mutation','blocks unsafe workspace before live mutation'),
+        ('terminal_cwd_matches_workspace','records terminal cwd workspace alignment'),
+        ('skipped_secret_paths','records skipped secret paths'),
+        ('git_mutation: false','records no git mutation boundary'),
+        ('runtime_mutation: false','records no runtime mutation boundary'),
+        ('stage_3_tool_readiness','hands off to Stage 3 tool readiness'),
         ('Never copies .env, auth.json, state.db','secret boundary'),
         ('live_config_has_launchroom_placeholders','checks live placeholders'),
         ('hermes tools enable','enables toolsets where supported'),

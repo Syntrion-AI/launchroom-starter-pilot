@@ -22,6 +22,15 @@ def main() -> int:
         'write no-secret software inventory report',
         'live config.yaml contains no __LAUNCHROOM_RESOLVE__ placeholders',
         'installer self-test creates simulated profile files under TestOutputRoot',
+        'stage-2 workspace/project onboarding contract presence',
+        'workspace path and project type choices',
+        'validate workspace path is not root, home, Hermes runtime, or credential directory',
+        'write workspace onboarding report',
+        'write workspace README.md, AGENTS.md, and HERMES.md',
+        'verify terminal.cwd equals selected workspace',
+        'safe top-level project structure scan without reading secrets',
+        'workspace onboarding report exists and parses as YAML',
+        'Stage 2 safe scan excludes .env, auth.json, state.db, and .git internals',
     ]
     text = json.dumps(recipe)
     for item in required:
@@ -35,6 +44,10 @@ def main() -> int:
         'patch unrelated skills',
         'mutate provider/cloud/runtime/gateway credentials',
         'self-test mode must not call hermes profile create, hermes config set, or hermes tools enable',
+        'read .env, auth.json, state.db, OAuth stores, or .git internals during Stage 2 scan',
+        'run git add, commit, push, reset, clean, or rebase during Stage 2',
+        'install dependencies during Stage 2',
+        'mutate n8n, Cloudflare, Hetzner, MCP, gateway, provider, or production runtime during Stage 2',
     ]
     for item in forbidden_required:
         if item not in text:
