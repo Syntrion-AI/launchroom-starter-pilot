@@ -47,6 +47,15 @@ source_ledger:
       - approvals.mode off is equivalent to YOLO and should be used only in trusted environments
       - Hermes has defense-in-depth layers including command approvals, isolation, MCP credential filtering, context scanning,
         and input sanitization
+      - context file scanning is a named security layer for prompt-injection defense
+    tools_reference:
+      url: https://hermes-agent.nousresearch.com/docs/reference/tools-reference
+      extracted_claims:
+      - built-in tools are grouped by toolset
+      - tool availability depends on platform, credentials, enabled toolsets, and runtime/session environment
+      - toolsets include web, search, browser, terminal, file, code_execution, vision, image_gen, tts, skills, memory,
+        session_search, delegation, cronjob, clarify, todo, and other specialized surfaces
+      - tool changes take effect on reset/new session rather than mid-conversation
     profiles:
       url: https://hermes-agent.nousresearch.com/docs/user-guide/profiles
       extracted_claims:
@@ -1346,6 +1355,244 @@ settings:
       value: <custom_number>
       explanation: Advanced debugging; more context bloat.
     selection_report_required: true
+- key: tool_output.max_lines
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 2000
+  launchroom_default: 2000
+  causal_effect: Caps how many lines of tool output may enter the agent context in one result.
+  why_default_is_enough: 2000 lines is large enough for setup diagnostics but still forces intentional pagination for huge logs.
+  saas_reason: SaaS setup needs evidence from tools, but logs should not flood the context or hide important failures inside massive output.
+  risk_if_wrong:
+    too_low: build/test/setup diagnostics may be truncated before the root cause appears
+    too_high: large logs can overwhelm context, increase cost, and increase accidental sensitive-output exposure
+  write_method:
+    config_key: tool_output.max_lines
+  verify_method:
+  - sanitized config readback
+  - run a bounded diagnostic command and confirm output is capped/paged rather than unlimited
+  source_refs:
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: keep_2000
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: tool_output.max_lines
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_2000
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_2000
+      label: 2000 lines
+      value: 2000
+      explanation: Balanced evidence window for setup logs and command output.
+    - id: lower
+      label: Lower line cap
+      value: <custom_number>
+      explanation: Less noise and lower context risk, but diagnostics may be incomplete.
+    - id: higher
+      label: Higher line cap
+      value: <custom_number>
+      explanation: Advanced debugging for noisy tools; increases context/cost/noise risk.
+    selection_report_required: true
+- key: tool_output.max_line_length
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 2000
+  launchroom_default: 2000
+  causal_effect: Caps overly long individual lines from tool output before they enter the agent context.
+  why_default_is_enough: 2000 characters per line preserves normal diagnostics while preventing minified blobs or long encoded strings from dominating context.
+  saas_reason: Setup commands can emit minified JSON, one-line stack traces, or dependency output; line caps keep reports readable and safer.
+  risk_if_wrong:
+    too_low: long error messages, JSON snippets, or paths may be cut too aggressively
+    too_high: huge single-line blobs can bloat context and may include credential-like material despite redaction
+  write_method:
+    config_key: tool_output.max_line_length
+  verify_method:
+  - sanitized config readback
+  - inspect generated setup reports for readable truncated long-line output
+  source_refs:
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: keep_2000
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: tool_output.max_line_length
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_2000
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_2000
+      label: 2000 chars per line
+      value: 2000
+      explanation: Keeps output readable while preserving useful diagnostics.
+    - id: lower
+      label: Lower line length
+      value: <custom_number>
+      explanation: More aggressive context protection, but may truncate useful details.
+    - id: higher
+      label: Higher line length
+      value: <custom_number>
+      explanation: Advanced debugging for long JSON/log lines; increases context risk.
+    selection_report_required: true
+- key: security.tirith_enabled
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: true
+  launchroom_default: true
+  causal_effect: Enables Hermes prompt-injection/context safety scanning layer where supported by the installed Hermes build.
+  why_default_is_enough: Official security docs describe context file scanning/prompt-injection defense as a core security layer, and installed default keeps it enabled.
+  saas_reason: SaaS projects routinely read docs, repos, web pages, and generated files; disabling context safety scanning makes prompt-injection and promptware risks harder to contain.
+  risk_if_wrong:
+    false: project or web content can more easily inject unwanted instructions into the agent context
+    true: rare false positives may block or mask suspicious text; agent should report blocked content rather than silently ignore it
+  write_method:
+    config_key: security.tirith_enabled
+  verify_method:
+  - sanitized config readback
+  - official docs/source check if Hermes schema changes
+  - do not create malicious promptware fixtures in user projects unless a separate test gate exists
+  source_refs:
+  - official.security
+  - official.configuration
+  - installed_default_config
+  launchroom_policy: mandatory_true
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: security.tirith_enabled
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: mandatory_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: mandatory_true
+      label: Keep context safety scanning ON
+      value: true
+      explanation: LaunchRoom safety default; protects beginners and SaaS repos from prompt-injection surfaces.
+    - id: blocked_false
+      label: Turn it off
+      value: false
+      explanation: Blocked for starter setup unless an explicit security-debugging gate exists.
+    selection_report_required: true
+- key: toolsets
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default:
+  - hermes-cli
+  launchroom_default:
+  - terminal
+  - file
+  - web
+  - search
+  - browser
+  - vision
+  - skills
+  - memory
+  - session_search
+  - clarify
+  - todo
+  - code_execution
+  causal_effect: Controls which categories of Hermes tools are exposed to the agent at session start.
+  why_default_is_not_enough: The installed default exposes only the minimal Hermes CLI toolset, which is not enough for a productive SaaS setup wizard.
+  why_launchroom_value: LaunchRoom needs file editing, terminal verification, web/docs research, browser/screenshot help, memory, skills, clarification buttons, and task tracking.
+  saas_reason: A beginner should receive a working project operator, not a chat-only profile that cannot inspect, write, verify, or research.
+  risk_if_wrong:
+    too_few: agent cannot complete setup or verify work
+    too_many: unnecessary attack surface, noisy prompts, credential/tool readiness failures, or accidental access to unrelated capabilities
+  write_method:
+    preferred: hermes tools interactive UI or hermes tools enable/disable commands, then reset/new session
+    config_key: toolsets
+  verify_method:
+  - hermes -p <profile> tools list or equivalent sanitized tool status
+  - new session confirms required toolsets are available
+  - report unavailable toolsets as partial, not pass
+  source_refs:
+  - official.tools_reference
+  - skill.hermes-agent
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: apply_curated_starter_toolsets_with_user_visible_buttons
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: toolsets
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_launchroom_value
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_starter_operator
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_starter_operator
+      label: LaunchRoom starter operator tools
+      value:
+      - terminal
+      - file
+      - web
+      - search
+      - browser
+      - vision
+      - skills
+      - memory
+      - session_search
+      - clarify
+      - todo
+      - code_execution
+      explanation: Recommended productive SaaS setup surface for local verified work.
+    - id: safe_minimal
+      label: Minimal safe setup tools
+      value:
+      - file
+      - web
+      - skills
+      - memory
+      - clarify
+      - todo
+      explanation: Lower-risk learning mode; may be unable to run full verification.
+    - id: advanced_full
+      label: Advanced full tool review
+      value: <custom_toolset_list>
+      explanation: Experienced user chooses extra tools such as delegation, cronjob, image_gen, tts, messaging, or MCP-backed capabilities with source checks.
+    - id: defer
+      label: Configure tools later
+      value: deferred
+      explanation: Profile can be created, but cannot pass as a working LaunchRoom operator until required tools are enabled or explicitly unavailable.
+    selection_report_required: true
 - key: memory.memory_enabled
   scope: profile
   stage_owner: stage_1_profile_foundation
@@ -1636,14 +1883,12 @@ settings:
       explanation: Verify current Hermes docs before use.
     selection_report_required: true
 open_questions_for_owner_review:
-- Should Stage 1 set terminal.cwd immediately to the chosen project path, or only collect it and leave final application to
-  Stage 2?
-- Should checkpoints.enabled be mandatory true in config.yaml, or offered as a visible beginner-safe default with explanation?
-- Should browser/private URL settings remain false until local SaaS preview stage, or should LaunchRoom enable them by default
-  for localhost-first development?
-- Should agent.max_turns remain Hermes default 90 for power users, or LaunchRoom starter default 60 for bounded onboarding?
-- Which model/provider choices should be first-class in the beginner wizard: Nous Portal/OAuth, OpenAI Codex OAuth, OpenRouter
-    API key, Anthropic API key, or custom/local?
+- "Should Stage 1 set terminal.cwd immediately to the chosen project path, or only collect it and leave final application to Stage 2?"
+- "Should checkpoints.enabled be mandatory true in config.yaml, or offered as a visible beginner-safe default with explanation?"
+- "Should browser/private URL settings remain false until local SaaS preview stage, or should LaunchRoom enable them by default for localhost-first development?"
+- "Should agent.max_turns remain Hermes default 90 for power users, or LaunchRoom starter default 60 for bounded onboarding?"
+- "Which model/provider choices should be first-class in the beginner wizard: Nous Portal/OAuth, OpenAI Codex OAuth, OpenRouter API key, Anthropic API key, or custom/local?"
+- "Should LaunchRoom starter toolsets include browser and code_execution by default, or offer them as visible recommended add-ons after terminal/file/web/memory/skills are confirmed?"
 next_files_that_must_be_generated_from_this_ledger_after_review:
 - source/settings/launchroom-saas-config-baseline.yaml
 - profile-distribution/launchroom-saas/config.yaml

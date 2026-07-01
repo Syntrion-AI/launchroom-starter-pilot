@@ -1,0 +1,679 @@
+artifact_id: LAUNCHROOM_SAAS_CONFIG_BASELINE_v0_1
+artifact_type: launchroom_saas_config_baseline
+status: draft_for_owner_review
+generated_from:
+  ledger: source/settings/launchroom-settings-research-ledger.yaml
+  ledger_artifact_id: LAUNCHROOM_SETTINGS_RESEARCH_LEDGER_v0_1
+  repo_commit_at_generation: ac20974
+  ledger_worktree_status_at_generation: M source/settings/launchroom-settings-research-ledger.yaml
+  ledger_settings_count_at_generation: 34
+purpose:
+  summary: Concrete LaunchRoom Starter baseline derived from the research ledger. This file says what the setup wizard should
+    apply, ask, defer, or gate before generating profile config.yaml.
+  not_purpose:
+  - not an applied config.yaml
+  - not a secret store
+  - not a raw copy of any existing Hermes profile
+  - not immutable; agent may propose changes with official/public evidence and verification
+config_scope_model:
+  global_foundation:
+    description: Hermes Desktop/runtime health and default profile selection affect the whole app or multiple profiles.
+    starter_action: inspect_and_explain_before_profile_install; do not mutate global surfaces without explicit user choice
+    examples:
+    - Hermes installed/version
+    - Desktop health
+    - active profile
+    - gateway connection mode
+    - config/env path presence without secret values
+  profile_foundation:
+    description: Settings inside one Hermes profile define the actual LaunchRoom agent.
+    starter_action: apply this baseline to the selected LaunchRoom profile after user choices are collected
+    examples:
+    - config.yaml
+    - SOUL.md
+    - PROFILE_INSTRUCTIONS.md
+    - skills
+    - memory/session/cron boundaries
+required_user_inputs:
+  profile_name:
+    default_suggestion: launchroom
+    why_needed: Creates an isolated Hermes home instead of modifying default blindly.
+  language:
+    value: detect_or_owner_choice
+    policy: ask_once_then_apply
+    source_refs: &id009
+    - installed_default_config
+    - owner_choices
+    reason: Onboarding succeeds when explanations match the user's language while canonical repo artifacts can remain English.
+    risk_if_wrong: &id010
+    - user confusion during setup
+    - mixed-language reports if not documented
+    interaction_button_default: recommended_detect
+    write_method: &id011
+      config_key: display.language
+    verify_method: &id012
+    - sanitized config readback
+    - first LaunchRoom session mirrors selected language
+  project_name:
+    default_suggestion: <ask_user>
+    why_needed: Used in explanations, reports, and workspace path suggestions.
+  project_path:
+    value: user_selected_project_path
+    policy: collect_in_stage_1_if_user_provides_but_apply/verify_in_stage_2
+    source_refs: &id013
+    - official.configuration
+    - official.profiles
+    - installed_default_config
+    reason: Project-local work must land in the user's chosen SaaS workspace, not a random shell directory.
+    risk_if_wrong: &id014
+      wrong_path: files/reports created in wrong project
+      too_broad_path: agent sees more filesystem than needed
+    interaction_button_default: recommended_project_path
+    write_method: &id015
+      config_key: terminal.cwd
+    verify_method: &id016
+    - sanitized config readback
+    - terminal pwd/cwd smoke in profile session when applicable
+  model_provider:
+    value: user_selected_or_existing_configured_provider
+    policy: required_or_explicitly_deferred
+    source_refs: &id001
+    - official.configuration
+    - official.profiles
+    - official.example_config
+    reason: SaaS setup requires a dependable model route before claiming the profile is operational.
+    risk_if_wrong: &id002
+    - wrong provider can create auth failures or unexpected cost/rate behavior
+    - copying source-profile credentials is forbidden
+    interaction_button_default: recommended_existing_or_portal
+    write_method: &id003
+      preferred: hermes model or hermes setup --portal / provider setup flow
+      config_if_known: model.provider
+    verify_method: &id004
+    - hermes -p <profile> config show or profile show, sanitized
+    - one-shot model smoke test with no secret output
+  model_default:
+    value: user_selected_or_existing_working_model
+    policy: required_or_explicitly_deferred
+    source_refs: &id005
+    - official.configuration
+    - official.example_config
+    reason: A SaaS operator profile should use a capable coding/reasoning model and record how it was selected.
+    risk_if_wrong: &id006
+    - weak model may create poor setup artifacts
+    - expensive model may surprise beginner users
+    interaction_button_default: recommended_existing
+    write_method: &id007
+      preferred: hermes model or hermes setup --portal
+      config_if_known: model.default or model depending on current Hermes schema
+    verify_method: &id008
+    - one-shot model smoke test
+    - profile foundation report records configured_or_deferred, not secret values
+profile_config_baseline:
+  model:
+    provider:
+      value: user_selected_or_existing_configured_provider
+      policy: required_or_explicitly_deferred
+      source_refs: *id001
+      reason: SaaS setup requires a dependable model route before claiming the profile is operational.
+      risk_if_wrong: *id002
+      interaction_button_default: recommended_existing_or_portal
+      write_method: *id003
+      verify_method: *id004
+    default:
+      value: user_selected_or_existing_working_model
+      policy: required_or_explicitly_deferred
+      source_refs: *id005
+      reason: A SaaS operator profile should use a capable coding/reasoning model and record how it was selected.
+      risk_if_wrong: *id006
+      interaction_button_default: recommended_existing
+      write_method: *id007
+      verify_method: *id008
+    generation_rule: Do not hardcode a model/provider unless verified from existing profile/auth or chosen by user. Secrets
+      go through Hermes auth/setup/.env, never chat.
+  toolsets:
+    value:
+    - terminal
+    - file
+    - web
+    - search
+    - browser
+    - vision
+    - skills
+    - memory
+    - session_search
+    - clarify
+    - todo
+    - code_execution
+    policy: apply_curated_starter_toolsets_with_user_visible_buttons
+    source_refs:
+    - official.tools_reference
+    - skill.hermes-agent
+    - installed_default_config
+    - sanitized_airmida_patterns
+    reason: A beginner should receive a working project operator, not a chat-only profile that cannot inspect, write, verify,
+      or research.
+    risk_if_wrong:
+      too_few: agent cannot complete setup or verify work
+      too_many: unnecessary attack surface, noisy prompts, credential/tool readiness failures, or accidental access to unrelated
+        capabilities
+    interaction_button_default: recommended_starter_operator
+    write_method:
+      preferred: hermes tools interactive UI or hermes tools enable/disable commands, then reset/new session
+      config_key: toolsets
+    verify_method:
+    - hermes -p <profile> tools list or equivalent sanitized tool status
+    - new session confirms required toolsets are available
+    - report unavailable toolsets as partial, not pass
+  display:
+    personality:
+      value: technical
+      policy: apply_default_but_user_can_change_later
+      source_refs:
+      - installed_default_config
+      - sanitized_airmida_patterns
+      reason: Technical style fits setup, validation, config explanation, and project-operator work.
+      risk_if_wrong:
+      - too casual can hide setup risks
+      - too restrictive can reduce useful exploration
+      interaction_button_default: recommended_technical
+      write_method:
+        config_key: display.personality
+      verify_method:
+      - sanitized config readback
+      - new session observes technical concise behavior
+    language:
+      value: detect_or_owner_choice
+      policy: ask_once_then_apply
+      source_refs: *id009
+      reason: Onboarding succeeds when explanations match the user's language while canonical repo artifacts can remain English.
+      risk_if_wrong: *id010
+      interaction_button_default: recommended_detect
+      write_method: *id011
+      verify_method: *id012
+    show_reasoning:
+      value: false
+      policy: keep_default_false
+      source_refs:
+      - installed_default_config
+      reason: Reports should contain summarized rationale, sources, and verification rather than long model-internal reasoning.
+      risk_if_wrong:
+      - noisy onboarding output
+      - possible confusion between hidden reasoning and evidence report
+      interaction_button_default: recommended_false
+      write_method:
+        config_key: display.show_reasoning
+      verify_method:
+      - sanitized config readback
+  agent:
+    image_input_mode:
+      value: auto
+      policy: keep_default_auto
+      source_refs:
+      - installed_default_config
+      reason: Screenshots are useful for Desktop setup without forcing a provider-specific image mode.
+      risk_if_wrong:
+      - forcing unsupported mode may break screenshot-driven troubleshooting
+      interaction_button_default: recommended_auto
+      write_method:
+        config_key: agent.image_input_mode
+      verify_method:
+      - sanitized config readback
+      - optional screenshot smoke test when vision is available
+    max_turns:
+      value: 60
+      policy: recommend_60_for_starter_owner_can_raise
+      source_refs:
+      - installed_default_config
+      - public_practice.daily_dose_masterclass
+      - sanitized_airmida_patterns
+      reason: Starter setup should complete in bounded stages and report partial/blockers instead of looping.
+      risk_if_wrong:
+        too_low: complex setup stops early
+        too_high: runaway or unfocused runs
+      interaction_button_default: recommended_60
+      write_method:
+        config_key: agent.max_turns
+      verify_method:
+      - sanitized config readback
+    api_max_retries:
+      value: 3
+      policy: keep_3
+      source_refs:
+      - installed_default_config
+      reason: Setup should tolerate transient provider errors without hiding persistent misconfiguration.
+      risk_if_wrong:
+        too_low: flaky setup
+        too_high: slow failure and cost/rate-limit risk
+      interaction_button_default: recommended_3
+      write_method:
+        config_key: agent.api_max_retries
+      verify_method:
+      - sanitized config readback
+    tool_use_enforcement:
+      value: auto
+      policy: keep_auto_plus_instruction_level_verification_rules
+      source_refs:
+      - installed_default_config
+      - owner_feedback
+      reason: LaunchRoom needs both explanation and verified action; PROFILE_INSTRUCTIONS should require verification for
+        setup claims.
+      risk_if_wrong:
+        too_strict: agent may overuse tools or stall
+        too_loose: agent may answer from memory without verification
+      interaction_button_default: recommended_auto
+      write_method:
+        config_key: agent.tool_use_enforcement
+      verify_method:
+      - sanitized config readback
+      - behavior checked by validators and stage reports
+  approvals:
+    mode:
+      value: smart
+      policy: mandatory_smart_unless_owner_overrides
+      source_refs:
+      - official.security
+      - installed_default_config
+      - sanitized_airmida_patterns
+      reason: SaaS setup needs productive local execution without disabling safety prompts.
+      risk_if_wrong:
+        manual: slow onboarding and too many interruptions
+        false: unsafe for beginners; equivalent to YOLO-style bypass except hardline blocks
+      interaction_button_default: recommended_smart
+      write_method:
+        config_key: approvals.mode
+      verify_method:
+      - sanitized config readback
+      - approval behavior remains active for dangerous commands
+    timeout:
+      value: 60
+      policy: keep_default_60
+      source_refs:
+      - official.security
+      - installed_default_config
+      reason: Fail-closed approval timeout is safer than silently continuing when the user is absent.
+      risk_if_wrong:
+        too_low: beginner misses prompts
+        too_high: runs hang too long
+      interaction_button_default: recommended_60
+      write_method:
+        config_key: approvals.timeout
+      verify_method:
+      - sanitized config readback
+    cron_mode:
+      value: deny
+      policy: mandatory_deny_for_starter
+      source_refs:
+      - official.security
+      - installed_default_config
+      reason: No autonomous production-like actions before observability, rollback, and gates exist.
+      risk_if_wrong:
+        approve: dangerous autonomous cron behavior for beginners
+      interaction_button_default: recommended_deny
+      write_method:
+        config_key: approvals.cron_mode
+      verify_method:
+      - sanitized config readback
+    mcp_reload_confirm:
+      value: true
+      policy: keep_true
+      source_refs:
+      - official.security
+      - installed_default_config
+      reason: MCP becomes a later-stage integration surface and should not change silently during profile foundation.
+      risk_if_wrong:
+        false: accidental MCP reloads and confusing tool-surface changes
+      interaction_button_default: recommended_true
+      write_method:
+        config_key: approvals.mcp_reload_confirm
+      verify_method:
+      - sanitized config readback
+    destructive_slash_confirm:
+      value: true
+      policy: keep_true
+      source_refs:
+      - official.security
+      - installed_default_config
+      reason: Setup history and evidence matter; destructive session actions need confirmation.
+      risk_if_wrong:
+        false: accidental loss of session state
+      interaction_button_default: recommended_true
+      write_method:
+        config_key: approvals.destructive_slash_confirm
+      verify_method:
+      - sanitized config readback
+  security:
+    redact_secrets:
+      value: true
+      policy: mandatory_true
+      source_refs:
+      - official.configuration
+      - official.security
+      - installed_default_config
+      reason: SaaS setup inevitably touches provider/tool credentials; redaction must stay on.
+      risk_if_wrong:
+        false: unacceptable risk of secret exposure in chat, logs, reports, or artifacts
+      interaction_button_default: mandatory_true
+      write_method:
+        config_key: security.redact_secrets
+      verify_method:
+      - sanitized config readback only; never print secrets to test it
+    allow_private_urls:
+      value: false_for_starter_true_only_after_local_private_url_gate
+      policy: default_false_record_deferred_gate
+      source_refs:
+      - official.security
+      - installed_default_config
+      reason: Private URLs are useful for local SaaS development, but should be enabled with an explicit local-dev explanation
+        and gate.
+      risk_if_wrong:
+        false_when_needed: local dashboard/API testing may be blocked
+        true_without_gate: private network exposure risk
+      interaction_button_default: recommended_false
+      write_method:
+        config_key: security.allow_private_urls
+      verify_method:
+      - sanitized config readback
+      - local URL access test only in Stage 2 or later
+    tirith_enabled:
+      value: true
+      policy: mandatory_true
+      source_refs:
+      - official.security
+      - official.configuration
+      - installed_default_config
+      reason: SaaS projects routinely read docs, repos, web pages, and generated files; disabling context safety scanning
+        makes prompt-injection and promptware risks harder to contain.
+      risk_if_wrong:
+        false: project or web content can more easily inject unwanted instructions into the agent context
+        true: rare false positives may block or mask suspicious text; agent should report blocked content rather than silently
+          ignore it
+      interaction_button_default: mandatory_true
+      write_method:
+        config_key: security.tirith_enabled
+      verify_method:
+      - sanitized config readback
+      - official docs/source check if Hermes schema changes
+      - do not create malicious promptware fixtures in user projects unless a separate test gate exists
+  browser:
+    allow_private_urls:
+      value: false_for_starter_true_only_after_local_browser_gate
+      policy: default_false_record_deferred_gate
+      source_refs:
+      - official.security
+      - installed_default_config
+      reason: Local SaaS preview testing may need this later, but not before workspace/runtime boundaries are explained.
+      risk_if_wrong:
+        false_when_needed: cannot QA localhost/internal preview
+        true_without_gate: browser tool may reach unintended private surfaces
+      interaction_button_default: recommended_false
+      write_method:
+        config_key: browser.allow_private_urls
+      verify_method:
+      - sanitized config readback
+    auto_local_for_private_urls:
+      value: true
+      policy: keep_true
+      source_refs:
+      - installed_default_config
+      reason: Local-first SaaS previews should stay local unless an explicit remote browser/provider gate exists.
+      risk_if_wrong:
+        false: private/local URLs may be routed through less appropriate browser infrastructure
+      interaction_button_default: recommended_true
+      write_method:
+        config_key: browser.auto_local_for_private_urls
+      verify_method:
+      - sanitized config readback
+  checkpoints:
+    enabled:
+      value: true
+      policy: mandatory_true_for_local_project_work
+      source_refs:
+      - installed_default_config
+      - sanitized_airmida_patterns
+      reason: SaaS project setup will create/edit files; rollback support makes agent work safer and more explainable.
+      risk_if_wrong:
+        false: harder recovery after bad edits
+        true: extra disk usage and snapshot management
+      interaction_button_default: recommended_true
+      write_method:
+        config_key: checkpoints.enabled
+      verify_method:
+      - sanitized config readback
+      - future edit workflow confirms checkpoint behavior when available
+    max_snapshots:
+      value: 20
+      policy: keep_default_20
+      source_refs:
+      - installed_default_config
+      reason: Enough history for early setup iterations without unbounded storage growth.
+      risk_if_wrong:
+        too_low: insufficient rollback history
+        too_high: disk/storage growth
+      interaction_button_default: recommended_20
+      write_method:
+        config_key: checkpoints.max_snapshots
+      verify_method:
+      - sanitized config readback
+  terminal:
+    backend:
+      value: local
+      policy: mandatory_local_for_starter_unless_owner_chooses_sandbox
+      source_refs:
+      - official.configuration
+      - installed_default_config
+      - sanitized_airmida_patterns
+      reason: First productive SaaS setup should operate on the user's chosen local project path before cloud/runtime integrations.
+      risk_if_wrong:
+        docker: safer but adds Docker dependency and mount complexity
+        ssh: can mutate remote systems and needs a separate gate
+        modal_or_daytona: cloud execution/cost/provider complexity
+      interaction_button_default: recommended_local
+      write_method:
+        config_key: terminal.backend
+      verify_method:
+      - hermes status/doctor or terminal smoke command in the new profile
+    cwd:
+      value: user_selected_project_path
+      policy: collect_in_stage_1_if_user_provides_but_apply/verify_in_stage_2
+      source_refs: *id013
+      reason: Project-local work must land in the user's chosen SaaS workspace, not a random shell directory.
+      risk_if_wrong: *id014
+      interaction_button_default: recommended_project_path
+      write_method: *id015
+      verify_method: *id016
+    timeout:
+      value: 180
+      policy: keep_default_180
+      source_refs:
+      - official.configuration
+      - installed_default_config
+      reason: Early setup commands should be bounded; long builds/tests can use explicit higher timeouts per command later.
+      risk_if_wrong:
+        too_low: installs/builds fail prematurely
+        too_high: hung commands waste onboarding time
+      interaction_button_default: recommended_180
+      write_method:
+        config_key: terminal.timeout
+      verify_method:
+      - sanitized config readback
+    persistent_shell:
+      value: true
+      policy: keep_true
+      source_refs:
+      - installed_default_config
+      reason: Project setup benefits from stable shell state, but reports must still record actual commands run.
+      risk_if_wrong:
+        false: repeated setup overhead and confusing environment drift
+        true: stale shell state can hide missing setup; verification should use explicit checks
+      interaction_button_default: recommended_true
+      write_method:
+        config_key: terminal.persistent_shell
+      verify_method:
+      - sanitized config readback
+      - terminal smoke command can observe state persistence if needed
+  code_execution:
+    mode:
+      value: project
+      policy: keep_project
+      source_refs:
+      - installed_default_config
+      - sanitized_airmida_patterns
+      reason: SaaS work should run against the project workspace, not uncontrolled global scratch space.
+      risk_if_wrong:
+        too_global: possible filesystem confusion
+        too_strict: some setup scripts may need explicit workspace permissions
+      interaction_button_default: recommended_project
+      write_method:
+        config_key: code_execution.mode
+      verify_method:
+      - sanitized config readback
+  memory:
+    memory_enabled:
+      value: true
+      policy: mandatory_true_with_memory_policy
+      source_refs:
+      - official.profiles
+      - public_practice.daily_dose_masterclass
+      - installed_default_config
+      reason: A SaaS project assistant should remember stable preferences and environment facts across sessions.
+      risk_if_wrong:
+        false: profile does not learn stable user/project conventions
+        true_without_policy: agent may store stale/task-progress details; must pair with memory discipline
+      interaction_button_default: mandatory_true
+      write_method:
+        config_key: memory.memory_enabled
+      verify_method:
+      - hermes memory status or sanitized config readback
+    user_profile_enabled:
+      value: true
+      policy: mandatory_true_with_memory_policy
+      source_refs:
+      - official.profiles
+      - public_practice.daily_dose_masterclass
+      - installed_default_config
+      reason: Reduces repeated setup steering across LaunchRoom sessions.
+      risk_if_wrong:
+        false: user preferences are repeatedly lost
+        true_without_policy: risk of saving temporary facts; must use memory discipline
+      interaction_button_default: mandatory_true
+      write_method:
+        config_key: memory.user_profile_enabled
+      verify_method:
+      - hermes memory status or sanitized config readback
+    write_approval:
+      value: false_initially_document_policy
+      policy: keep_false_but_require_memory_policy_in_PROFILE_INSTRUCTIONS
+      source_refs:
+      - installed_default_config
+      - public_practice.daily_dose_masterclass
+      reason: LaunchRoom should learn stable preferences but avoid storing transient task progress.
+      risk_if_wrong:
+        false_without_policy: noisy or stale memory
+        true: every useful memory write may become beginner friction
+      interaction_button_default: recommended_false_with_policy
+      write_method:
+        config_key: memory.write_approval
+      verify_method:
+      - sanitized config readback
+      - profile instructions contain memory policy
+  file_read_max_chars:
+    value: 100000
+    policy: keep_100000
+    source_refs:
+    - installed_default_config
+    - sanitized_airmida_patterns
+    reason: SaaS repos need file inspection, but agents should page through large files intentionally.
+    risk_if_wrong:
+      too_low: frustrating partial reads
+      too_high: context bloat and accidental large data exposure
+    interaction_button_default: recommended_100000
+    write_method:
+      config_key: file_read_max_chars
+    verify_method:
+    - sanitized config readback
+  tool_output:
+    max_bytes:
+      value: 50000
+      policy: keep_50000
+      source_refs:
+      - installed_default_config
+      - sanitized_airmida_patterns
+      reason: Setup reports need concise verified outputs; huge logs should be paged or summarized.
+      risk_if_wrong:
+        too_low: missing diagnostics
+        too_high: context bloat and accidental sensitive output exposure
+      interaction_button_default: recommended_50000
+      write_method:
+        config_key: tool_output.max_bytes
+      verify_method:
+      - sanitized config readback
+    max_lines:
+      value: 2000
+      policy: keep_2000
+      source_refs:
+      - installed_default_config
+      - sanitized_airmida_patterns
+      reason: SaaS setup needs evidence from tools, but logs should not flood the context or hide important failures inside
+        massive output.
+      risk_if_wrong:
+        too_low: build/test/setup diagnostics may be truncated before the root cause appears
+        too_high: large logs can overwhelm context, increase cost, and increase accidental sensitive-output exposure
+      interaction_button_default: recommended_2000
+      write_method:
+        config_key: tool_output.max_lines
+      verify_method:
+      - sanitized config readback
+      - run a bounded diagnostic command and confirm output is capped/paged rather than unlimited
+    max_line_length:
+      value: 2000
+      policy: keep_2000
+      source_refs:
+      - installed_default_config
+      - sanitized_airmida_patterns
+      reason: Setup commands can emit minified JSON, one-line stack traces, or dependency output; line caps keep reports readable
+        and safer.
+      risk_if_wrong:
+        too_low: long error messages, JSON snippets, or paths may be cut too aggressively
+        too_high: huge single-line blobs can bloat context and may include credential-like material despite redaction
+      interaction_button_default: recommended_2000
+      write_method:
+        config_key: tool_output.max_line_length
+      verify_method:
+      - sanitized config readback
+      - inspect generated setup reports for readable truncated long-line output
+wizard_flow:
+  mode: interactive_buttons
+  beginner_path:
+  - Explain global vs profile settings.
+  - Ask profile_name, language, project_name, project_path.
+  - Detect existing model/provider readiness without exposing secrets.
+  - Show grouped LaunchRoom recommended settings with buttons for recommended/manual/custom/defer.
+  - Apply only selected profile settings.
+  - Write report with selected values, sources, and verification.
+  experienced_path:
+  - Allow source/details view per setting.
+  - Allow custom value with source or explicit owner override.
+  - Record every deviation from LaunchRoom recommended baseline.
+  button_source: Use settings[].interaction.buttons from the research ledger.
+deferred_or_gated_settings:
+  terminal.cwd: Collect project_path in Stage 1 if user provides it; final workspace verification belongs to Stage 2 unless
+    owner decides Stage 1 should apply it.
+  security.allow_private_urls: Default false. Enable only after local/private URL gate.
+  browser.allow_private_urls: Default false. Enable only after local browser/private URL gate.
+  gateway_and_mcp: Not generated by this baseline. Stage 5 only, with secret/env isolation.
+  advanced_toolsets: Delegation, cronjob, messaging, image_gen, tts, x_search, MCP-backed tools require explicit stage/user/tool
+    readiness decisions.
+generation_rules_for_config_yaml:
+- Generate config.yaml from profile_config_baseline only after the wizard records user choices.
+- Do not write placeholder strings like <project_path> into a live profile config; either resolve or defer.
+- Do not write secrets into config.yaml unless official Hermes docs require a non-secret reference such as ${ENV_VAR}.
+- Never copy .env, auth.json, state.db, sessions, memories, logs, or raw MCP env values from another profile.
+- If official Hermes docs or installed DEFAULT_CONFIG contradict this file, stop and update the ledger/baseline before applying.
+verification_requirements:
+- YAML parse succeeds.
+- Each generated config key maps back to a ledger setting or documented inherited default.
+- Every non-default LaunchRoom value has a reason and source_refs.
+- Wizard report records selected button IDs and deviations.
+- Secret scan passes before commit.
+- Toolset changes are verified after reset/new session because Hermes does not apply tool changes mid-conversation.
