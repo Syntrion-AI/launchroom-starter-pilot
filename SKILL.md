@@ -1,99 +1,49 @@
 ---
-name: launchroom-starter-pilot
-description: One-link AIRMIDA LaunchRoom setup operator for clean Hermes installs: Bootstrap 0 execution preflight, Basic Safe Room, profile/workspace/memory, system inventory, tools/skills, gateway, SaaS operator kit, CloudRoom/AgentOps readiness.
-version: 0.4.0
-author: AIRMIDA LaunchRoom
+name: airmida-launchroom-starter
+description: LaunchRoom Starter setup wizard for turning a new/default Hermes profile into a safe SaaS project operator room.
+version: 0.5.0
+author: Hermes Agent
 license: MIT
-platforms: [windows, macos, linux]
 metadata:
   hermes:
-    tags: [launchroom, airmida, hermes, setup, bootstrap, windows, saas, gateway, agentops]
+    tags: [launchroom, hermes, onboarding, profile, workspace, saas, setup]
 ---
 
-# AIRMIDA LaunchRoom One-Link Setup Operator
+# AIRMIDA LaunchRoom Starter
 
-`public LaunchRoom test package / not AIRMIDA authority`
-
-Default language: Russian.
+Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom Starter for a Hermes profile or SaaS project workspace.
 
 ## Core behavior
 
-When the user asks for LaunchRoom setup, one-link setup, clean Windows setup, new Hermes agent setup, or pastes `RUN_ME_FIRST_RU.md`, operate from the one-link runbook.
+- Use `RUN_ME_FIRST.md` as the canonical executable route.
+- Speak with the user in the language they use. Do not force a fixed language set.
+- Keep repository documentation and machine contracts in English.
+- Treat the package as a guided setup wizard, not a read-only audit.
+- Run safe T0 checks without extra ceremony after the user starts the wizard.
+- Ask before T1 profile/workspace setup.
+- Require separate gates for software installs, gateway setup, cloud/runtime/provider changes, git publication, and secrets.
 
-Canonical entrypoint:
+## Positive setup permissions
 
-```text
-https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_ME_FIRST_RU.md
-```
+After the user chooses the relevant option, the agent may:
 
-Do not summarize the runbook. Start `BOOTSTRAP_0`.
+- create the selected local workspace;
+- set non-secret Hermes config values for the active test/project profile;
+- set `terminal.cwd` to the selected workspace;
+- write workspace-local instructions and readiness reports;
+- recommend and optionally load/install the approved LaunchRoom starter capability pack;
+- create a local SaaS operator kit at Stage 6.
 
-## Non-negotiable correction
+## Hard stops
 
-A broken Hermes terminal/backend is a Bootstrap blocker, not a Stage 3/4/6 success.
+Stop and report `failed_policy_violation` if the agent:
 
-If local terminal commands fail before execution, especially on Windows/WSL/bash, return:
+- asks for secrets in chat;
+- copies credential/session files between profiles;
+- patches unrelated installed skills as self-improvement during onboarding;
+- claims pass with contradictory evidence;
+- mutates provider/cloud/runtime/publication surfaces without a separate gate.
 
-```yaml
-bootstrap_0:
-  status: blocked
-  blocker_id: HERMES_TERMINAL_BACKEND_UNAVAILABLE
-  stage_1_to_6_status: not_started
-```
+## Stage pass rule
 
-Then offer exactly three paths:
-
-```text
-A — repair Hermes terminal/backend now
-B — continue no-terminal/manual mode
-C — stop setup
-```
-
-## Safety
-
-- Never ask for secrets in chat.
-- No memory/profile/self-improvement updates during onboarding unless explicitly requested.
-- No file/config/profile/tool/skill/gateway/cloud/runtime/git mutation without separate gate.
-- Use statuses: `pass`, `blocked`, `deferred`, `manual_only`, `not_started`, `not_applicable`.
-- Never say “completed” when the critical capability is blocked.
-
-## Stage map
-
-0. Bootstrap 0 — execution surface preflight.
-1. Stage 1 — Basic Safe Hermes Room: model/provider, profile/workspace path, settings buckets, first channel path.
-2. Stage 2 — Profile/workspace/memory/file structure.
-3. Stage 3 — System inventory and toolchain baseline.
-4. Stage 4 — Tools/skills/memory/session readiness.
-5. Stage 5 — Communication/gateway readiness.
-6. Stage 6 — SaaS operator kit + CloudRoom/AgentOps readiness.
-
-## Official Hermes command anchors
-
-Safe read-only where available:
-
-```bash
-hermes --version
-hermes status
-hermes doctor
-hermes config path
-hermes config env-path
-hermes profile list
-hermes tools list
-hermes skills list
-hermes memory status
-hermes gateway status
-```
-
-Repair path when external PowerShell is needed:
-
-```powershell
-hermes setup terminal
-hermes doctor
-hermes status
-```
-
-## Final report
-
-Always end with `airmida_launchroom_setup_report` from `RUN_ME_FIRST_RU.md`.
-
-End of SKILL.
+A stage passes only when checks are complete or explicitly deferred, required user choices are collected or explicitly deferred, selected allowed setup actions are completed and verified, and an evidence ledger exists.

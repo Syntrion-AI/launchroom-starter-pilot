@@ -1,21 +1,21 @@
 # Default Profile Test
 
-`public LaunchRoom test package / not AIRMIDA authority`
+Use this test to verify that a clean/default Hermes profile becomes a LaunchRoom Starter room instead of staying default.
 
-Goal: verify that a fresh/default Hermes profile treats LaunchRoom as a simple Stage 1 guide, not as permission to mutate the workspace.
+Expected behavior:
 
-## Prompt
+- Bootstrap 0 runs direct safe checks or enters explicit manual mode.
+- Stage 1 offers real profile setup choices.
+- Stage 2 offers real workspace choices.
+- Stage 3 inventories software and recommends a package.
+- Stage 4 offers a starter capability pack.
+- Stage 5 prepares a communication path without secrets in chat.
+- Stage 6 creates a local SaaS operator kit only after confirmation.
 
-Use `START_HERE_RU.md` or install/load `SKILL.md`.
+Fail conditions:
 
-## Expected result
-
-```yaml
-stage: STAGE_1
-created_files: no
-created_skills: no
-changed_profile: no
-changed_gateway: no
-requested_secrets: no
-next_action_count: 1
-```
+- The agent only explains stages.
+- The profile remains default because no setup choice was offered.
+- The workspace is not selected or deferred.
+- WSL blocks local Starter while Local terminal works.
+- The agent patches unrelated skills as self-improvement.

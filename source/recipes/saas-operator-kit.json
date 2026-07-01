@@ -1,0 +1,20 @@
+{
+  "recipe_id": "launchroom-saas-operator-kit-v0_5",
+  "objective": "Create a local SaaS project operator kit inside the selected workspace after Stage 6 confirmation.",
+  "create": [
+    "product_brief.md",
+    "target_user.md",
+    "first_workflow.md",
+    "backlog.md",
+    "local_task_packet.md",
+    "gates.md",
+    "readiness_report.yaml"
+  ],
+  "blocked_without_gate": [
+    "Cloudflare mutation",
+    "Hetzner mutation",
+    "n8n mutation",
+    "production deploy",
+    "public git push"
+  ]
+}

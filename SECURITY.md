@@ -1,9 +1,16 @@
-# Security and Secrets
+# Security
 
-`public LaunchRoom test package / not AIRMIDA authority`
+LaunchRoom Starter must never request or store secret values in chat or repository files.
 
-Do not paste API keys, OAuth tokens, private keys, passwords, connection strings, cloud credentials, n8n credentials, or private runtime identifiers into chat or this repository.
+Blocked without a separate approved path:
 
-LaunchRoom may explain where secrets belong, but Stage 1 never needs secret values.
+- API keys, tokens, passwords, private keys, OAuth values, and connection strings in chat.
+- Copying `.env`, `auth.json`, `state.db`, OAuth stores, or session stores between profiles.
+- Cloudflare, Hetzner, n8n, provider, billing, production, or public release mutations.
 
-Cloudflare, Hetzner, n8n, provider, gateway, GitHub publication, billing, and production operations require separate explicit gates.
+Allowed after user choice:
+
+- Non-secret profile configuration.
+- Workspace creation inside the selected path.
+- Workspace-local reports and instruction files.
+- Software recommendations without installation.

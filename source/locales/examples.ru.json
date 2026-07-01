@@ -1,0 +1,22 @@
+{
+  "locale": "ru",
+  "role": "example interaction strings only; not canonical documentation",
+  "examples": [
+    {
+      "kind": "trigger",
+      "text": "Запусти LaunchRoom Starter для этого профиля."
+    },
+    {
+      "kind": "button_label",
+      "text": "Использовать рекомендованный путь"
+    },
+    {
+      "kind": "button_label",
+      "text": "Пауза"
+    },
+    {
+      "kind": "plain_explanation",
+      "text": "Я буду говорить с вами на вашем языке, а рабочая документация проекта останется на английском."
+    }
+  ]
+}

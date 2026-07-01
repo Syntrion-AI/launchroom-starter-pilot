@@ -1,0 +1,21 @@
+{
+  "T0_read_only": [
+    "run Hermes status/config path checks",
+    "run local tool version checks",
+    "inspect profile/workspace paths without secret values"
+  ],
+  "T1_user_choice_setup": [
+    "create selected local workspace folder",
+    "set non-secret profile config after choice",
+    "set terminal.cwd after workspace choice",
+    "write workspace-local instructions and readiness reports",
+    "install/load approved LaunchRoom starter skill pack after choice"
+  ],
+  "T2_install_or_external_setup": [
+    "recommend local software package; install only after explicit install gate",
+    "run Hermes tools/gateway setup only after explicit gate"
+  ],
+  "T3_runtime_provider_cloud": [
+    "Cloudflare, Hetzner, n8n, billing, production deployment, public release require separate owner/runtime gate"
+  ]
+}

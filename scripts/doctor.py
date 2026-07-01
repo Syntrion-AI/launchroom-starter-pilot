@@ -2,72 +2,60 @@
 from __future__ import annotations
 import json, re, sys
 from pathlib import Path
+
 ROOT = Path(__file__).resolve().parents[1]
-MARKER = 'public LaunchRoom test package / not AIRMIDA authority'
-REQUIRED = ['README.md', 'REAL_HERMES_SETUP_RU.md', 'FULL_SETUP_TEST_RU.md', 'RUN_ME_FIRST_RU.md', 'START_HERE_RU.md', 'INSTALL_RU.md', 'SKILL.md', 'source/airmida_launchroom_agentpack.v0_1.json', 'scripts/build_agentpack.py', 'scripts/doctor.py', 'scripts/validate_behavior_contract.py', 'scripts/reset_launchroom_test_profile.ps1', 'contracts/agentpack_contract.v0_1.json', 'generated/HERMES_SKILL.md', 'generated/STAGE_MAP_RU.md', '.github/workflows/validate.yml']
-SECRET_RE = re.compile(r"(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|BEGIN (RSA|OPENSSH|PRIVATE) KEY|AKIA[0-9A-Z]{16})")
-REQUIRED_PHRASES = [
-    "BOOTSTRAP_0",
-    "HERMES_TERMINAL_BACKEND_UNAVAILABLE",
-    "stage_1_to_6_status: not_started",
-    "Stage 1",
-    "Stage 6",
-    "LAUNCHROOM_ONE_LINK_SETUP_RU",
-    "hermes setup terminal",
-    "hermes status",
-    "hermes doctor",
-    "hermes tools list",
-    "hermes gateway status",
-    "PowerShell",
-    "Никогда не проси секреты",
-    "self-memory",
-    "manual_only",
-    "Decision UI / Clarify Button Contract",
-    "invalid_bootstrap_report",
-    "example_errors_are_not_current_facts",
-    "Stage flow contract",
-    "Stage 1 завершён. Что делаем дальше?",
-    "If Stage 1 is pass, the only forward `one_next_action` is Stage 2",
-    "Cloudflare",
-    "Hetzner",
-    "n8n",
-    "not AIRMIDA authority",
-    "RUN_ME_FIRST_RU.md",
-    "reset_launchroom_test_profile.ps1",
-    "ResetExisting",
+CYRILLIC_RE = re.compile(r'[\u0400-\u04FF]')
+REQUIRED = [
+    'README.md','RUN_ME_FIRST.md','SKILL.md','START_HERE.md','INSTALL.md','SECURITY.md','UNDER_THE_HOOD.md','PUBLICATION_GATE.md','DEFAULT_PROFILE_TEST.md',
+    'source/launchroom.starter.v0_5.json','source/locales/examples.ru.json',
+    'source/recipes/profile-setup.json','source/recipes/workspace-setup.json','source/recipes/inventory.json','source/recipes/starter-skillpack.json','source/recipes/messaging.json','source/recipes/saas-operator-kit.json',
+    'contracts/launchroom-language-policy.json','contracts/launchroom-permission-tiers.json','contracts/launchroom-stage-contract.json','contracts/launchroom-profile-recipe.json','contracts/launchroom-workspace-recipe.json','contracts/launchroom-inventory-contract.json','contracts/launchroom-archive-policy.json',
+    'scripts/build_agentpack.py','scripts/doctor.py','scripts/validate_behavior_contract.py','scripts/validate_language_policy.py','scripts/validate_archive_policy.py','scripts/validate_profile_recipe.py','scripts/validate_inventory_contract.py','scripts/reset_launchroom_test_profile.ps1',
+    'templates/workspace/README.md','templates/workspace/AGENTS.md','templates/workspace/HERMES.md','templates/reports/launchroom-readiness-report.yaml',
+    'generated/RUN_ME_FIRST.md','generated/HERMES_SKILL.md','generated/github-agents/airmida-launchroom.agent.md',
+    'archive/20260630-rebuild-v0_5/ARCHIVE_MANIFEST.json'
 ]
-TEXT_SUFFIXES = {".md", ".json", ".py", ".ps1", ".yml", ".yaml", ".txt"}
-def main():
-    issues=[]; warnings=[]
-    data=json.loads((ROOT/"source/airmida_launchroom_agentpack.v0_1.json").read_text(encoding="utf-8"))
-    if "bootstrap_0" not in data: issues.append("missing bootstrap_0 contract")
-    if len(data.get("stages", [])) != 6: issues.append("expected 6 stages")
-    required_statuses={"pass","blocked","deferred","manual_only","not_started","not_applicable"}
-    if not required_statuses.issubset(set(data.get("status_contract", []))):
-        issues.append("status_contract missing required honest statuses")
-    for rel in REQUIRED:
-        p=ROOT/rel
-        if not p.exists(): issues.append(f"missing required file: {rel}")
-    all_text=[]; scanned=0; secret_hits=[]; marker_missing=[]
-    for p in ROOT.rglob("*"):
-        if not p.is_file() or p.suffix.lower() not in TEXT_SUFFIXES: continue
-        if ".git" in p.parts or "__pycache__" in p.parts: continue
-        rel=p.relative_to(ROOT).as_posix()
-        if rel.startswith("evidence/"): continue
-        text=p.read_text(encoding="utf-8", errors="ignore"); all_text.append(text); scanned+=1
-        if SECRET_RE.search(text): secret_hits.append(rel)
-        if rel in REQUIRED and MARKER not in text and rel not in ["source/airmida_launchroom_agentpack.v0_1.json", "contracts/agentpack_contract.v0_1.json", ".github/workflows/validate.yml"]:
-            marker_missing.append(rel)
-    joined="\n".join(all_text)
-    for phrase in REQUIRED_PHRASES:
-        if phrase not in joined: issues.append(f"missing phrase: {phrase}")
-    run=(ROOT/"RUN_ME_FIRST_RU.md").read_text(encoding="utf-8") if (ROOT/"RUN_ME_FIRST_RU.md").exists() else ""
-    forbidden_claim_guard=["If Bootstrap 0 is blocked, report Stage 1–6 as `not_started`, not pass", "forbidden_status_pattern"]
-    for phrase in forbidden_claim_guard:
-        if phrase not in run: issues.append(f"missing fake-pass guard: {phrase}")
-    if secret_hits: issues.append(f"secret-like hits: {secret_hits}")
-    if marker_missing: issues.append(f"marker missing: {marker_missing}")
-    result={"status":"pass" if not issues else "fail", "issues":issues, "warnings":warnings, "files_scanned":scanned}
-    print(json.dumps(result, ensure_ascii=False))
-    return 0 if not issues else 2
-if __name__ == "__main__": raise SystemExit(main())
+CANONICAL_SCAN_EXTS = {'.md','.py','.ps1','.json','.yaml','.yml'}
+ALLOWED_LOCALIZED_PREFIXES = ('archive/','source/locales/','generated/locale-examples/')
+SECRET_MARKERS = ['sk' + '-', 'xoxb' + '-', 'xapp' + '-', 'ghp' + '_', '-----BEGIN ' + 'PRIVATE KEY-----']
+
+def fail(msg: str) -> None:
+    print(f'FAIL: {msg}')
+    raise SystemExit(1)
+
+def rel(path: Path) -> str:
+    return path.relative_to(ROOT).as_posix()
+
+def main() -> int:
+    missing = [p for p in REQUIRED if not (ROOT/p).exists()]
+    if missing:
+        fail('missing required files: ' + ', '.join(missing))
+    source = json.loads((ROOT/'source/launchroom.starter.v0_5.json').read_text(encoding='utf-8'))
+    if source.get('canonical_documentation_language') != 'English':
+        fail('canonical documentation language must be English')
+    if source.get('interaction_language', {}).get('closed_language_allowlist') is not False:
+        fail('interaction language must not use a closed allowlist')
+    for tier in ['T0_read_only','T1_user_choice_setup','T2_install_or_external_setup','T3_runtime_provider_cloud']:
+        if tier not in source.get('permission_tiers', {}):
+            fail(f'missing permission tier {tier}')
+    for recipe in source.get('recipes', []):
+        if not (ROOT/recipe).exists():
+            fail(f'missing recipe {recipe}')
+    forbidden_roots = ['FULL_SETUP_TEST_RU.md','INSTALL_RU.md','REAL_HERMES_SETUP_RU.md','START_HERE_RU.md']
+    for item in forbidden_roots:
+        if (ROOT/item).exists():
+            fail(f'superseded localized root file still active: {item}')
+    for path in ROOT.rglob('*'):
+        if not path.is_file() or '.git' in path.parts or path.suffix not in CANONICAL_SCAN_EXTS:
+            continue
+        r = rel(path)
+        text = path.read_text(encoding='utf-8', errors='ignore')
+        if any(marker in text for marker in SECRET_MARKERS):
+            fail(f'secret-like marker in {r}')
+        if CYRILLIC_RE.search(text) and not r.startswith(ALLOWED_LOCALIZED_PREFIXES):
+            fail(f'localized text found outside allowed locale/archive path: {r}')
+    print('doctor: ok')
+    return 0
+
+if __name__ == '__main__':
+    raise SystemExit(main())

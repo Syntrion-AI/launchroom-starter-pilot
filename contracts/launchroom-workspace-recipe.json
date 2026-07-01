@@ -1,0 +1,22 @@
+{
+  "recipe_id": "launchroom-workspace-setup-v0_5",
+  "objective": "Help the user choose and create the safe local workspace for the SaaS project.",
+  "choices": [
+    "use recommended workspace path",
+    "choose another folder",
+    "keep current path temporarily",
+    "pause"
+  ],
+  "allowed_after_confirmation": [
+    "create selected directory",
+    "create .hermes/reports",
+    "write workspace README",
+    "write AGENTS.md or HERMES.md local instructions",
+    "set terminal.cwd to selected workspace"
+  ],
+  "verify": [
+    "path exists",
+    "all created files are under selected workspace",
+    "terminal.cwd points to selected workspace or deferred"
+  ]
+}

@@ -1,13 +1,10 @@
-# START HERE
+# Start Here
 
-`public LaunchRoom test package / not AIRMIDA authority`
+This repository contains the LaunchRoom Starter pilot.
 
-Для теста используй одну ссылку:
+1. Open a fresh Hermes profile or disposable test profile.
+2. Paste the raw `RUN_ME_FIRST.md` URL into Hermes.
+3. Let the agent run Bootstrap 0 and then move through Stage 1-6.
+4. Approve profile or workspace changes only when the agent clearly states the target path and the exact non-secret change.
 
-```text
-https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_ME_FIRST_RU.md
-```
-
-Вставь её в новый чат Hermes Agent.
-
-Ожидаемый результат: агент начинает `Bootstrap 0`, а не пересказывает файл. Если terminal/backend сломан, он должен остановиться с `BOOTSTRAP_0_BLOCKED` и не засчитывать Stage 1–6.
+The agent should speak with the user in the user's language. Repository documentation and machine contracts stay English.

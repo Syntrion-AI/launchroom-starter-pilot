@@ -1,0 +1,4 @@
+{
+  "archive_root": "archive/YYYYMMDD-<packet-id>",
+  "policy": "Superseded active files move to archive with manifest instead of remaining in root/docs clutter."
+}

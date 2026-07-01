@@ -1,0 +1,21 @@
+{
+  "recipe_id": "launchroom-messaging-v0_5",
+  "objective": "Prepare the first communication channel without secret values in chat.",
+  "choices": [
+    "defer channel",
+    "Telegram",
+    "Slack",
+    "Email/Gmail",
+    "Other"
+  ],
+  "allowed_without_secret": [
+    "explain setup path",
+    "run gateway status",
+    "open Hermes gateway setup after confirmation"
+  ],
+  "never": [
+    "ask token in chat",
+    "print token",
+    "store token in repo"
+  ]
+}

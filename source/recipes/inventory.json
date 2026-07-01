@@ -1,0 +1,28 @@
+{
+  "recipe_id": "launchroom-inventory-v0_5",
+  "objective": "Collect a no-secret local toolchain inventory and recommend a software package.",
+  "required_checks": [
+    "os",
+    "shell",
+    "hermes",
+    "python",
+    "git",
+    "node",
+    "npm",
+    "docker",
+    "ripgrep",
+    "uv",
+    "winget_or_package_manager"
+  ],
+  "optional_checks": [
+    "wsl"
+  ],
+  "output": [
+    "installed",
+    "missing_required",
+    "missing_recommended",
+    "optional_later",
+    "install_pack_requires_gate"
+  ],
+  "rule": "WSL is optional for Local backend and must not block Starter when local terminal works."
+}

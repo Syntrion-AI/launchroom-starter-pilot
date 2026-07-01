@@ -1,0 +1,78 @@
+{
+  "stage_pass_requires": [
+    "required checks completed or explicitly deferred",
+    "required user choices collected or explicitly deferred",
+    "selected allowed setup action completed and verified",
+    "evidence ledger present",
+    "next action is next stage, retry, report, or pause"
+  ],
+  "stages": [
+    {
+      "id": "bootstrap_0",
+      "name": "Execution surface",
+      "purpose": "Confirm Hermes can run safe local checks or enter an explicit manual/repair path.",
+      "pass_requires": [
+        "agent direct terminal check pass or manual_only status recorded",
+        "no contradictory evidence"
+      ]
+    },
+    {
+      "id": "stage_1",
+      "name": "Model and profile foundation",
+      "purpose": "Make the active Hermes profile understandable and prepare it for LaunchRoom setup.",
+      "pass_requires": [
+        "active profile identified",
+        "model path understood",
+        "profile setup choice offered and applied or deferred"
+      ]
+    },
+    {
+      "id": "stage_2",
+      "name": "Workspace and project room",
+      "purpose": "Create or select the safe local workspace for the SaaS project.",
+      "pass_requires": [
+        "workspace choice collected",
+        "workspace created/selected or deferred",
+        "terminal.cwd set when approved"
+      ]
+    },
+    {
+      "id": "stage_3",
+      "name": "System inventory and software package",
+      "purpose": "Build a no-secret inventory and recommend required/recommended/optional software.",
+      "pass_requires": [
+        "core tools checked",
+        "missing software package produced",
+        "WSL treated as optional unless selected"
+      ]
+    },
+    {
+      "id": "stage_4",
+      "name": "Tools, skills, memory, starter capability pack",
+      "purpose": "Turn available Hermes capabilities into a starter operating profile.",
+      "pass_requires": [
+        "tools/skills/memory status checked",
+        "capability pack proposed",
+        "unauthorized self-patch absent"
+      ]
+    },
+    {
+      "id": "stage_5",
+      "name": "Communications",
+      "purpose": "Choose and prepare the first user communication channel without secrets in chat.",
+      "pass_requires": [
+        "channel selected or deferred",
+        "safe secret-entry path explained"
+      ]
+    },
+    {
+      "id": "stage_6",
+      "name": "SaaS operator kit",
+      "purpose": "Create the first local SaaS project operating packet after profile/workspace/readiness are clear.",
+      "pass_requires": [
+        "product brief collected",
+        "local operator kit created after confirmation or explicitly deferred"
+      ]
+    }
+  ]
+}

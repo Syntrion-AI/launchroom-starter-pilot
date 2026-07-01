@@ -19,3 +19,15 @@ jobs:
         run: python scripts/doctor.py
       - name: Behavior contract
         run: python scripts/validate_behavior_contract.py
+      - name: Language policy
+        run: python scripts/validate_language_policy.py
+      - name: Archive policy
+        run: python scripts/validate_archive_policy.py
+      - name: Profile recipe
+        run: python scripts/validate_profile_recipe.py
+      - name: Inventory contract
+        run: python scripts/validate_inventory_contract.py
+      - name: Pilot seed
+        run: python scripts/validate_pilot_seed.py
+      - name: Compile scripts
+        run: python -m py_compile scripts/*.py

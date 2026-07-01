@@ -1,0 +1,25 @@
+{
+  "recipe_id": "launchroom-starter-skillpack-v0_5",
+  "objective": "Turn Hermes tools, skills, and memory into a usable starter capability pack.",
+  "inspect": [
+    "tools list/status",
+    "skills list/status",
+    "memory status",
+    "terminal/file/web/browser availability"
+  ],
+  "recommend": [
+    "LaunchRoom starter skill",
+    "workspace instructions",
+    "memory mode",
+    "safe local toolsets"
+  ],
+  "allowed_after_confirmation": [
+    "install/load approved skills",
+    "enable approved toolsets if CLI supports it",
+    "write local capability report"
+  ],
+  "hard_fail": [
+    "unauthorized self-improvement mutation",
+    "patch unrelated installed skills"
+  ]
+}

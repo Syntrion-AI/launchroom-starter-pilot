@@ -1,20 +1,11 @@
 # Publication Gate
 
-`public LaunchRoom test package / not AIRMIDA authority`
+This local rebuild does not authorize public publication.
 
-This repository is public for real testing, but it is not a production release and not AIRMIDA authority.
+Before push, tag, release, or public raw-link claims:
 
-Allowed in this publication:
-
-- public Stage 1-6 LaunchRoom docs;
-- public Hermes skill artifact;
-- public source/config/scripts/contracts;
-- CI validation.
-
-Not authorized by this publication:
-
-- secrets;
-- runtime/cloud/provider/n8n mutation;
-- production deployment;
-- AIRMIDA authority/canon/registry mutation;
-- autonomous production agents.
+1. Run all validators.
+2. Check git diff and file list.
+3. Confirm no secrets or private AIRMIDA paths are introduced into public docs.
+4. Obtain an explicit owner publication gate.
+5. After push, verify remote SHA, raw URLs, and GitHub Actions success.

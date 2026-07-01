@@ -1,64 +1,66 @@
-# AIRMIDA LaunchRoom One-Link Setup
+# LaunchRoom Starter Pilot
 
-`public LaunchRoom test package / not AIRMIDA authority`
+LaunchRoom Starter is a public test package that turns a new or default Hermes profile into a safe local SaaS project operator room.
 
-Use **one link** in a new Hermes Agent chat:
+It is not AIRMIDA authority. It is a productization pilot for onboarding, profile setup, workspace setup, software inventory, starter capability readiness, communication setup paths, and a local SaaS operator kit.
+
+## Start here
+
+Use the canonical English entrypoint:
 
 ```text
-https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_ME_FIRST_RU.md
+https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_ME_FIRST.md
 ```
 
-Expected behavior: Hermes must not summarize the file. It must start `Bootstrap 0`, verify whether it can run local checks, and only then proceed through real setup stages.
+Paste that link into a fresh Hermes session. The agent should use your language for conversation while keeping project documentation and machine contracts in English.
 
-## What this package tests
+## What this package should do
 
-```yaml
-bootstrap_0: execution surface / terminal backend / model basics
-stage_1: Basic Safe Hermes Room
-stage_2: profile, workspace, memory, safe file structure
-stage_3: system inventory and toolchain baseline
-stage_4: tools, skills, memory, sessions readiness
-stage_5: communications and gateway readiness
-stage_6: SaaS operator kit plus CloudRoom/AgentOps readiness
-```
+- Verify the Hermes execution surface.
+- Explain and configure the active profile using non-secret settings after your choice.
+- Help choose/create a safe project workspace.
+- Inventory local software and recommend a required/recommended/optional package.
+- Inspect tools, skills, and memory readiness.
+- Offer a starter capability pack.
+- Prepare a communication channel path without secrets in chat.
+- Create a local SaaS operator kit after Stage 6 confirmation.
 
-## Important behavior
+## Permission model
 
-If Hermes terminal/backend is broken on a clean Windows machine, the correct result is:
+LaunchRoom grants bounded local setup permissions instead of only listing restrictions:
 
-```yaml
-bootstrap_0: blocked
-stage_1_to_6: not_started
-```
+- T0: read-only checks may run immediately after the wizard starts.
+- T1: local profile/workspace setup may run after user choice.
+- T2: software installs and external setup require a separate install/setup gate.
+- T3: cloud, runtime, provider, billing, production, public release, and publication actions require a separate owner gate.
 
-Not a fake Stage 6 pass.
+## Language model
 
-## Optional skill install
+- Canonical repository documentation: English.
+- Canonical source contracts and validators: English.
+- User interaction: detect and mirror the user's language.
+- Localized triggers/examples may use the user's language when labeled.
+
+## Validation
 
 ```bash
-hermes skills install https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/SKILL.md --yes
+python scripts/build_agentpack.py --check
+python scripts/doctor.py
+python scripts/validate_behavior_contract.py
+python scripts/validate_language_policy.py
+python scripts/validate_archive_policy.py
+python scripts/validate_profile_recipe.py
+python scripts/validate_inventory_contract.py
+python scripts/validate_pilot_seed.py
+python -m py_compile scripts/*.py
 ```
 
-But the primary test is the one-link paste above.
+## Test profile helper
 
-## Optional clean test profile reset script
-
-For Windows repeatable tests, use the PowerShell helper. It creates the
-`launchroom-zero` profile if missing, and only resets an existing test profile
-when `-ResetExisting` is explicitly passed. Existing test profiles are exported
-to a timestamped backup before deletion.
+Windows helper:
 
 ```powershell
-# Create missing test profile and run model picker only
-powershell -ExecutionPolicy Bypass -File .\scripts\reset_launchroom_test_profile.ps1
-
-# Recreate the test profile from scratch, with backup first
-powershell -ExecutionPolicy Bypass -File .\scripts\reset_launchroom_test_profile.ps1 -ResetExisting
+powershell -ExecutionPolicy Bypass -File scripts/reset_launchroom_test_profile.ps1 -ResetExisting
 ```
 
-This does not reset the main/default Hermes profile and does not uninstall
-Windows tools such as Python, Git, Node, Docker, or ripgrep.
-
-## Safety
-
-No secrets in chat. No file/config/profile/tool/skill/gateway/cloud/runtime/git mutation without separate explicit gate.
+The helper targets the isolated `launchroom-zero` profile by default and does not reset the user's main/default/AIRMIDA profile.

@@ -1,0 +1,111 @@
+{
+  "archive_id": "20260630-rebuild-v0_5",
+  "created_for": "LaunchRoom Starter v0.5 rebuild",
+  "status": "lineage archive; not active setup documentation",
+  "moved": [
+    {
+      "old_path": "FULL_SETUP_TEST_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/FULL_SETUP_TEST_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "INSTALL_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/INSTALL_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "REAL_HERMES_SETUP_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/REAL_HERMES_SETUP_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "START_HERE_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/START_HERE_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "generated/STAGE_MAP_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/generated/STAGE_MAP_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "generated/START_HERE_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/generated/START_HERE_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "generated/INSTALL_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/generated/INSTALL_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "generated/FULL_SETUP_TEST_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/generated/FULL_SETUP_TEST_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "generated/RUN_ME_FIRST_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/generated/RUN_ME_FIRST_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "generated/REAL_HERMES_SETUP_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/generated/REAL_HERMES_SETUP_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "docs/STAGE_MAP_RU.md",
+      "new_path": "archive/20260630-rebuild-v0_5/docs/STAGE_MAP_RU.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "docs/full-setup-test-ru.md",
+      "new_path": "archive/20260630-rebuild-v0_5/docs/full-setup-test-ru.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "docs/real-hermes-setup-ru.md",
+      "new_path": "archive/20260630-rebuild-v0_5/docs/real-hermes-setup-ru.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "docs/security-and-secrets.md",
+      "new_path": "archive/20260630-rebuild-v0_5/docs/security-and-secrets.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "docs/testing-guide.md",
+      "new_path": "archive/20260630-rebuild-v0_5/docs/testing-guide.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "i18n/ru/START_HERE.ru.md",
+      "new_path": "archive/20260630-rebuild-v0_5/i18n/ru/START_HERE.ru.md",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    },
+    {
+      "old_path": "source/airmida_launchroom_agentpack.v0_1.json",
+      "new_path": "archive/20260630-rebuild-v0_5/source/airmida_launchroom_agentpack.v0_1.json",
+      "reason": "Superseded by English canonical LaunchRoom Starter v0.5 rebuild; preserved for lineage only.",
+      "replacement_path": "RUN_ME_FIRST.md / source/launchroom.starter.v0_5.json"
+    }
+  ],
+  "replacement_entrypoint": "RUN_ME_FIRST.md",
+  "replacement_source": "source/launchroom.starter.v0_5.json"
+}

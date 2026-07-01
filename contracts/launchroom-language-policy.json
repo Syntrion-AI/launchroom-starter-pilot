@@ -1,0 +1,18 @@
+{
+  "canonical_documentation_language": "English",
+  "canonical_machine_contract_language": "English",
+  "user_interaction_language": "detect_and_mirror_user_language",
+  "closed_language_allowlist": false,
+  "localized_content_allowed_in": [
+    "source/locales/**",
+    "examples/**",
+    "archive/**",
+    "transcripts explicitly labeled as evidence"
+  ],
+  "localized_content_not_allowed_in": [
+    "neutral root docs",
+    "source contracts",
+    "contracts",
+    "scripts except explicit locale fixture strings"
+  ]
+}
