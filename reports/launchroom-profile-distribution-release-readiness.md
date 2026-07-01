@@ -319,3 +319,36 @@ Recommended next action:
 ```text
 Owner chooses: direct push to main OR create release branch/PR.
 ```
+
+
+## 13. PR publication addendum
+
+After owner selected the safer publication path, a release branch and PR were created instead of pushing directly to `main`.
+
+```yaml
+publication_path_selected: release_branch_pr
+release_branch: release/launchroom-profile-distribution-v0-1
+pull_request: https://github.com/Syntrion-AI/launchroom-starter-pilot/pull/1
+pr_number: 1
+base: main
+head_branch: release/launchroom-profile-distribution-v0-1
+main_direct_push_performed: false
+```
+
+CI feedback during PR publication found two environment-only issues that were fixed on the release branch:
+
+| Commit | Issue | Fix |
+|---|---|---|
+| `4ac1cac` | GitHub runner did not have `PyYAML`, while validators import `yaml`. | Added `python -m pip install pyyaml` to `.github/workflows/validate.yml`. |
+| `12026f4` | Ubuntu PowerShell runner had no `$env:USERPROFILE`, causing installer self-test startup failure. | Installer now uses `USERPROFILE`, then `HOME`, then temp path fallback for default workspace base. |
+
+Post-fix PR status evidence:
+
+```text
+pull_request: https://github.com/Syntrion-AI/launchroom-starter-pilot/pull/1
+mergeStateStatus: CLEAN
+validate check #1: COMPLETED / SUCCESS
+validate check #2: COMPLETED / SUCCESS
+```
+
+This addendum supersedes the earlier local-only readiness state for publication status. The release remains unmerged until owner decides to merge the PR.
