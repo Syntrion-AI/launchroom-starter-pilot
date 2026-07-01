@@ -1,0 +1,1688 @@
+artifact_id: LAUNCHROOM_SETTINGS_RESEARCH_LEDGER_v0_1
+artifact_type: hermes_settings_research_ledger
+status: draft_for_owner_review
+language: en
+created_for: launchroom-starter-pilot
+created_scope: stage_1_research_basis_only
+purpose:
+  summary: Map Hermes settings to LaunchRoom setup decisions before generating any profile config, SOUL.md, profile instructions,
+    or distribution package. This ledger is not an applied config. It records source-backed reasons, causal effects, risks,
+    verification methods, and interactive button choices for the first practical LaunchRoom SaaS profile baseline.
+  not_purpose:
+  - not a secret store
+  - not a raw export of the airmida profile
+  - not a final config.yaml
+  - not a substitute for official Hermes docs
+  - not an immutable canon
+source_policy:
+  precedence:
+  - official_hermes_docs
+  - installed_hermes_default_config
+  - sanitized_airmida_working_profile_patterns
+  - public_practice_sources
+  - owner_choices
+  rules:
+  - Official Hermes docs override stale local repo assumptions.
+  - Installed DEFAULT_CONFIG records what Hermes actually defaults to on this machine/build.
+  - Public practice can inform ergonomics, but must not override official security rules.
+  - AIRMIDA profile patterns may be reused only after sanitization; never copy secrets, auth stores, sessions, memories, or
+    raw MCP env values.
+  - If a setting is not understood, mark it unknown_or_deferred instead of inventing a value.
+source_ledger:
+  official:
+    configuration:
+      url: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
+      extracted_claims:
+      - config.yaml stores non-secret settings
+      - .env stores API keys and secrets
+      - auth.json stores OAuth credentials
+      - config precedence is CLI arguments, config.yaml, .env, built-in defaults
+      - terminal supports local, docker, ssh, modal, daytona, and singularity backends
+      - terminal.cwd controls gateway/cron working directory; CLI uses launch directory
+    security:
+      url: https://hermes-agent.nousresearch.com/docs/user-guide/security
+      extracted_claims:
+      - approvals.mode supports manual, smart, and off
+      - approvals.timeout defaults to 60 seconds and fails closed on timeout
+      - approvals.mode off is equivalent to YOLO and should be used only in trusted environments
+      - Hermes has defense-in-depth layers including command approvals, isolation, MCP credential filtering, context scanning,
+        and input sanitization
+    profiles:
+      url: https://hermes-agent.nousresearch.com/docs/user-guide/profiles
+      extracted_claims:
+      - a profile is a separate Hermes home with its own config.yaml, .env, SOUL.md, memories, sessions, skills, cron jobs,
+        state database, and gateway state
+      - profiles are not workspaces or sandboxes
+      - terminal.cwd is configured separately from profile identity
+    profile_distributions:
+      url: https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions
+      extracted_claims:
+      - profile distributions package SOUL.md, skills, cron jobs, MCP connections, config, manifest metadata, and env requirements
+        as a git repository
+      - recipients keep their own memories, sessions, API keys, logs, and state
+      - authors must use gitignore/secret discipline because git itself will commit whatever is added
+    example_config:
+      url: https://github.com/NousResearch/hermes-agent/blob/main/cli-config.yaml.example
+      extracted_claims:
+      - provider can be auto or explicit provider identifiers
+      - context_length and max_tokens should usually be left unset unless there is a concrete reason
+      - terminal backend defaults to local and can be changed for sandboxing or remote execution
+  installed_default_config:
+    collection_method: selected non-secret keys from hermes_cli.config.DEFAULT_CONFIG
+    collected_in_session: true
+    selected_defaults:
+      toolsets:
+      - hermes-cli
+      display.personality: ''
+      display.language: en
+      display.show_reasoning: false
+      agent.image_input_mode: auto
+      terminal.backend: local
+      terminal.cwd: .
+      terminal.timeout: 180
+      terminal.persistent_shell: true
+      approvals.mode: manual
+      approvals.timeout: 60
+      approvals.cron_mode: deny
+      approvals.mcp_reload_confirm: true
+      approvals.destructive_slash_confirm: true
+      security.allow_private_urls: false
+      security.redact_secrets: true
+      security.tirith_enabled: true
+      browser.allow_private_urls: false
+      browser.auto_local_for_private_urls: true
+      checkpoints.enabled: false
+      checkpoints.max_snapshots: 20
+      memory.memory_enabled: true
+      memory.user_profile_enabled: true
+      memory.write_approval: false
+      agent.max_turns: 90
+      agent.api_max_retries: 3
+      agent.tool_use_enforcement: auto
+      code_execution.mode: project
+      file_read_max_chars: 100000
+      tool_output.max_bytes: 50000
+      tool_output.max_lines: 2000
+      tool_output.max_line_length: 2000
+  sanitized_airmida_patterns:
+    status: partial_from_owner_screenshots_and_active_profile_context
+    copied_values: false
+    usable_patterns:
+    - rich SOUL.md profile identity is materially better than a blank/default profile
+    - strong project profile uses technical communication, project-scoped work, smart approvals, secret redaction, checkpoints,
+      local execution, memory, and curated skills
+    - configured tool/key/MCP presence is useful as capability evidence, but values must never be copied into the starter
+      repo
+  public_practice:
+    daily_dose_masterclass:
+      url: https://blog.dailydoseofds.com/p/hermes-agent-masterclass
+      confidence: medium
+      extracted_claims:
+      - SOUL.md is the fixed identity frame inserted before memory and skills
+      - profiles are useful for isolated agents with separate personality, memory, skills, sessions, and channels
+      - persistent memory and skills are core to Hermes productivity over time
+    reddit_profile_example:
+      url: https://www.reddit.com/r/hermesagent/comments/1t66lhy/my_simplest_yet_effective_hermes_agent_profile/
+      confidence: unavailable
+      note: Firecrawl extraction failed; do not use as evidence until manually reviewed or fetched through another method.
+stage_model:
+  bootstrap_0_global_health:
+    owns:
+    - Hermes installation/version
+    - Desktop/backend health
+    - active profile selection
+    - global gateway connection mode
+    - config path/env path presence without secret values
+    not_owned:
+    - final SaaS profile identity
+    - project workspace structure
+    - provider/runtime/cloud mutations
+  stage_1_profile_foundation:
+    owns:
+    - model/provider readiness decision
+    - profile identity and SOUL.md requirements
+    - profile config baseline for safety, memory, display, terminal backend, and bounded agent behavior
+    - profile distribution metadata and env requirements
+    - profile foundation report
+    not_owned:
+    - final workspace content beyond chosen path placeholder
+    - software inventory
+    - full tools/key setup
+    - gateway/MCP wiring
+    - SaaS operator kit
+  stage_2_workspace:
+    owns:
+    - terminal.cwd final project workspace
+    - workspace AGENTS.md/HERMES.md/project context files
+    - project-local .hermes reports and workspace structure
+settings:
+- key: model.provider
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: unset_or_auto_by_setup_flow
+  launchroom_default: user_selected_or_existing_configured_provider
+  allowed_values_examples:
+  - auto
+  - nous
+  - openai-codex
+  - openrouter
+  - anthropic
+  - gemini
+  - custom
+  required_user_choice: if_missing
+  causal_effect: Determines which backend account/model route Hermes uses for all reasoning and tool-calling work in this
+    profile.
+  why_default_is_not_enough: A blank provider leaves a beginner with a profile that may exist but cannot reliably perform
+    work.
+  saas_reason: SaaS setup requires a dependable model route before claiming the profile is operational.
+  risk_if_wrong:
+  - wrong provider can create auth failures or unexpected cost/rate behavior
+  - copying source-profile credentials is forbidden
+  write_method:
+    preferred: hermes model or hermes setup --portal / provider setup flow
+    config_if_known: model.provider
+  verify_method:
+  - hermes -p <profile> config show or profile show, sanitized
+  - one-shot model smoke test with no secret output
+  source_refs:
+  - official.configuration
+  - official.profiles
+  - official.example_config
+  launchroom_policy: required_or_explicitly_deferred
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: model.provider
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_existing_or_portal
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_existing_or_portal
+      label: Use existing provider or Hermes Portal/OAuth setup
+      value: <existing_or_portal_provider>
+      explanation: Recommended for beginners; avoids copying secrets and uses official Hermes setup/auth flow.
+    - id: openrouter_or_anthropic
+      label: Use API-key provider
+      value: <provider_from_supported_list>
+      explanation: For users who already have a provider key and understand billing/rate limits.
+    - id: custom_local
+      label: Custom/local provider
+      value: <custom_provider>
+      explanation: Advanced option; requires docs/source verification before writing config.
+    - id: defer
+      label: Defer model setup
+      value: deferred
+      explanation: Only acceptable if Stage 1 report marks profile not fully operational.
+    selection_report_required: true
+- key: model.default
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: unset
+  launchroom_default: user_selected_or_existing_working_model
+  required_user_choice: if_missing
+  causal_effect: Controls the default model used by the LaunchRoom profile when no CLI override is supplied.
+  why_default_is_not_enough: Without a selected model, the user may have a profile shell but no reliable agent.
+  saas_reason: A SaaS operator profile should use a capable coding/reasoning model and record how it was selected.
+  risk_if_wrong:
+  - weak model may create poor setup artifacts
+  - expensive model may surprise beginner users
+  write_method:
+    preferred: hermes model or hermes setup --portal
+    config_if_known: model.default or model depending on current Hermes schema
+  verify_method:
+  - one-shot model smoke test
+  - profile foundation report records configured_or_deferred, not secret values
+  source_refs:
+  - official.configuration
+  - official.example_config
+  launchroom_policy: required_or_explicitly_deferred
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: model.default
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_existing
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_existing
+      label: Use current working model
+      value: <existing_working_model>
+      explanation: Best if Hermes already has a verified model.
+    - id: choose_coding_model
+      label: Choose strong coding/reasoning model
+      value: <user_selected_model>
+      explanation: Recommended for SaaS/project setup when no model is configured.
+    - id: custom
+      label: Custom model
+      value: <custom_model>
+      explanation: Advanced; verify with official/provider docs.
+    - id: defer
+      label: Defer model choice
+      value: deferred
+      explanation: Profile cannot pass as operational until smoke test succeeds.
+    selection_report_required: true
+- key: display.personality
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: empty
+  launchroom_default: technical
+  allowed_values_examples:
+  - technical
+  - default
+  - custom
+  causal_effect: Sets the default assistant style for new sessions.
+  why_default_is_not_enough: Empty/default personality does not bias the profile toward engineering-grade SaaS setup behavior.
+  saas_reason: Technical style fits setup, validation, config explanation, and project-operator work.
+  risk_if_wrong:
+  - too casual can hide setup risks
+  - too restrictive can reduce useful exploration
+  write_method:
+    config_key: display.personality
+  verify_method:
+  - sanitized config readback
+  - new session observes technical concise behavior
+  source_refs:
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: apply_default_but_user_can_change_later
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: display.personality
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_technical
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_technical
+      label: Technical
+      value: technical
+      explanation: Best starter style for SaaS setup, verification, and engineering reports.
+    - id: default
+      label: Default Hermes style
+      value: ''
+      explanation: Less opinionated, but weaker for setup discipline.
+    - id: custom
+      label: Custom personality
+      value: <custom_personality>
+      explanation: Advanced; must remain compatible with LaunchRoom profile instructions.
+    selection_report_required: true
+- key: display.language
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: en
+  launchroom_default: detect_or_owner_choice
+  causal_effect: Controls default language preference for profile responses/UI-adjacent behavior where supported.
+  why_default_is_not_enough: English default may be wrong for beginner guidance if the user works in another language.
+  saas_reason: Onboarding succeeds when explanations match the user's language while canonical repo artifacts can remain English.
+  risk_if_wrong:
+  - user confusion during setup
+  - mixed-language reports if not documented
+  write_method:
+    config_key: display.language
+  verify_method:
+  - sanitized config readback
+  - first LaunchRoom session mirrors selected language
+  source_refs:
+  - installed_default_config
+  - owner_choices
+  launchroom_policy: ask_once_then_apply
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: display.language
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_detect
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_detect
+      label: Use detected/user language
+      value: <detected_or_selected_language>
+      explanation: Best for beginner explanations.
+    - id: english
+      label: English
+      value: en
+      explanation: Useful for canonical docs and international teams.
+    - id: custom
+      label: Other language
+      value: <language_code_or_name>
+      explanation: User-selected language.
+    selection_report_required: true
+- key: display.show_reasoning
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: false
+  launchroom_default: false
+  causal_effect: Shows or hides reasoning sections when backend provides them.
+  why_default_is_enough: Beginner setup usually needs clear decisions and evidence, not raw reasoning sections.
+  saas_reason: Reports should contain summarized rationale, sources, and verification rather than long model-internal reasoning.
+  risk_if_wrong:
+  - noisy onboarding output
+  - possible confusion between hidden reasoning and evidence report
+  write_method:
+    config_key: display.show_reasoning
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - installed_default_config
+  launchroom_policy: keep_default_false
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: display.show_reasoning
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_false
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_false
+      label: Hide reasoning blocks
+      value: false
+      explanation: Use evidence summaries instead of noisy reasoning.
+    - id: show
+      label: Show reasoning if backend provides it
+      value: true
+      explanation: Advanced/debug option; can increase noise.
+    selection_report_required: true
+- key: agent.image_input_mode
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: auto
+  launchroom_default: auto
+  causal_effect: Controls how image attachments are sent to the model.
+  why_default_is_enough: Auto lets Hermes choose the supported route and is suitable for beginner screenshots during setup.
+  saas_reason: Screenshots are useful for Desktop setup without forcing a provider-specific image mode.
+  risk_if_wrong:
+  - forcing unsupported mode may break screenshot-driven troubleshooting
+  write_method:
+    config_key: agent.image_input_mode
+  verify_method:
+  - sanitized config readback
+  - optional screenshot smoke test when vision is available
+  source_refs:
+  - installed_default_config
+  launchroom_policy: keep_default_auto
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: agent.image_input_mode
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_auto
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_auto
+      label: Auto
+      value: auto
+      explanation: Lets Hermes choose the best supported path for screenshots/images.
+    - id: custom
+      label: Custom image mode
+      value: <custom_mode>
+      explanation: Advanced; use only if official docs/provider require it.
+    selection_report_required: true
+- key: approvals.mode
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: manual
+  launchroom_default: smart
+  allowed_values:
+  - manual
+  - smart
+  - false
+  causal_effect: Controls how Hermes handles dangerous-command approvals.
+  why_default_is_not_enough: Manual is safest but can make beginner setup painfully slow and encourage users to bypass prompts
+    blindly.
+  why_launchroom_value: Smart preserves a safety layer while reducing friction for low-risk setup commands.
+  saas_reason: SaaS setup needs productive local execution without disabling safety prompts.
+  risk_if_wrong:
+    manual: slow onboarding and too many interruptions
+    false: unsafe for beginners; equivalent to YOLO-style bypass except hardline blocks
+  write_method:
+    config_key: approvals.mode
+  verify_method:
+  - sanitized config readback
+  - approval behavior remains active for dangerous commands
+  source_refs:
+  - official.security
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: mandatory_smart_unless_owner_overrides
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: approvals.mode
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_smart
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_smart
+      label: Smart
+      value: smart
+      explanation: 'LaunchRoom default: productive but still safety-aware.'
+    - id: manual
+      label: Manual
+      value: manual
+      explanation: Maximum user control; slower setup.
+    - id: 'off'
+      label: Off / YOLO-style
+      value: 'off'
+      explanation: Advanced only in trusted sandbox; not recommended for beginners.
+    selection_report_required: true
+- key: approvals.timeout
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 60
+  launchroom_default: 60
+  causal_effect: Number of seconds approval prompts wait before fail-closed denial.
+  why_default_is_enough: 60 seconds is the documented/default balanced timeout.
+  saas_reason: Fail-closed approval timeout is safer than silently continuing when the user is absent.
+  risk_if_wrong:
+    too_low: beginner misses prompts
+    too_high: runs hang too long
+  write_method:
+    config_key: approvals.timeout
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - official.security
+  - installed_default_config
+  launchroom_policy: keep_default_60
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: approvals.timeout
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_60
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_60
+      label: 60 seconds
+      value: 60
+      explanation: Official/default balanced value.
+    - id: longer
+      label: Longer timeout
+      value: <custom_seconds>
+      explanation: Useful if user often steps away.
+    - id: shorter
+      label: Shorter timeout
+      value: <custom_seconds>
+      explanation: Advanced; may deny prompts too quickly.
+    selection_report_required: true
+- key: approvals.cron_mode
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: deny
+  launchroom_default: deny
+  allowed_values:
+  - deny
+  - approve
+  causal_effect: Controls how cron jobs handle dangerous commands.
+  why_default_is_enough: Deny prevents unattended scheduled jobs from executing dangerous commands.
+  saas_reason: No autonomous production-like actions before observability, rollback, and gates exist.
+  risk_if_wrong:
+    approve: dangerous autonomous cron behavior for beginners
+  write_method:
+    config_key: approvals.cron_mode
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - official.security
+  - installed_default_config
+  launchroom_policy: mandatory_deny_for_starter
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: approvals.cron_mode
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_deny
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_deny
+      label: Deny dangerous cron commands
+      value: deny
+      explanation: Starter-safe default; no unattended dangerous commands.
+    - id: approve
+      label: Auto-approve in cron
+      value: approve
+      explanation: Advanced only after runtime/rollback/observability gates.
+    selection_report_required: true
+- key: approvals.mcp_reload_confirm
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: true
+  launchroom_default: true
+  causal_effect: Requires confirmation before reloading MCP servers/tool cache.
+  why_default_is_enough: Reloading MCP changes tool availability and can invalidate prompt cache; confirmation is appropriate
+    for beginners.
+  saas_reason: MCP becomes a later-stage integration surface and should not change silently during profile foundation.
+  risk_if_wrong:
+    false: accidental MCP reloads and confusing tool-surface changes
+  write_method:
+    config_key: approvals.mcp_reload_confirm
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - official.security
+  - installed_default_config
+  launchroom_policy: keep_true
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: approvals.mcp_reload_confirm
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_true
+      label: Confirm MCP reloads
+      value: true
+      explanation: Prevents unexpected tool-surface changes.
+    - id: 'false'
+      label: Do not confirm reloads
+      value: false
+      explanation: Advanced only when MCP setup is stable.
+    selection_report_required: true
+- key: approvals.destructive_slash_confirm
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: true
+  launchroom_default: true
+  causal_effect: Prompts before slash commands that discard state, such as clear/reset/undo.
+  why_default_is_enough: Beginner onboarding should not lose context accidentally.
+  saas_reason: Setup history and evidence matter; destructive session actions need confirmation.
+  risk_if_wrong:
+    false: accidental loss of session state
+  write_method:
+    config_key: approvals.destructive_slash_confirm
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - official.security
+  - installed_default_config
+  launchroom_policy: keep_true
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: approvals.destructive_slash_confirm
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_true
+      label: Confirm destructive slash commands
+      value: true
+      explanation: Prevents accidental state loss.
+    - id: 'false'
+      label: Do not confirm
+      value: false
+      explanation: Advanced only; not recommended for onboarding.
+    selection_report_required: true
+- key: security.redact_secrets
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: true
+  launchroom_default: true
+  causal_effect: Redacts detected secrets from model-visible content and logs/tool output where possible.
+  why_default_is_enough: This is a mandatory safety baseline when configuring tools, keys, MCP, and gateways.
+  saas_reason: SaaS setup inevitably touches provider/tool credentials; redaction must stay on.
+  risk_if_wrong:
+    false: unacceptable risk of secret exposure in chat, logs, reports, or artifacts
+  write_method:
+    config_key: security.redact_secrets
+  verify_method:
+  - sanitized config readback only; never print secrets to test it
+  source_refs:
+  - official.configuration
+  - official.security
+  - installed_default_config
+  launchroom_policy: mandatory_true
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: security.redact_secrets
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: mandatory_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: mandatory_true
+      label: Keep secret redaction ON
+      value: true
+      explanation: Mandatory for LaunchRoom; protects keys/tokens in tool output.
+    - id: blocked_false
+      label: Turn redaction off
+      value: false
+      explanation: Blocked for starter setup; only for explicit redactor debugging gate.
+    selection_report_required: true
+- key: security.allow_private_urls
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: false
+  launchroom_default: false_for_starter_true_only_after_local_private_url_gate
+  causal_effect: Allows or blocks model/tool access patterns involving private URLs.
+  why_default_is_enough_initially: Blocking private URLs reduces SSRF/local-network risk during initial setup.
+  saas_reason: Private URLs are useful for local SaaS development, but should be enabled with an explicit local-dev explanation
+    and gate.
+  risk_if_wrong:
+    false_when_needed: local dashboard/API testing may be blocked
+    true_without_gate: private network exposure risk
+  write_method:
+    config_key: security.allow_private_urls
+  verify_method:
+  - sanitized config readback
+  - local URL access test only in Stage 2 or later
+  source_refs:
+  - official.security
+  - installed_default_config
+  launchroom_policy: default_false_record_deferred_gate
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: security.allow_private_urls
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_false
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_false
+      label: Keep private URLs blocked now
+      value: false
+      explanation: Safe initial default.
+    - id: enable_local_dev
+      label: Enable for local SaaS dev later
+      value: true
+      explanation: Use after local-private URL gate and explanation.
+    - id: defer
+      label: Decide in workspace/runtime stage
+      value: deferred
+      explanation: Recommended if user has not started localhost/private URL work.
+    selection_report_required: true
+- key: browser.allow_private_urls
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: false
+  launchroom_default: false_for_starter_true_only_after_local_browser_gate
+  causal_effect: Controls whether browser automation may access private/local URLs.
+  why_default_is_enough_initially: Prevents accidental browsing into local/private network surfaces.
+  saas_reason: Local SaaS preview testing may need this later, but not before workspace/runtime boundaries are explained.
+  risk_if_wrong:
+    false_when_needed: cannot QA localhost/internal preview
+    true_without_gate: browser tool may reach unintended private surfaces
+  write_method:
+    config_key: browser.allow_private_urls
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - official.security
+  - installed_default_config
+  launchroom_policy: default_false_record_deferred_gate
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: browser.allow_private_urls
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_false
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_false
+      label: Keep browser private URLs blocked now
+      value: false
+      explanation: Safe initial browser automation default.
+    - id: enable_local_browser
+      label: Enable for localhost/private browser QA later
+      value: true
+      explanation: Use after browser/private URL gate.
+    - id: defer
+      label: Decide later
+      value: deferred
+      explanation: Recommended until project preview exists.
+    selection_report_required: true
+- key: browser.auto_local_for_private_urls
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: true
+  launchroom_default: true
+  causal_effect: Prefer local browser routing for private URLs when private URL use is allowed.
+  why_default_is_enough: If private URLs are later enabled, local handling is safer than sending private network targets through
+    remote browser infrastructure.
+  saas_reason: Local-first SaaS previews should stay local unless an explicit remote browser/provider gate exists.
+  risk_if_wrong:
+    false: private/local URLs may be routed through less appropriate browser infrastructure
+  write_method:
+    config_key: browser.auto_local_for_private_urls
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - installed_default_config
+  launchroom_policy: keep_true
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: browser.auto_local_for_private_urls
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_true
+      label: Use local browser for private URLs
+      value: true
+      explanation: If private URLs are enabled later, keep them local.
+    - id: 'false'
+      label: Allow non-local routing
+      value: false
+      explanation: Advanced only with explicit remote browser reason.
+    selection_report_required: true
+- key: checkpoints.enabled
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: false
+  launchroom_default: true
+  causal_effect: Enables rollback snapshots before file edits where supported.
+  why_default_is_not_enough: A beginner-safe setup profile should protect against accidental file changes.
+  saas_reason: SaaS project setup will create/edit files; rollback support makes agent work safer and more explainable.
+  risk_if_wrong:
+    false: harder recovery after bad edits
+    true: extra disk usage and snapshot management
+  write_method:
+    config_key: checkpoints.enabled
+  verify_method:
+  - sanitized config readback
+  - future edit workflow confirms checkpoint behavior when available
+  source_refs:
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: mandatory_true_for_local_project_work
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: checkpoints.enabled
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_true
+      label: Enable file checkpoints
+      value: true
+      explanation: 'LaunchRoom default: rollback protection for file edits.'
+    - id: default_false
+      label: Keep Hermes default off
+      value: false
+      explanation: Less disk use, less recovery protection.
+    selection_report_required: true
+- key: checkpoints.max_snapshots
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 20
+  launchroom_default: 20
+  causal_effect: Limits number of rollback snapshots retained.
+  why_default_is_enough: 20 is a reasonable starter cap balancing rollback utility and disk use.
+  saas_reason: Enough history for early setup iterations without unbounded storage growth.
+  risk_if_wrong:
+    too_low: insufficient rollback history
+    too_high: disk/storage growth
+  write_method:
+    config_key: checkpoints.max_snapshots
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - installed_default_config
+  launchroom_policy: keep_default_20
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: checkpoints.max_snapshots
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_20
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_20
+      label: Keep 20 snapshots
+      value: 20
+      explanation: Balanced rollback history and disk use.
+    - id: lower
+      label: Lower snapshot count
+      value: <custom_number>
+      explanation: Less disk use.
+    - id: higher
+      label: Higher snapshot count
+      value: <custom_number>
+      explanation: More rollback history; more disk use.
+    selection_report_required: true
+- key: terminal.backend
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: local
+  launchroom_default: local
+  allowed_values:
+  - local
+  - docker
+  - ssh
+  - modal
+  - daytona
+  - singularity
+  causal_effect: Determines where terminal commands run.
+  why_default_is_enough_for_starter: Local is easiest for a beginner and matches Desktop/local project setup.
+  saas_reason: First productive SaaS setup should operate on the user's chosen local project path before cloud/runtime integrations.
+  risk_if_wrong:
+    docker: safer but adds Docker dependency and mount complexity
+    ssh: can mutate remote systems and needs a separate gate
+    modal_or_daytona: cloud execution/cost/provider complexity
+  write_method:
+    config_key: terminal.backend
+  verify_method:
+  - hermes status/doctor or terminal smoke command in the new profile
+  source_refs:
+  - official.configuration
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: mandatory_local_for_starter_unless_owner_chooses_sandbox
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: terminal.backend
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_local
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_local
+      label: Local
+      value: local
+      explanation: Best first setup on the user PC.
+    - id: docker
+      label: Docker sandbox
+      value: docker
+      explanation: Safer isolation but requires Docker and mount planning.
+    - id: ssh_or_cloud
+      label: SSH/Modal/Daytona/Singularity
+      value: <remote_or_cloud_backend>
+      explanation: Advanced/runtime surface; separate gate.
+    selection_report_required: true
+- key: terminal.cwd
+  scope: profile
+  stage_owner: stage_2_workspace
+  official_default: .
+  launchroom_default: user_selected_project_path
+  causal_effect: Controls default working directory for gateway/cron/tool work; CLI still starts from launch dir.
+  why_default_is_not_enough: Dot/current directory is ambiguous and causes agents to create files in the wrong place.
+  saas_reason: Project-local work must land in the user's chosen SaaS workspace, not a random shell directory.
+  risk_if_wrong:
+    wrong_path: files/reports created in wrong project
+    too_broad_path: agent sees more filesystem than needed
+  write_method:
+    config_key: terminal.cwd
+  verify_method:
+  - sanitized config readback
+  - terminal pwd/cwd smoke in profile session when applicable
+  source_refs:
+  - official.configuration
+  - official.profiles
+  - installed_default_config
+  launchroom_policy: collect_in_stage_1_if_user_provides_but_apply/verify_in_stage_2
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: terminal.cwd
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_project_path
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_project_path
+      label: Use selected project folder
+      value: <project_path>
+      explanation: Prevents files being created in random directories.
+    - id: current
+      label: Use current directory
+      value: .
+      explanation: Only if user knowingly starts Hermes from the project root.
+    - id: custom
+      label: Choose custom path
+      value: <custom_path>
+      explanation: Advanced/manual path.
+    - id: defer
+      label: Defer to Stage 2 workspace setup
+      value: deferred
+      explanation: Safe if Stage 1 only prepares the profile.
+    selection_report_required: true
+- key: terminal.timeout
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 180
+  launchroom_default: 180
+  causal_effect: Per-command timeout for terminal operations.
+  why_default_is_enough: 180 seconds is sufficient for many setup commands while avoiding endless hangs.
+  saas_reason: Early setup commands should be bounded; long builds/tests can use explicit higher timeouts per command later.
+  risk_if_wrong:
+    too_low: installs/builds fail prematurely
+    too_high: hung commands waste onboarding time
+  write_method:
+    config_key: terminal.timeout
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - official.configuration
+  - installed_default_config
+  launchroom_policy: keep_default_180
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: terminal.timeout
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_180
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_180
+      label: 180 seconds
+      value: 180
+      explanation: Official/default balanced timeout.
+    - id: longer_300
+      label: 300 seconds
+      value: 300
+      explanation: Useful for installs/builds; may wait longer on hangs.
+    - id: custom
+      label: Custom timeout
+      value: <seconds>
+      explanation: Advanced.
+    selection_report_required: true
+- key: terminal.persistent_shell
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: true
+  launchroom_default: true
+  causal_effect: Preserves shell state between commands when backend supports it.
+  why_default_is_enough: Useful for environment setup, activated venvs, exported variables, and repeat commands.
+  saas_reason: Project setup benefits from stable shell state, but reports must still record actual commands run.
+  risk_if_wrong:
+    false: repeated setup overhead and confusing environment drift
+    true: stale shell state can hide missing setup; verification should use explicit checks
+  write_method:
+    config_key: terminal.persistent_shell
+  verify_method:
+  - sanitized config readback
+  - terminal smoke command can observe state persistence if needed
+  source_refs:
+  - installed_default_config
+  launchroom_policy: keep_true
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: terminal.persistent_shell
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_true
+      label: Keep persistent shell ON
+      value: true
+      explanation: Preserves setup state between commands.
+    - id: 'false'
+      label: Disable persistent shell
+      value: false
+      explanation: More isolated commands; more repeated setup.
+    selection_report_required: true
+- key: code_execution.mode
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: project
+  launchroom_default: project
+  causal_effect: Scopes code execution to the current project mode.
+  why_default_is_enough: Project mode matches LaunchRoom's local project setup goal.
+  saas_reason: SaaS work should run against the project workspace, not uncontrolled global scratch space.
+  risk_if_wrong:
+    too_global: possible filesystem confusion
+    too_strict: some setup scripts may need explicit workspace permissions
+  write_method:
+    config_key: code_execution.mode
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: keep_project
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: code_execution.mode
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_project
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_project
+      label: Project mode
+      value: project
+      explanation: Matches local SaaS project work.
+    - id: custom
+      label: Custom mode
+      value: <custom_mode>
+      explanation: Advanced; verify current Hermes docs.
+    selection_report_required: true
+- key: file_read_max_chars
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 100000
+  launchroom_default: 100000
+  causal_effect: Limits how much file content Hermes reads in one request.
+  why_default_is_enough: Large enough for normal config/docs inspection while preventing uncontrolled context load.
+  saas_reason: SaaS repos need file inspection, but agents should page through large files intentionally.
+  risk_if_wrong:
+    too_low: frustrating partial reads
+    too_high: context bloat and accidental large data exposure
+  write_method:
+    config_key: file_read_max_chars
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: keep_100000
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: file_read_max_chars
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_100000
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_100000
+      label: 100000 chars
+      value: 100000
+      explanation: Enough for config/docs while limiting context bloat.
+    - id: lower
+      label: Lower limit
+      value: <custom_number>
+      explanation: Less context exposure; more paging.
+    - id: higher
+      label: Higher limit
+      value: <custom_number>
+      explanation: Advanced; risk of context bloat.
+    selection_report_required: true
+- key: tool_output.max_bytes
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 50000
+  launchroom_default: 50000
+  causal_effect: Caps terminal/tool output injected into the agent context.
+  why_default_is_enough: Prevents huge outputs from flooding the context while preserving useful evidence.
+  saas_reason: Setup reports need concise verified outputs; huge logs should be paged or summarized.
+  risk_if_wrong:
+    too_low: missing diagnostics
+    too_high: context bloat and accidental sensitive output exposure
+  write_method:
+    config_key: tool_output.max_bytes
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - installed_default_config
+  - sanitized_airmida_patterns
+  launchroom_policy: keep_50000
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: tool_output.max_bytes
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_50000
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_50000
+      label: 50000 bytes
+      value: 50000
+      explanation: Useful diagnostics without flooding context.
+    - id: lower
+      label: Lower output cap
+      value: <custom_number>
+      explanation: Safer/noiseless but may hide logs.
+    - id: higher
+      label: Higher output cap
+      value: <custom_number>
+      explanation: Advanced debugging; more context bloat.
+    selection_report_required: true
+- key: memory.memory_enabled
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: true
+  launchroom_default: true
+  causal_effect: Enables durable memory for stable facts/preferences.
+  why_default_is_enough: Memory is central to Hermes improving over time and is already default-enabled.
+  saas_reason: A SaaS project assistant should remember stable preferences and environment facts across sessions.
+  risk_if_wrong:
+    false: profile does not learn stable user/project conventions
+    true_without_policy: agent may store stale/task-progress details; must pair with memory discipline
+  write_method:
+    config_key: memory.memory_enabled
+  verify_method:
+  - hermes memory status or sanitized config readback
+  source_refs:
+  - official.profiles
+  - public_practice.daily_dose_masterclass
+  - installed_default_config
+  launchroom_policy: mandatory_true_with_memory_policy
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: memory.memory_enabled
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: mandatory_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: mandatory_true
+      label: Enable memory
+      value: true
+      explanation: 'Core Hermes strength: stable learning across sessions.'
+    - id: 'false'
+      label: Disable memory
+      value: false
+      explanation: Privacy/control option; weaker LaunchRoom experience.
+    selection_report_required: true
+- key: memory.user_profile_enabled
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: true
+  launchroom_default: true
+  causal_effect: Enables persistent user preference/profile memory.
+  why_default_is_enough: Helps beginner onboarding preserve language/style/preferences.
+  saas_reason: Reduces repeated setup steering across LaunchRoom sessions.
+  risk_if_wrong:
+    false: user preferences are repeatedly lost
+    true_without_policy: risk of saving temporary facts; must use memory discipline
+  write_method:
+    config_key: memory.user_profile_enabled
+  verify_method:
+  - hermes memory status or sanitized config readback
+  source_refs:
+  - official.profiles
+  - public_practice.daily_dose_masterclass
+  - installed_default_config
+  launchroom_policy: mandatory_true_with_memory_policy
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: memory.user_profile_enabled
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: mandatory_true
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: mandatory_true
+      label: Enable user profile memory
+      value: true
+      explanation: Keeps language/style/preferences.
+    - id: 'false'
+      label: Disable user profile memory
+      value: false
+      explanation: Privacy/control option; user repeats preferences.
+    selection_report_required: true
+- key: memory.write_approval
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: false
+  launchroom_default: false_initially_document_policy
+  causal_effect: Controls whether memory writes require approval.
+  why_default_is_acceptable: Automatic memory can support learning, but only if SOUL/profile instructions define what belongs
+    in memory.
+  saas_reason: LaunchRoom should learn stable preferences but avoid storing transient task progress.
+  risk_if_wrong:
+    false_without_policy: noisy or stale memory
+    true: every useful memory write may become beginner friction
+  write_method:
+    config_key: memory.write_approval
+  verify_method:
+  - sanitized config readback
+  - profile instructions contain memory policy
+  source_refs:
+  - installed_default_config
+  - public_practice.daily_dose_masterclass
+  launchroom_policy: keep_false_but_require_memory_policy_in_PROFILE_INSTRUCTIONS
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: memory.write_approval
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_false_with_policy
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_false_with_policy
+      label: Allow memory writes under policy
+      value: false
+      explanation: Good UX if PROFILE_INSTRUCTIONS define memory discipline.
+    - id: 'true'
+      label: Ask before memory writes
+      value: true
+      explanation: More control, more friction.
+    selection_report_required: true
+- key: agent.max_turns
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 90
+  launchroom_default: 60
+  causal_effect: Upper bound for tool-calling turns before Hermes stops a run.
+  why_default_may_be_too_high: 90 is powerful but can let beginner setup wander too long if the task is underspecified.
+  why_launchroom_value: 60 gives enough room for real setup while preserving a bounded beginner-safe loop.
+  saas_reason: Starter setup should complete in bounded stages and report partial/blockers instead of looping.
+  risk_if_wrong:
+    too_low: complex setup stops early
+    too_high: runaway or unfocused runs
+  write_method:
+    config_key: agent.max_turns
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - installed_default_config
+  - public_practice.daily_dose_masterclass
+  - sanitized_airmida_patterns
+  launchroom_policy: recommend_60_for_starter_owner_can_raise
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: agent.max_turns
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_60
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_60
+      label: 60 turns
+      value: 60
+      explanation: Bounded LaunchRoom setup loop.
+    - id: default_90
+      label: 90 turns
+      value: 90
+      explanation: Hermes default; more room for complex work.
+    - id: custom
+      label: Custom turn limit
+      value: <custom_number>
+      explanation: Advanced.
+    selection_report_required: true
+- key: agent.api_max_retries
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: 3
+  launchroom_default: 3
+  causal_effect: Number of API retry attempts for transient model/provider failures.
+  why_default_is_enough: 3 balances resilience and waiting time.
+  saas_reason: Setup should tolerate transient provider errors without hiding persistent misconfiguration.
+  risk_if_wrong:
+    too_low: flaky setup
+    too_high: slow failure and cost/rate-limit risk
+  write_method:
+    config_key: agent.api_max_retries
+  verify_method:
+  - sanitized config readback
+  source_refs:
+  - installed_default_config
+  launchroom_policy: keep_3
+  confidence: high
+  interaction:
+    mode: clarify_buttons
+    setting_label: agent.api_max_retries
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_3
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_3
+      label: 3 retries
+      value: 3
+      explanation: Default balance between resilience and fast failure.
+    - id: lower
+      label: Fewer retries
+      value: <custom_number>
+      explanation: Faster failure.
+    - id: higher
+      label: More retries
+      value: <custom_number>
+      explanation: More resilient but slower/costlier.
+    selection_report_required: true
+- key: agent.tool_use_enforcement
+  scope: profile
+  stage_owner: stage_1_profile_foundation
+  official_default: auto
+  launchroom_default: auto
+  causal_effect: Controls how strongly Hermes enforces tool use.
+  why_default_is_enough: Auto lets Hermes choose when tools are necessary while not overconstraining creative problem solving.
+  saas_reason: LaunchRoom needs both explanation and verified action; PROFILE_INSTRUCTIONS should require verification for
+    setup claims.
+  risk_if_wrong:
+    too_strict: agent may overuse tools or stall
+    too_loose: agent may answer from memory without verification
+  write_method:
+    config_key: agent.tool_use_enforcement
+  verify_method:
+  - sanitized config readback
+  - behavior checked by validators and stage reports
+  source_refs:
+  - installed_default_config
+  - owner_feedback
+  launchroom_policy: keep_auto_plus_instruction_level_verification_rules
+  confidence: medium
+  interaction:
+    mode: clarify_buttons
+    setting_label: agent.tool_use_enforcement
+    show_to: beginner_and_experienced
+    explanation_from_fields:
+    - causal_effect
+    - why_default_is_not_enough
+    - why_default_is_enough
+    - saas_reason
+    - risk_if_wrong
+    beginner_default_button: recommended_auto
+    experienced_controls:
+    - view_sources
+    - custom_value
+    - defer_with_reason
+    buttons:
+    - id: recommended_auto
+      label: Auto
+      value: auto
+      explanation: Lets Hermes decide while instructions require verification.
+    - id: strict
+      label: Stricter tool use
+      value: <strict_mode>
+      explanation: Advanced; may overconstrain agent.
+    - id: custom
+      label: Custom
+      value: <custom_value>
+      explanation: Verify current Hermes docs before use.
+    selection_report_required: true
+open_questions_for_owner_review:
+- Should Stage 1 set terminal.cwd immediately to the chosen project path, or only collect it and leave final application to
+  Stage 2?
+- Should checkpoints.enabled be mandatory true in config.yaml, or offered as a visible beginner-safe default with explanation?
+- Should browser/private URL settings remain false until local SaaS preview stage, or should LaunchRoom enable them by default
+  for localhost-first development?
+- Should agent.max_turns remain Hermes default 90 for power users, or LaunchRoom starter default 60 for bounded onboarding?
+- Which model/provider choices should be first-class in the beginner wizard: Nous Portal/OAuth, OpenAI Codex OAuth, OpenRouter
+    API key, Anthropic API key, or custom/local?
+next_files_that_must_be_generated_from_this_ledger_after_review:
+- source/settings/launchroom-saas-config-baseline.yaml
+- profile-distribution/launchroom-saas/config.yaml
+- profile-distribution/launchroom-saas/SOUL.md
+- profile-distribution/launchroom-saas/PROFILE_INSTRUCTIONS.md
+- profile-distribution/launchroom-saas/LAUNCHROOM_PROFILE_CONTRACT.yaml
+- profile-distribution/launchroom-saas/.env.EXAMPLE
+- profile-distribution/launchroom-saas/reports/profile-foundation-report.template.yaml
+interactive_setup_model:
+  status: draft_for_owner_review
+  purpose: Make every LaunchRoom setting explainable and selectable through interactive choices, not hidden YAML editing.
+  interaction_principles:
+  - Show a short plain-language explanation before each setting or setting group.
+  - Always provide a recommended LaunchRoom choice as the first button.
+  - Always provide a safer/manual choice when applicable.
+  - Always provide an advanced/custom option for experienced users.
+  - Always provide a defer/skip option only when the setting can be safely postponed.
+  - If a secret or credential is needed, never ask for the value in chat; route the user to Hermes UI, hermes auth, hermes
+    setup, or .env file editing.
+  - Record the selected option, reason, source, and verification result in the stage report.
+  button_schema:
+    question_template: What should LaunchRoom use for <setting_label>?
+    explanation_required: true
+    max_buttons_visible: 4
+    required_buttons:
+      recommended: Use LaunchRoom recommended value
+      manual_or_safe: Use safer/manual/default value when meaningful
+      custom: Custom / advanced
+      defer: Defer only if safe for this stage
+    report_fields:
+    - setting_key
+    - selected_button_id
+    - selected_value
+    - user_visible_explanation
+    - source_refs
+    - risk_acknowledged
+    - verification_status
+  audiences:
+    beginner: Default path uses recommended buttons and short explanations.
+    experienced: Advanced path exposes custom values, source links, and trade-offs.
+  implementation_note: Future setup tool should translate each settings[].interaction.buttons item into clarify() choices
+    or Desktop UI buttons. Do not enumerate choices inside prose only.
