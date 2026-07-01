@@ -25,7 +25,12 @@ def main() -> int:
     if not (ROOT / recipe['stage_3_contract']).exists():
         print('FAIL: Stage 3 contract file missing')
         return 1
-    for key in ['software_purpose_map','software_install_recommendation','do_not_run_without_gate']:
+    contract_text = (ROOT / recipe['stage_3_contract']).read_text(encoding='utf-8')
+    for marker in ['.hermes/reports/capability-graph.yaml', 'task-class engineering capability graph', 'capability graph teaches workflow selection']:
+        if marker not in contract_text:
+            print('FAIL: Stage 3 capability graph contract marker missing: ' + marker)
+            return 1
+    for key in ['software_purpose_map','software_install_recommendation','capability_graph','task_to_capability_map','tool_bundles','skill_bundles','gates_and_verification','do_not_run_without_gate']:
         if key not in recipe.get('output', []):
             print('FAIL: missing Stage 3 inventory output: ' + key)
             return 1
@@ -39,11 +44,26 @@ def main() -> int:
         if field not in recipe.get('purpose_map_required_fields', []):
             print('FAIL: purpose map required field missing: ' + field)
             return 1
+    for field in ['task_class','goal','required_tools','supporting_skills','workflow','gates','verification']:
+        if field not in recipe.get('capability_graph_required_fields', []):
+            print('FAIL: capability graph required field missing: ' + field)
+            return 1
+    task_classes = recipe.get('task_classes', {})
+    for task_class in ['code_change_delivery','research_and_evidence','external_agent_handoff','cloud_runtime_readiness','security_and_secret_safety']:
+        if task_class not in task_classes:
+            print('FAIL: capability graph task class missing: ' + task_class)
+            return 1
     if 'never installs software without a separate explicit owner install gate' not in rules_text:
         print('FAIL: explicit no-install-without-gate rule missing')
         return 1
     if 'purpose and agent_use' not in rules_text:
         print('FAIL: purpose/agent_use map rule missing')
+        return 1
+    if 'select a capability workflow before selecting individual software' not in rules_text:
+        print('FAIL: capability workflow selection rule missing')
+        return 1
+    if 'task class, tool bundle, skill bundle, gates, and verification' not in rules_text:
+        print('FAIL: capability graph mapping rule missing')
         return 1
     print('validate_inventory_contract: ok')
     return 0
