@@ -1,6 +1,6 @@
 {
-  "recipe_id": "launchroom-inventory-v0_5",
-  "objective": "Collect a no-secret local toolchain inventory and recommend a software package.",
+  "recipe_id": "launchroom-inventory-v0_6",
+  "objective": "Collect a no-secret local toolchain inventory, create a software purpose map, and propose a gated software install recommendation package.",
   "required_checks": [
     "os",
     "shell",
@@ -22,7 +22,43 @@
     "missing_required",
     "missing_recommended",
     "optional_later",
-    "install_pack_requires_gate"
+    "install_pack_requires_gate",
+    "software_purpose_map",
+    "software_install_recommendation",
+    "do_not_run_without_gate"
   ],
-  "rule": "WSL is optional for Local backend and must not block Starter when local terminal works."
+  "rule": "WSL is optional for Local backend and must not block Starter when local terminal works.",
+  "stage_3_contract": "source/stages/stage-3-tool-readiness-and-software-map.yaml",
+  "readiness_tiers": {
+    "required": [
+      "hermes",
+      "python",
+      "git"
+    ],
+    "recommended": [
+      "node",
+      "npm",
+      "ripgrep",
+      "uv",
+      "winget_or_package_manager"
+    ],
+    "optional": [
+      "docker",
+      "wsl"
+    ]
+  },
+  "purpose_map_required_fields": [
+    "tool",
+    "tier",
+    "status",
+    "purpose",
+    "agent_use",
+    "install_hint"
+  ],
+  "rules": [
+    "WSL is optional for Local backend and must not block Starter when local terminal works.",
+    "Stage 3 proposes install commands only; it never installs software without a separate explicit owner install gate.",
+    "Every checked tool must include purpose and agent_use so the agent knows what it has and why it matters.",
+    "Docker and WSL are optional/deferred unless the user selects container or Linux workflows."
+  ]
 }
