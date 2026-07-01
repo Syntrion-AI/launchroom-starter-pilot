@@ -1,0 +1,452 @@
+artifact_id: LAUNCHROOM_STAGE_1_PROFILE_FOUNDATION_WIZARD_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_1_profile_foundation
+stage_name: Profile Foundation Wizard
+language: en
+
+purpose:
+  summary: >-
+    Define the interactive Stage 1 wizard that turns the LaunchRoom settings
+    research ledger and SaaS config baseline into explicit user choices,
+    selected setting records, and a profile config draft. This contract is the
+    bridge between researched settings and profile-distribution generation.
+  not_purpose:
+    - not a live profile config
+    - not a secret store
+    - not a replacement for official Hermes docs
+    - not a project workspace contract
+    - not a gateway, MCP, or runtime mutation plan
+
+authority_and_sources:
+  required_inputs:
+    research_ledger:
+      path: source/settings/launchroom-settings-research-ledger.yaml
+      artifact_id: LAUNCHROOM_SETTINGS_RESEARCH_LEDGER_v0_1
+      role: source of setting explanations, risks, buttons, source refs, and policies
+    config_baseline:
+      path: source/settings/launchroom-saas-config-baseline.yaml
+      artifact_id: LAUNCHROOM_SAAS_CONFIG_BASELINE_v0_1
+      role: source of LaunchRoom recommended/default values and generation rules
+    official_docs:
+      role: source of truth when repo assumptions drift
+      minimum_refs:
+        - https://hermes-agent.nousresearch.com/docs/user-guide/configuration
+        - https://hermes-agent.nousresearch.com/docs/user-guide/profiles
+        - https://hermes-agent.nousresearch.com/docs/user-guide/security
+        - https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions
+        - https://hermes-agent.nousresearch.com/docs/reference/tools-reference
+  precedence:
+    - official_hermes_docs
+    - installed_hermes_default_config
+    - launchroom_settings_research_ledger
+    - launchroom_saas_config_baseline
+    - explicit_user_choice
+  drift_rule: >-
+    If the installed Hermes schema or official docs contradict this wizard,
+    stop, update the ledger/baseline first, and do not generate a live config
+    from stale assumptions.
+
+stage_boundary:
+  owns:
+    - profile identity input collection
+    - profile-level settings choices
+    - model/provider readiness decision without secret collection in chat
+    - safety, approvals, memory, toolset, terminal backend, output-limit choices
+    - selected-settings.yaml draft
+    - config.yaml draft data model
+    - profile-foundation-report.yaml draft data model
+  does_not_own:
+    - final workspace project structure
+    - full software inventory
+    - gateway channel setup
+    - MCP server wiring
+    - production/runtime/provider mutation
+    - secret value collection
+    - git push or release publication
+  defer_to_stage_2:
+    - terminal.cwd final verification when project workspace needs creation/inspection
+    - project AGENTS.md/HERMES.md/context files
+    - workspace-local .hermes reports
+  defer_to_stage_4:
+    - optional/advanced tool expansion beyond starter operator toolsets
+    - external tool credential readiness checks
+  defer_to_stage_5:
+    - gateway, messaging, MCP, remote runtime, n8n, Cloudflare, Hetzner
+
+interaction_model:
+  ui_mode: clarify_buttons_or_desktop_buttons
+  fallback_mode: numbered_cli_choices
+  audiences:
+    beginner:
+      behavior: >-
+        Show short explanations, recommend safe defaults first, and avoid
+        making the user understand raw config internals before the profile works.
+      default_path: recommended_buttons
+    experienced:
+      behavior: >-
+        Expose source refs, risks, custom values, advanced toolsets, and the
+        consequences of deviating from LaunchRoom defaults.
+      default_path: recommended_with_advanced_overrides
+  global_button_rules:
+    - Use each setting's interaction.buttons from the research ledger.
+    - Never embed selectable options only in prose; render them as actual choices where the UI supports it.
+    - Always include the LaunchRoom recommended choice first unless the setting is blocked or deferred.
+    - Always record selected_button_id, selected_value, explanation, source_refs, and verification_status.
+    - If the user chooses custom, require a value, a reason, and either source evidence or explicit owner override.
+    - If the user chooses defer, require a safe defer reason and mark the profile partial until resolved.
+    - If a setting touches secrets, route to Hermes UI, hermes auth, hermes setup, or .env editing; never ask for secret values in chat.
+  explanation_template:
+    short: "What this changes, why LaunchRoom recommends it, and what can go wrong."
+    fields_from_ledger:
+      - causal_effect
+      - why_default_is_not_enough
+      - why_default_is_enough
+      - why_launchroom_value
+      - saas_reason
+      - risk_if_wrong
+
+required_user_inputs:
+  profile_name:
+    prompt: Choose a Hermes profile name for this LaunchRoom agent.
+    default_suggestion: launchroom
+    validation:
+      pattern: "^[a-zA-Z0-9][a-zA-Z0-9_-]{1,62}$"
+      reject:
+        - default
+        - airmida
+      reject_reason: >-
+        Starter setup should create or target a clearly named isolated profile,
+        not silently overwrite default or the current AIRMIDA operator profile.
+    buttons:
+      - id: recommended_launchroom
+        label: Use launchroom
+        value: launchroom
+      - id: custom
+        label: Custom profile name
+        value: <custom_profile_name>
+      - id: use_existing
+        label: Use existing profile after review
+        value: <existing_profile_name>
+  language:
+    source_setting: display.language
+    prompt: Choose the default language for beginner explanations.
+    default_button_from_ledger: recommended_detect
+  project_name:
+    prompt: Name the SaaS/project workspace this profile will help with.
+    default_suggestion: <ask_user>
+    validation:
+      required: true
+      no_secret_like_values: true
+  project_path:
+    source_setting: terminal.cwd
+    prompt: Choose or confirm the local project folder.
+    default_button_from_ledger: recommended_project_path
+    stage_policy: collect_now_apply_or_verify_in_stage_2_unless_owner_chooses_apply_now
+  model_provider:
+    source_setting: model.provider
+    prompt: Choose how this profile gets model access.
+    default_button_from_ledger: recommended_existing_or_portal
+    secret_policy: never_collect_api_key_in_chat
+  model_default:
+    source_setting: model.default
+    prompt: Choose the default model after provider readiness is known.
+    default_button_from_ledger: recommended_existing
+    secret_policy: never_collect_api_key_in_chat
+
+wizard_flow:
+  - step_id: 0_preflight
+    name: Read sources and check clean state
+    mode: read_only
+    actions:
+      - read source/settings/launchroom-settings-research-ledger.yaml
+      - read source/settings/launchroom-saas-config-baseline.yaml
+      - verify artifact IDs and YAML parse
+      - inspect target profile existence without reading secrets
+      - inspect global/profile config path presence without printing secret values
+    pass_condition: sources parse and target profile decision is clear
+    fail_condition: missing ledger, missing baseline, dirty target profile ambiguity, or secret request needed
+  - step_id: 1_explain_global_vs_profile
+    name: Explain global Hermes settings vs profile settings
+    mode: user_explanation
+    message_points:
+      - Global/Desktop settings can affect the app shell, gateway state, profile selection, and shared runtime behavior.
+      - Profile settings define one Hermes agent home with its own config.yaml, .env, SOUL.md, skills, memory, sessions, cron, and state.
+      - LaunchRoom Stage 1 creates or configures a profile; it does not blindly mutate every global Hermes setting.
+      - If a global setting is required, the wizard must show a separate explicit choice and reason.
+    output_record: global_vs_profile_explained
+  - step_id: 2_collect_identity_inputs
+    name: Collect profile identity inputs
+    mode: interactive_buttons
+    inputs:
+      - profile_name
+      - language
+      - project_name
+      - project_path
+    output_record: profile_identity_selection
+  - step_id: 3_collect_model_inputs
+    name: Resolve model/provider readiness
+    mode: interactive_buttons
+    inputs:
+      - model_provider
+      - model_default
+    rules:
+      - Do not ask for API keys in chat.
+      - Use Hermes auth/setup/model flows or env path guidance for credentials.
+      - If no model is configured, mark Stage 1 partial until a smoke test can pass.
+    output_record: model_selection
+  - step_id: 4_apply_button_groups
+    name: Walk setting groups with explanations and buttons
+    mode: interactive_buttons
+    groups:
+      - identity_and_display
+      - safety_and_approvals
+      - execution_and_workspace_boundary
+      - tools_and_capability_surface
+      - memory_and_learning
+      - output_and_context_limits
+    output_record: selected_settings
+  - step_id: 5_generate_drafts
+    name: Generate selected setting and config drafts
+    mode: local_file_generation
+    outputs:
+      - selected-settings.yaml
+      - config.yaml.draft
+      - profile-foundation-report.yaml
+    rules:
+      - Do not write placeholder strings into live config.
+      - Drafts may contain placeholders only if status is partial and not applied.
+      - Live config generation must use resolved values only.
+  - step_id: 6_verify
+    name: Verify generated artifacts and selected choices
+    mode: validation
+    checks:
+      - selected settings map to ledger keys or required_user_inputs
+      - every selected button exists in the source ledger interaction block
+      - every non-default/custom value has a reason and source or owner override
+      - no secrets are present
+      - YAML parses
+      - model/profile/tool readiness status is explicit
+  - step_id: 7_report_next_decision
+    name: Report result and next decision
+    mode: handoff
+    result_states:
+      pass: profile foundation choices and drafts are complete and verified
+      partial: safe profile draft exists but model/tools/workspace are deferred
+      blocked: required source, profile, or safety condition is missing
+    next_decision: continue_to_profile_distribution_generation_or_review
+
+button_groups:
+  identity_and_display:
+    purpose: Establish a non-default profile identity and communication behavior.
+    settings:
+      - input: profile_name
+      - input: language
+      - input: project_name
+      - input: project_path
+      - setting: display.personality
+      - setting: display.language
+      - setting: display.show_reasoning
+      - setting: agent.image_input_mode
+    required_before_continue:
+      - profile_name
+      - language
+      - project_name
+    beginner_summary: Name the agent, choose the language, and keep reports clear.
+  model_access:
+    purpose: Ensure the profile has a real model route or an explicit deferred state.
+    settings:
+      - setting: model.provider
+      - setting: model.default
+    required_before_pass:
+      - model.provider
+      - model.default
+    secret_policy: route_credentials_outside_chat
+    beginner_summary: Pick how Hermes will think; do not paste keys into chat.
+  safety_and_approvals:
+    purpose: Keep the starter profile productive but safe for local project work.
+    settings:
+      - setting: approvals.mode
+      - setting: approvals.timeout
+      - setting: approvals.cron_mode
+      - setting: approvals.mcp_reload_confirm
+      - setting: approvals.destructive_slash_confirm
+      - setting: security.redact_secrets
+      - setting: security.tirith_enabled
+      - setting: checkpoints.enabled
+      - setting: checkpoints.max_snapshots
+    required_before_pass:
+      - approvals.mode
+      - security.redact_secrets
+      - security.tirith_enabled
+      - checkpoints.enabled
+    beginner_summary: Smart approvals, redaction, context safety, and rollback make the agent safer.
+  execution_and_workspace_boundary:
+    purpose: Decide where commands run and how project path is handled.
+    settings:
+      - setting: terminal.backend
+      - setting: terminal.cwd
+      - setting: terminal.timeout
+      - setting: terminal.persistent_shell
+      - setting: code_execution.mode
+    required_before_pass:
+      - terminal.backend
+      - terminal.timeout
+      - code_execution.mode
+    stage_2_boundary:
+      - terminal.cwd may be collected now but final workspace verification can belong to Stage 2
+    beginner_summary: Use local execution first, but keep the project path explicit.
+  tools_and_capability_surface:
+    purpose: Give the starter profile enough tools to work while avoiding unnecessary surfaces.
+    settings:
+      - setting: toolsets
+      - setting: security.allow_private_urls
+      - setting: browser.allow_private_urls
+      - setting: browser.auto_local_for_private_urls
+    required_before_pass:
+      - toolsets
+    gated_or_deferred:
+      - security.allow_private_urls
+      - browser.allow_private_urls
+    beginner_summary: Enable the useful starter tools; keep private URLs gated until local preview work needs them.
+  memory_and_learning:
+    purpose: Enable Hermes to improve over time without storing transient task noise.
+    settings:
+      - setting: memory.memory_enabled
+      - setting: memory.user_profile_enabled
+      - setting: memory.write_approval
+    required_before_pass:
+      - memory.memory_enabled
+      - memory.user_profile_enabled
+    policy_requirement: PROFILE_INSTRUCTIONS.md must define what belongs in memory vs skills vs reports.
+    beginner_summary: Let the profile remember stable preferences, not temporary progress.
+  output_and_context_limits:
+    purpose: Keep tool evidence useful without flooding the model context.
+    settings:
+      - setting: file_read_max_chars
+      - setting: tool_output.max_bytes
+      - setting: tool_output.max_lines
+      - setting: tool_output.max_line_length
+      - setting: agent.max_turns
+      - setting: agent.api_max_retries
+      - setting: agent.tool_use_enforcement
+    required_before_pass:
+      - file_read_max_chars
+      - tool_output.max_bytes
+      - tool_output.max_lines
+      - agent.max_turns
+    beginner_summary: Keep the agent bounded, readable, and verifiable.
+
+output_artifacts:
+  selected_settings:
+    path_template: source/stages/output/stage-1-selected-settings.example.yaml
+    future_live_profile_path_template: <profile_home>/reports/stage-1-selected-settings.yaml
+    status: template_spec_only
+    required_fields:
+      - profile_name
+      - project_name
+      - project_path
+      - selected_settings
+      - deferred_settings
+      - custom_overrides
+      - source_refs
+      - verification_status
+    selected_setting_schema:
+      key: <setting_key_or_input_name>
+      selected_button_id: <button_id>
+      selected_value: <resolved_non_secret_value>
+      source_refs: []
+      reason: <human_explanation>
+      risk_acknowledged: true
+      verification_status: pending | pass | partial | blocked
+  config_yaml_draft:
+    path_template: profile-distribution/launchroom-saas/config.yaml.template
+    status: generated_later
+    generation_source: source/settings/launchroom-saas-config-baseline.yaml plus selected-settings.yaml
+    forbidden_content:
+      - raw API keys
+      - OAuth tokens
+      - passwords
+      - auth.json content
+      - state.db content
+      - unresolved placeholders in a live profile config
+  profile_foundation_report:
+    path_template: profile-distribution/launchroom-saas/reports/profile-foundation-report.template.yaml
+    future_live_profile_path_template: <profile_home>/reports/profile-foundation-report.yaml
+    required_sections:
+      - status
+      - selected_profile
+      - global_vs_profile_explanation_acknowledged
+      - model_readiness
+      - settings_applied_or_deferred
+      - secrets_policy
+      - verification_evidence
+      - next_stage
+
+pass_fail_contract:
+  pass_if:
+    - ledger and baseline parse
+    - required user inputs are resolved
+    - model provider/default are configured or explicitly deferred with partial status
+    - required safety settings are selected
+    - starter toolsets are selected or unavailable with partial status and reason
+    - selected-settings and report schemas are complete
+    - no secret values are collected or written
+  partial_if:
+    - model access is deferred
+    - terminal.cwd final verification is deferred to Stage 2
+    - optional/private URL settings are gated
+    - some starter tools are unavailable but the profile remains safe
+  blocked_if:
+    - user asks to copy secrets from another profile
+    - user asks to overwrite default or airmida without explicit reviewed gate
+    - required source files are missing
+    - official docs contradict the current schema and no update is made
+    - generated live config would contain unresolved placeholders
+
+verification_plan:
+  static_checks:
+    - YAML parse this wizard
+    - YAML parse research ledger
+    - YAML parse config baseline
+    - every setting referenced by button_groups exists in ledger settings or required_user_inputs
+    - every referenced ledger setting has interaction.buttons
+    - no secret-like values in wizard, selected-settings, config draft, or report
+  behavioral_checks:
+    - beginner path can complete with recommended buttons
+    - experienced path can select custom values with reasons
+    - deferred settings produce partial, not false pass
+    - toolset changes are documented as requiring reset/new session
+  future_live_checks:
+    - hermes -p <profile> config check
+    - hermes -p <profile> tools list or equivalent sanitized status
+    - one-shot model smoke test with no secret output
+    - report generated and readable
+
+implementation_notes:
+  clarify_usage:
+    - When using clarify with choices, put each option only in the choices array.
+    - Do not enumerate choices inside the question string as dead prose.
+    - Limit button choices to the UI-supported count; if more exist, group advanced options behind a custom/advanced choice.
+  desktop_usage:
+    - Desktop UI may render the same choices as cards/buttons.
+    - The wizard should keep explanations short by default and expose sources/details on demand.
+  profile_distribution_usage:
+    - This wizard contract should be included in the repo distribution sources, not necessarily copied into every installed profile.
+    - Installed profiles should receive the selected settings report and profile foundation report.
+
+open_questions_for_owner_review:
+  - "Should terminal.cwd be applied in Stage 1 when project_path is provided, or only written after Stage 2 workspace verification?"
+  - "Should browser and code_execution remain inside the recommended starter toolset, or be shown as recommended add-ons?"
+  - "Should a failed model smoke test make Stage 1 blocked, or partial with a clear next action?"
+  - "Should selected-settings.yaml live only in reports, or also be copied into the profile root as an audit file?"
+
+next_files_after_this_contract:
+  - source/generators/profile-config-generator.yaml
+  - profile-distribution/launchroom-saas/distribution.yaml
+  - profile-distribution/launchroom-saas/config.yaml.template
+  - profile-distribution/launchroom-saas/SOUL.md
+  - profile-distribution/launchroom-saas/PROFILE_INSTRUCTIONS.md
+  - profile-distribution/launchroom-saas/LAUNCHROOM_PROFILE_CONTRACT.yaml
+  - profile-distribution/launchroom-saas/.env.EXAMPLE
+  - profile-distribution/launchroom-saas/reports/profile-foundation-report.template.yaml
