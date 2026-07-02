@@ -311,6 +311,103 @@ def main() -> int:
         ('implementation_execution','implementation gated stop marker'),
     ]:
         require(run, needle, label)
+
+
+    release = source.get('release_distribution_readiness_contract', {})
+    if release.get('enabled') is not True:
+        print('FAIL: release/distribution readiness contract is not enabled')
+        return 1
+    for key in [
+        'readiness_only_not_publication',
+        'public_test_package',
+        'not_airmida_authority',
+        'no_release_or_tag_without_owner_gate',
+        'no_distribution_channel_mutation_without_owner_gate',
+        'no_runtime_provider_gateway_n8n_cloud_mutation',
+    ]:
+        if release.get(key) is not True:
+            print(f'FAIL: release/distribution readiness missing {key}=true')
+            return 1
+    release_gate_required = release.get('release_gate_required_for', [])
+    for needle in ['GitHub release creation', 'git tag creation or push', 'package registry publication', 'website/public landing page publication', 'Cloudflare/Hetzner/n8n mutation', 'secret collection, readback, or storage']:
+        if needle not in release_gate_required:
+            print('FAIL: release gate required list missing ' + needle)
+            return 1
+    quickstart = release.get('distribution_quickstart', [])
+    expected_dist_steps = [
+        'dist_1_read_repository_front_page',
+        'dist_2_open_canonical_runbook',
+        'dist_3_run_safe_self_test',
+        'dist_4_run_primary_installer_after_choice',
+        'dist_5_stop_at_release_gate',
+    ]
+    if [step.get('step_id') for step in quickstart] != expected_dist_steps:
+        print('FAIL: release distribution quickstart step ids/order mismatch')
+        return 1
+    for step in quickstart:
+        for key in ['surface', 'user_action', 'expected_result']:
+            if not step.get(key):
+                print(f'FAIL: release distribution quickstart step missing {key}')
+                return 1
+    manifest = release.get('artifact_manifest', [])
+    manifest_paths = [item.get('path') for item in manifest]
+    required_paths = [
+        'README.md',
+        'RUN_ME_FIRST.md',
+        'generated/RUN_ME_FIRST.md',
+        'source/launchroom.starter.v0_5.json',
+        'contracts/launchroom-stage-contract.json',
+        'scripts/install_launchroom_profile.ps1',
+        'scripts/build_agentpack.py',
+        'scripts/validate_behavior_contract.py',
+        'scripts/validate_profile_setup_tool.py',
+        'profile-distribution/launchroom-saas',
+    ]
+    if manifest_paths != required_paths:
+        print('FAIL: release artifact manifest path/order mismatch')
+        return 1
+    for item in manifest:
+        if item.get('required') is not True or not item.get('role'):
+            print('FAIL: release artifact manifest item missing required=true or role')
+            return 1
+    checklist = release.get('release_readiness_checklist', [])
+    for needle in ['README', 'RUN_ME_FIRST', 'Source and generated contracts', 'Artifact manifest', 'Validation commands', 'Secret-handling rules', 'No GitHub release']:
+        if not any(needle.lower() in item.lower() for item in checklist):
+            print('FAIL: release readiness checklist missing ' + needle)
+            return 1
+    blocked = release.get('blocked_until_separate_release_gate', [])
+    for action in ['git_tag_creation', 'git_tag_push', 'github_release_creation', 'package_registry_publication', 'public_website_or_landing_page_publication', 'distribution_broadcast_to_channels', 'provider_or_model_runtime_change', 'gateway_pairing_or_home_channel_change', 'cloudflare_hetzner_n8n_mutation', 'secret_collection_readback_or_storage']:
+        if action not in blocked:
+            print('FAIL: release blocked action missing ' + action)
+            return 1
+    readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+    for needle,label in [
+        ('## Quickstart','README quickstart'),
+        ('## Distribution artifact manifest','README artifact manifest'),
+        ('## Release boundary','README release boundary'),
+        ('Release/distribution readiness is not release execution','README no release execution marker'),
+        ('GitHub release creation','README GitHub release gate'),
+        ('Cloudflare, Hetzner, or n8n mutation','README runtime gate'),
+        ('secret collection, readback, or storage','README secret gate'),
+        ('python scripts/validate_execution_evidence_binder.py','README full validator list'),
+    ]:
+        if needle not in readme:
+            print(f'FAIL: missing {label}')
+            return 1
+    for needle,label in [
+        ('Release / Distribution Readiness','release readiness section'),
+        ('readiness only','readiness only marker'),
+        ('### Distribution quickstart','distribution quickstart section'),
+        ('dist_3_run_safe_self_test','safe self-test distribution step'),
+        ('dist_5_stop_at_release_gate','release gate stop step'),
+        ('### Artifact manifest','artifact manifest section'),
+        ('### Release readiness checklist','release readiness checklist section'),
+        ('### Blocked until separate owner release gate','blocked release gate section'),
+        ('github_release_creation','github release blocked marker'),
+        ('secret_collection_readback_or_storage','secret blocked marker'),
+        ('Release readiness is not release execution','not release execution marker'),
+    ]:
+        require(run, needle, label)
     print('validate_behavior_contract: ok')
     return 0
 if __name__ == '__main__':

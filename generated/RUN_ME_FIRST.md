@@ -245,6 +245,90 @@ Expected evidence: runtime/cloud/gateway/n8n/git/secret/implementation actions r
 - secret_readback_or_storage
 - implementation_execution
 
+## Release / Distribution Readiness
+
+This section prepares LaunchRoom Starter for a clear public/test distribution package. It is readiness only: it does not create a GitHub release, tag, package publication, deployment, provider/runtime change, gateway pairing, Cloudflare/Hetzner/n8n mutation, distribution broadcast, or secret-handling path.
+
+### Distribution quickstart
+
+#### dist_1_read_repository_front_page
+
+Surface: README.md
+
+User action: Read what LaunchRoom Starter is, what it is not, and where the canonical runbook lives.
+
+Expected result: User understands this is a public test package and not AIRMIDA authority.
+
+#### dist_2_open_canonical_runbook
+
+Surface: RUN_ME_FIRST.md
+
+User action: Open the canonical runbook or raw GitHub RUN_ME_FIRST link in a fresh Hermes session.
+
+Expected result: Hermes receives the guided setup route and mirrors the user language in conversation.
+
+#### dist_3_run_safe_self_test
+
+Surface: scripts/install_launchroom_profile.ps1
+
+User action: Run the self-test command with -TestOutputRoot before doing real profile/workspace setup.
+
+Expected result: Generated files appear in the disposable self-test tree without live Hermes profile/config/toolset mutation.
+
+#### dist_4_run_primary_installer_after_choice
+
+Surface: scripts/install_launchroom_profile.ps1
+
+User action: Run the primary installer only after choosing the target profile/workspace and understanding the non-secret mutation scope.
+
+Expected result: Profile/workspace setup artifacts are generated locally; runtime/provider/gateway/cloud/n8n/git/secret actions remain gated.
+
+#### dist_5_stop_at_release_gate
+
+Surface: release gate
+
+User action: Do not create tags, GitHub releases, package publication, public website updates, or distribution broadcasts without a separate owner release gate.
+
+Expected result: Release readiness can be reported without performing public release actions.
+
+### Artifact manifest
+
+- `README.md` — repository front page and quickstart (required)
+- `RUN_ME_FIRST.md` — canonical guided runbook (required)
+- `generated/RUN_ME_FIRST.md` — generated runbook mirror (required)
+- `source/launchroom.starter.v0_5.json` — source behavior/stage/UX/distribution contract (required)
+- `contracts/launchroom-stage-contract.json` — generated contract artifact (required)
+- `scripts/install_launchroom_profile.ps1` — primary setup and self-test tool (required)
+- `scripts/build_agentpack.py` — generated artifact builder (required)
+- `scripts/validate_behavior_contract.py` — behavior/UX/distribution validator (required)
+- `scripts/validate_profile_setup_tool.py` — installer self-test validator (required)
+- `profile-distribution/launchroom-saas` — profile distribution payload (required)
+
+### Release readiness checklist
+
+- README explains package purpose, quickstart, validation, and release boundary.
+- RUN_ME_FIRST contains primary setup path, self-test path, wizard rooms, room transitions, first-run demo, and distribution readiness section.
+- Source and generated contracts include the release/distribution readiness contract.
+- Artifact manifest points to required user-facing, source, generated, installer, and validator surfaces.
+- Validation commands are listed and run locally before PR publication.
+- Secret-handling rules are explicit; .env/auth/state/OAuth stores are never copied or printed.
+- No GitHub release, tag, package publication, website publication, runtime/provider/gateway/cloud/n8n mutation, or broadcast is performed without a separate owner release gate.
+
+### Blocked until separate owner release gate
+
+- git_tag_creation
+- git_tag_push
+- github_release_creation
+- package_registry_publication
+- public_website_or_landing_page_publication
+- distribution_broadcast_to_channels
+- provider_or_model_runtime_change
+- gateway_pairing_or_home_channel_change
+- cloudflare_hetzner_n8n_mutation
+- secret_collection_readback_or_storage
+
+Release readiness is not release execution. No tag, GitHub release, package publication, website publication, runtime/provider/gateway/cloud/n8n mutation, distribution broadcast, or secret handling is authorized by this section.
+
 ## Language contract
 
 - Repository documentation, source contracts, scripts, validators, and generated canonical artifacts are written in English.

@@ -620,5 +620,131 @@
       "implementation_execution"
     ],
     "validation_rule": "The demo scenario must use self-test mode, reference Wizard Rooms and room transitions, expose expected outputs and user-visible checklist, and stop before gated mutation surfaces."
+  },
+  "release_distribution_readiness_contract": {
+    "enabled": true,
+    "purpose": "Prepare LaunchRoom Starter for a clear public/test distribution package without creating a GitHub release, tag, deployment, provider change, runtime mutation, or secret-handling path.",
+    "readiness_only_not_publication": true,
+    "public_test_package": true,
+    "not_airmida_authority": true,
+    "no_release_or_tag_without_owner_gate": true,
+    "no_distribution_channel_mutation_without_owner_gate": true,
+    "no_runtime_provider_gateway_n8n_cloud_mutation": true,
+    "release_gate_required_for": [
+      "GitHub release creation",
+      "git tag creation or push",
+      "package registry publication",
+      "website/public landing page publication",
+      "provider/model/runtime setting changes",
+      "gateway/channel pairing or broadcast",
+      "Cloudflare/Hetzner/n8n mutation",
+      "secret collection, readback, or storage"
+    ],
+    "distribution_quickstart": [
+      {
+        "step_id": "dist_1_read_repository_front_page",
+        "surface": "README.md",
+        "user_action": "Read what LaunchRoom Starter is, what it is not, and where the canonical runbook lives.",
+        "expected_result": "User understands this is a public test package and not AIRMIDA authority."
+      },
+      {
+        "step_id": "dist_2_open_canonical_runbook",
+        "surface": "RUN_ME_FIRST.md",
+        "user_action": "Open the canonical runbook or raw GitHub RUN_ME_FIRST link in a fresh Hermes session.",
+        "expected_result": "Hermes receives the guided setup route and mirrors the user language in conversation."
+      },
+      {
+        "step_id": "dist_3_run_safe_self_test",
+        "surface": "scripts/install_launchroom_profile.ps1",
+        "user_action": "Run the self-test command with -TestOutputRoot before doing real profile/workspace setup.",
+        "expected_result": "Generated files appear in the disposable self-test tree without live Hermes profile/config/toolset mutation."
+      },
+      {
+        "step_id": "dist_4_run_primary_installer_after_choice",
+        "surface": "scripts/install_launchroom_profile.ps1",
+        "user_action": "Run the primary installer only after choosing the target profile/workspace and understanding the non-secret mutation scope.",
+        "expected_result": "Profile/workspace setup artifacts are generated locally; runtime/provider/gateway/cloud/n8n/git/secret actions remain gated."
+      },
+      {
+        "step_id": "dist_5_stop_at_release_gate",
+        "surface": "release gate",
+        "user_action": "Do not create tags, GitHub releases, package publication, public website updates, or distribution broadcasts without a separate owner release gate.",
+        "expected_result": "Release readiness can be reported without performing public release actions."
+      }
+    ],
+    "artifact_manifest": [
+      {
+        "path": "README.md",
+        "role": "repository front page and quickstart",
+        "required": true
+      },
+      {
+        "path": "RUN_ME_FIRST.md",
+        "role": "canonical guided runbook",
+        "required": true
+      },
+      {
+        "path": "generated/RUN_ME_FIRST.md",
+        "role": "generated runbook mirror",
+        "required": true
+      },
+      {
+        "path": "source/launchroom.starter.v0_5.json",
+        "role": "source behavior/stage/UX/distribution contract",
+        "required": true
+      },
+      {
+        "path": "contracts/launchroom-stage-contract.json",
+        "role": "generated contract artifact",
+        "required": true
+      },
+      {
+        "path": "scripts/install_launchroom_profile.ps1",
+        "role": "primary setup and self-test tool",
+        "required": true
+      },
+      {
+        "path": "scripts/build_agentpack.py",
+        "role": "generated artifact builder",
+        "required": true
+      },
+      {
+        "path": "scripts/validate_behavior_contract.py",
+        "role": "behavior/UX/distribution validator",
+        "required": true
+      },
+      {
+        "path": "scripts/validate_profile_setup_tool.py",
+        "role": "installer self-test validator",
+        "required": true
+      },
+      {
+        "path": "profile-distribution/launchroom-saas",
+        "role": "profile distribution payload",
+        "required": true
+      }
+    ],
+    "release_readiness_checklist": [
+      "README explains package purpose, quickstart, validation, and release boundary.",
+      "RUN_ME_FIRST contains primary setup path, self-test path, wizard rooms, room transitions, first-run demo, and distribution readiness section.",
+      "Source and generated contracts include the release/distribution readiness contract.",
+      "Artifact manifest points to required user-facing, source, generated, installer, and validator surfaces.",
+      "Validation commands are listed and run locally before PR publication.",
+      "Secret-handling rules are explicit; .env/auth/state/OAuth stores are never copied or printed.",
+      "No GitHub release, tag, package publication, website publication, runtime/provider/gateway/cloud/n8n mutation, or broadcast is performed without a separate owner release gate."
+    ],
+    "blocked_until_separate_release_gate": [
+      "git_tag_creation",
+      "git_tag_push",
+      "github_release_creation",
+      "package_registry_publication",
+      "public_website_or_landing_page_publication",
+      "distribution_broadcast_to_channels",
+      "provider_or_model_runtime_change",
+      "gateway_pairing_or_home_channel_change",
+      "cloudflare_hetzner_n8n_mutation",
+      "secret_collection_readback_or_storage"
+    ],
+    "validation_rule": "Release/distribution readiness must provide a front-page quickstart, artifact manifest, validation list, and explicit release gate while performing no tag, release, deploy, runtime, gateway, n8n, cloud, or secret mutation."
   }
 }
