@@ -20,7 +20,7 @@ def main() -> int:
         ('scripts/install_launchroom_profile.ps1','profile setup tool'),
         ('profile `SOUL.md`','profile SOUL requirement'),
         ('workspace `README.md`, `AGENTS.md`, and `HERMES.md`','workspace instructions requirement'),
-        ('interactive decision buttons / `clarify`','decision UI requirement'),
+        ('Use the Hermes `clarify` tool for interactive decisions','decision UI clarify tool requirement'),
         ('T1 - User-choice setup allowed after a clear choice','T1 permissions'),
         ('create the selected local workspace folder','workspace creation permission'),
         ('set non-secret Hermes config values','profile setup permission'),
@@ -59,6 +59,25 @@ def main() -> int:
     if not any('selected allowed setup action' in x for x in source.get('stage_pass_requires', [])):
         print('FAIL: pass criteria do not require setup action verification')
         return 1
+
+    decision = source.get('decision_ui_contract', {})
+    clarify = decision.get('clarify_tool_contract', {})
+    required_clarify_markers = {
+        'clarify_tool_required_when_available': True,
+        'choices_must_be_tool_choices_array': True,
+        'do_not_embed_options_in_question_text': True,
+        'plain_text_options_are_fallback_only': True,
+        'desktop_requires_pending_clarify_tool_call': True,
+        'telegram_native_buttons_are_adapter_specific': True,
+    }
+    for key, expected in required_clarify_markers.items():
+        if clarify.get(key) is not expected:
+            print(f'FAIL: decision UI clarify contract missing {key}={expected}')
+            return 1
+    for point in ['git publication gate','implementation gate','runtime/provider/secret/destructive-action gate']:
+        if point not in decision.get('required_decision_points', []):
+            print('FAIL: decision UI required point missing ' + point)
+            return 1
     print('validate_behavior_contract: ok')
     return 0
 if __name__ == '__main__':
