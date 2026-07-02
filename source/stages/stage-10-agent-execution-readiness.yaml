@@ -1,0 +1,159 @@
+artifact_id: LAUNCHROOM_STAGE_10_AGENT_EXECUTION_READINESS_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_10_agent_execution_readiness
+stage_name: Agent Execution Readiness and Toolchain Activation Plan
+language: en
+
+purpose:
+  summary: >-
+    Convert the Stage 9 plan audit into a project-specific agent/toolchain
+    readiness package. Stage 10 maps the audited plan to required software,
+    Hermes toolsets, skills, agent pipeline, install gates, command readiness,
+    verification, and blocked activation surfaces before any real execution.
+  not_purpose:
+    - not product implementation
+    - not software installation
+    - not Hermes toolset activation
+    - not skill installation from network
+    - not persistent memory writes
+    - not spawning external agents
+    - not live channel/provider/runtime/cloud/gateway/n8n/MCP/database mutation
+    - not git publication
+    - not secret readback or storage
+
+stage_boundary:
+  consumes:
+    - .hermes/project-audit/AUDIT_REPORT.yaml
+    - .hermes/project-audit/PLAN_INTEGRITY_REPORT.md
+    - .hermes/project-audit/IMPLEMENTATION_BLOCKERS.md
+    - .hermes/project-audit/REPAIR_RECOMMENDATIONS.md
+    - .hermes/local-pilot/EXECUTION_PACKET.md
+    - .hermes/local-pilot/FILE_CHANGE_PLAN.md
+    - .hermes/local-pilot/COMMAND_PLAN.md
+    - .hermes/local-pilot/TEST_PLAN.md
+    - .hermes/reports/software-inventory-report.yaml
+    - .hermes/reports/software-purpose-map.yaml
+    - .hermes/reports/software-install-recommendation.yaml
+    - .hermes/reports/capability-graph.yaml
+    - .hermes/reports/starter-capability-pack.yaml
+  owns:
+    - agent readiness folder
+    - project toolchain requirements
+    - software gap analysis
+    - Hermes toolset plan
+    - skill load plan
+    - agent pipeline plan
+    - gated install plan
+    - command readiness report
+    - execution readiness report
+  does_not_own:
+    - installing missing software
+    - enabling Hermes toolsets
+    - installing skills
+    - spawning subagents or external agents
+    - executing commands/tests from the project plan
+    - changing runtime/cloud/provider/gateway/n8n surfaces
+
+readiness_layout:
+  root: .hermes/agent-readiness/
+  required_files:
+    - START_HERE.md
+    - PROJECT_TOOLCHAIN_REQUIREMENTS.md
+    - SOFTWARE_GAP_ANALYSIS.md
+    - HERMES_TOOLSET_PLAN.md
+    - SKILL_LOAD_PLAN.md
+    - AGENT_PIPELINE_PLAN.md
+    - INSTALL_PLAN.md
+    - COMMAND_READINESS.md
+    - EXECUTION_READINESS_REPORT.yaml
+
+packet_model:
+  status_marker: Hermes working artifact / not AIRMIDA authority
+  task_flow: project audit -> toolchain requirements -> gaps -> install/toolset/skill gates -> agent pipeline -> command readiness -> owner gate
+  permission_tier: readiness_analysis_only
+  required_checks:
+    - stage_9_audit_consumed
+    - project_toolchain_requirements_present
+    - software_gap_analysis_present
+    - hermes_toolset_plan_present
+    - skill_load_plan_present
+    - agent_pipeline_plan_present
+    - install_plan_present
+    - command_readiness_present
+    - execution_ready_false_until_owner_gate
+    - install_gate_required
+    - no_activation_without_gate
+
+outputs:
+  required:
+    - .hermes/agent-readiness/START_HERE.md
+    - .hermes/agent-readiness/PROJECT_TOOLCHAIN_REQUIREMENTS.md
+    - .hermes/agent-readiness/SOFTWARE_GAP_ANALYSIS.md
+    - .hermes/agent-readiness/HERMES_TOOLSET_PLAN.md
+    - .hermes/agent-readiness/SKILL_LOAD_PLAN.md
+    - .hermes/agent-readiness/AGENT_PIPELINE_PLAN.md
+    - .hermes/agent-readiness/INSTALL_PLAN.md
+    - .hermes/agent-readiness/COMMAND_READINESS.md
+    - .hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml
+  required_markers:
+    - Hermes working artifact / not AIRMIDA authority
+    - readiness_status: partial
+    - execution_ready: false
+    - execution_allowed: false
+    - install_gate_required: true
+    - toolset_activation_gate_required: true
+    - skill_load_gate_required: true
+    - agent_pipeline_gate_required: true
+    - software_installed: false
+    - toolsets_enabled_without_gate: false
+    - skills_installed_without_gate: false
+    - agents_spawned: false
+    - implementation_executed: false
+    - file_changes_executed: false
+    - commands_executed: false
+    - tests_executed: false
+    - dependencies_installed: false
+    - runtime_mutation: false
+    - cloud_mutation: false
+    - gateway_mutation: false
+    - n8n_mutation: false
+    - secrets_read_or_written: false
+    - git_publication_executed: false
+    - project_toolchain_requirements_present: true
+    - software_gap_analysis_present: true
+    - hermes_toolset_plan_present: true
+    - skill_load_plan_present: true
+    - agent_pipeline_plan_present: true
+    - install_plan_present: true
+    - command_readiness_present: true
+
+acceptance_criteria:
+  - Agent readiness folder exists under workspace `.hermes/agent-readiness/`.
+  - All required markdown and YAML readiness files exist.
+  - EXECUTION_READINESS_REPORT.yaml parses as YAML.
+  - Stage 10 references Stage 9 audit, Stage 8 execution packet, Stage 3 software reports, and Stage 4 starter capability pack.
+  - Toolchain requirements map project work to required software, Hermes toolsets, skills, agent roles, commands, gates, and verification.
+  - Software gap analysis separates installed/present, missing/unknown, optional, and gated install candidates.
+  - Install plan explains why each software category may be needed, install command shape, verification command, risk, rollback, admin/restart/PATH notes, and owner gate.
+  - Hermes toolset plan and skill load plan recommend activation/load order without enabling or installing anything automatically.
+  - Agent pipeline plan defines planner/repair, toolchain verifier, implementer, verification arbiter, and owner gate roles without spawning agents.
+  - Command readiness separates read-only inspection, gated local commands, install commands, and forbidden runtime/secret/git/publication commands.
+  - Execution remains blocked by default until Stage 9 issues are repaired, Stage 10 readiness is owner-accepted, and an implementation gate is granted.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: Toolchain is ready enough for an owner implementation gate, but execution is still a separate decision.
+  partial:
+    meaning: Readiness package exists but project-specific files/software/commands/skills require owner review or install/toolset gates.
+  blocked:
+    meaning: Missing critical software, unresolved Stage 9 blockers, or forbidden activation requirements block execution.
+
+next_decision:
+  options:
+    - repair Stage 9 blockers
+    - approve install plan for missing software
+    - approve Hermes toolset or skill loading plan
+    - approve implementation gate after readiness acceptance
+    - defer execution

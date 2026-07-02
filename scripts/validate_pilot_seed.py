@@ -14,6 +14,7 @@ checks = [
     ['scripts/validate_first_slice_planning.py'],
     ['scripts/validate_local_pilot_execution.py'],
     ['scripts/validate_project_plan_integrity_audit.py'],
+    ['scripts/validate_agent_execution_readiness.py'],
     ['scripts/validate_profile_distribution.py'],
     ['scripts/validate_profile_setup_tool.py'],
 ]

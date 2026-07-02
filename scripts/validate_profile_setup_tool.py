@@ -143,6 +143,15 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'project-audit' / 'IMPLEMENTATION_BLOCKERS.md',
             workspace_root / '.hermes' / 'project-audit' / 'REPAIR_RECOMMENDATIONS.md',
             workspace_root / '.hermes' / 'project-audit' / 'AUDIT_REPORT.yaml',
+            workspace_root / '.hermes' / 'agent-readiness' / 'START_HERE.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'PROJECT_TOOLCHAIN_REQUIREMENTS.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'SOFTWARE_GAP_ANALYSIS.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'HERMES_TOOLSET_PLAN.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'SKILL_LOAD_PLAN.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'AGENT_PIPELINE_PLAN.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'INSTALL_PLAN.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'COMMAND_READINESS.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'EXECUTION_READINESS_REPORT.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -174,6 +183,8 @@ def run_self_test_if_available() -> None:
         local_pilot_text = '\n'.join((workspace_root / '.hermes' / 'local-pilot' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md'])
         project_audit_report = yaml.safe_load((workspace_root / '.hermes' / 'project-audit' / 'AUDIT_REPORT.yaml').read_text(encoding='utf-8'))
         project_audit_text = '\n'.join((workspace_root / '.hermes' / 'project-audit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md'])
+        agent_readiness_report = yaml.safe_load((workspace_root / '.hermes' / 'agent-readiness' / 'EXECUTION_READINESS_REPORT.yaml').read_text(encoding='utf-8'))
+        agent_readiness_text = '\n'.join((workspace_root / '.hermes' / 'agent-readiness' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','EXECUTION_READINESS_REPORT.yaml'])
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -357,6 +368,34 @@ def run_self_test_if_available() -> None:
             if needle not in project_audit_text:
                 print('FAIL: self-test project audit text missing ' + needle)
                 raise SystemExit(1)
+        if agent_readiness_report.get('artifact_id') != 'LAUNCHROOM_AGENT_EXECUTION_READINESS_v0_1':
+            print('FAIL: self-test agent readiness report has wrong artifact_id')
+            raise SystemExit(1)
+        if agent_readiness_report.get('stage_id') != 'stage_10_agent_execution_readiness':
+            print('FAIL: self-test agent readiness report has wrong stage_id')
+            raise SystemExit(1)
+        if agent_readiness_report.get('execution_ready') is not False or agent_readiness_report.get('execution_allowed') is not False:
+            print('FAIL: self-test agent readiness does not block execution by default')
+            raise SystemExit(1)
+        if agent_readiness_report.get('install_gate_required') is not True:
+            print('FAIL: self-test agent readiness does not require install gate')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in agent_readiness_report.get('status_marker',''):
+            print('FAIL: self-test agent readiness missing non-authority marker')
+            raise SystemExit(1)
+        readiness_flags = agent_readiness_report.get('action_flags', {})
+        for key in ['software_installed','toolsets_enabled_without_gate','skills_installed_without_gate','agents_spawned','implementation_executed','file_changes_executed','commands_executed','tests_executed','dependencies_installed','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
+            if readiness_flags.get(key) is not False:
+                print('FAIL: self-test agent readiness action flag not false: ' + key)
+                raise SystemExit(1)
+        for key in ['project_toolchain_requirements_present','software_gap_analysis_present','hermes_toolset_plan_present','skill_load_plan_present','agent_pipeline_plan_present','install_plan_present','command_readiness_present']:
+            if readiness_flags.get(key) is not True:
+                print('FAIL: self-test agent readiness flag not true: ' + key)
+                raise SystemExit(1)
+        for needle in ['Agent Execution Readiness','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','execution_ready: false','install_gate_required','Toolchain Verifier','Node.js LTS + npm']:
+            if needle not in agent_readiness_text:
+                print('FAIL: self-test agent readiness text missing ' + needle)
+                raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
         if re.search(r'__LAUNCHROOM_RESOLVE__[A-Z0-9_]+', live_config):
@@ -484,7 +523,14 @@ def main() -> int:
         ('project_plan_integrity_audit: expected result map -> missing fragments -> contradiction scan -> stage drift scan -> repair recommendations','prints Stage 9 summary'),
         ('stage9_status: $Stage9Status','prints Stage 9 status'),
         ('execution_allowed=false','blocks execution by default'),
-        ('next_stage: review_project_audit_or_prepare_stage10_readiness','hands off to project audit or Stage 10 readiness'),
+        ('agent-readiness/EXECUTION_READINESS_REPORT.yaml','writes Stage 10 agent readiness report'),
+        ('agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness','prints Stage 10 summary'),
+        ('stage10_status: $Stage10Status','prints Stage 10 status'),
+        ('execution_ready=false','blocks execution readiness by default'),
+        ('toolsets_enabled_without_gate=false','records no unauthorized toolset enablement'),
+        ('skills_installed_without_gate=false','records no unauthorized skill install'),
+        ('agents_spawned=false','records no agent spawning'),
+        ('next_stage: review_agent_readiness_or_prepare_stage11_hygiene','hands off to agent readiness or Stage 11 hygiene'),
         ('dependencies_installed=false','records no dependency install'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),
