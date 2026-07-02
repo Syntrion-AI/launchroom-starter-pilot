@@ -1,0 +1,62 @@
+{
+  "recipe_id": "launchroom-skill-capture-v0_12",
+  "objective": "Create a stage skill matrix and skill-capture package with required/optional/missing skills, candidate template, and promotion gate without installing, patching, promoting, loading skills automatically, or writing memory.",
+  "skills_root": ".hermes/skills",
+  "skill_candidates_root": ".hermes/skills-candidates",
+  "required_files": [
+    "START_HERE.md",
+    "STAGE_SKILL_MATRIX.md",
+    "REQUIRED_SKILLS.md",
+    "OPTIONAL_SKILLS.md",
+    "MISSING_SKILLS.md",
+    "SKILL_CAPTURE_GUIDE.md",
+    "SKILL_CANDIDATE_TEMPLATE.md",
+    "SKILL_PROMOTION_GATE.md",
+    "SKILL_INTEGRATION_REPORT.yaml",
+    "../skills-candidates/README.md"
+  ],
+  "consumes": [
+    ".hermes/hygiene/HYGIENE_REPORT.yaml",
+    ".hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml",
+    ".hermes/reports/starter-capability-pack.yaml",
+    ".hermes/reports/capability-graph.yaml",
+    ".hermes/project-audit/AUDIT_REPORT.yaml"
+  ],
+  "status_marker": "Hermes working artifact / not AIRMIDA authority",
+  "packet_flow": "hygiene -> stage skill matrix -> required/optional/missing skills -> capture guide -> candidate template -> promotion gate -> owner skill decision",
+  "required_skill_flags": [
+    "skill_integration_status: partial",
+    "skills_installed: false",
+    "skills_patched: false",
+    "skills_promoted: false",
+    "persistent_memory_written: false",
+    "skill_candidates_created: false",
+    "implementation_executed: false",
+    "commands_executed: false",
+    "runtime_mutation: false",
+    "cloud_mutation: false",
+    "gateway_mutation: false",
+    "n8n_mutation: false",
+    "secrets_read_or_written: false",
+    "git_publication_executed: false",
+    "stage_skill_matrix_present: true",
+    "required_skills_present: true",
+    "optional_skills_present: true",
+    "missing_skills_present: true",
+    "skill_capture_guide_present: true",
+    "skill_candidate_template_present: true",
+    "skill_promotion_gate_present: true",
+    "skills_candidates_root_present: true"
+  ],
+  "blocked_without_gate": [
+    "install skill",
+    "patch existing skill",
+    "promote skill candidate",
+    "write persistent memory",
+    "capture task progress as memory",
+    "include secrets in skill candidate",
+    "treat candidate as active skill before validation",
+    "mutate runtime/provider/cloud/gateway/n8n/git/secret surfaces"
+  ],
+  "stage_12_contract": "source/stages/stage-12-skill-capture.yaml"
+}

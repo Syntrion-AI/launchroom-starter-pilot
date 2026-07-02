@@ -162,6 +162,16 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'hygiene' / 'ARCHIVE_PLAN.md',
             workspace_root / '.hermes' / 'hygiene' / 'DELETION_GATE.md',
             workspace_root / '.hermes' / 'hygiene' / 'HYGIENE_REPORT.yaml',
+            workspace_root / '.hermes' / 'skills' / 'START_HERE.md',
+            workspace_root / '.hermes' / 'skills' / 'STAGE_SKILL_MATRIX.md',
+            workspace_root / '.hermes' / 'skills' / 'REQUIRED_SKILLS.md',
+            workspace_root / '.hermes' / 'skills' / 'OPTIONAL_SKILLS.md',
+            workspace_root / '.hermes' / 'skills' / 'MISSING_SKILLS.md',
+            workspace_root / '.hermes' / 'skills' / 'SKILL_CAPTURE_GUIDE.md',
+            workspace_root / '.hermes' / 'skills' / 'SKILL_CANDIDATE_TEMPLATE.md',
+            workspace_root / '.hermes' / 'skills' / 'SKILL_PROMOTION_GATE.md',
+            workspace_root / '.hermes' / 'skills' / 'SKILL_INTEGRATION_REPORT.yaml',
+            workspace_root / '.hermes' / 'skills-candidates' / 'README.md',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -197,6 +207,8 @@ def run_self_test_if_available() -> None:
         agent_readiness_text = '\n'.join((workspace_root / '.hermes' / 'agent-readiness' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','EXECUTION_READINESS_REPORT.yaml'])
         hygiene_report = yaml.safe_load((workspace_root / '.hermes' / 'hygiene' / 'HYGIENE_REPORT.yaml').read_text(encoding='utf-8'))
         hygiene_text = '\n'.join((workspace_root / '.hermes' / 'hygiene' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','ARTIFACT_INDEX.md','ACTIVE_FILES.md','SUPERSEDED_FILES.md','BROKEN_OR_STALE_FILES.md','DO_NOT_USE.md','CLEANUP_PLAN.md','ARCHIVE_PLAN.md','DELETION_GATE.md','HYGIENE_REPORT.yaml'])
+        skill_integration_report = yaml.safe_load((workspace_root / '.hermes' / 'skills' / 'SKILL_INTEGRATION_REPORT.yaml').read_text(encoding='utf-8'))
+        skill_text = '\n'.join((workspace_root / '.hermes' / 'skills' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','STAGE_SKILL_MATRIX.md','REQUIRED_SKILLS.md','OPTIONAL_SKILLS.md','MISSING_SKILLS.md','SKILL_CAPTURE_GUIDE.md','SKILL_CANDIDATE_TEMPLATE.md','SKILL_PROMOTION_GATE.md','SKILL_INTEGRATION_REPORT.yaml']) + '\n' + (workspace_root / '.hermes' / 'skills-candidates' / 'README.md').read_text(encoding='utf-8')
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -430,6 +442,28 @@ def run_self_test_if_available() -> None:
             if needle not in hygiene_text:
                 print('FAIL: self-test hygiene text missing ' + needle)
                 raise SystemExit(1)
+        if skill_integration_report.get('artifact_id') != 'LAUNCHROOM_SKILL_INTEGRATION_v0_1':
+            print('FAIL: self-test skill integration report has wrong artifact_id')
+            raise SystemExit(1)
+        if skill_integration_report.get('stage_id') != 'stage_12_skill_capture':
+            print('FAIL: self-test skill integration report has wrong stage_id')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in skill_integration_report.get('status_marker',''):
+            print('FAIL: self-test skill integration missing non-authority marker')
+            raise SystemExit(1)
+        skill_flags = skill_integration_report.get('action_flags', {})
+        for key in ['skills_installed','skills_patched','skills_promoted','persistent_memory_written','skill_candidates_created','implementation_executed','commands_executed','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
+            if skill_flags.get(key) is not False:
+                print('FAIL: self-test skill integration action flag not false: ' + key)
+                raise SystemExit(1)
+        for key in ['stage_skill_matrix_present','required_skills_present','optional_skills_present','missing_skills_present','skill_capture_guide_present','skill_candidate_template_present','skill_promotion_gate_present','skills_candidates_root_present']:
+            if skill_flags.get(key) is not True:
+                print('FAIL: self-test skill integration flag not true: ' + key)
+                raise SystemExit(1)
+        for needle in ['Skill Capture','STAGE_SKILL_MATRIX.md','REQUIRED_SKILLS.md','OPTIONAL_SKILLS.md','MISSING_SKILLS.md','SKILL_CAPTURE_GUIDE.md','SKILL_CANDIDATE_TEMPLATE.md','SKILL_PROMOTION_GATE.md','skills_installed: false','skills_promoted: false','persistent_memory_written: false','Do not treat a skill candidate as an active skill']:
+            if needle not in skill_text:
+                print('FAIL: self-test skill integration text missing ' + needle)
+                raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
         if re.search(r'__LAUNCHROOM_RESOLVE__[A-Z0-9_]+', live_config):
@@ -571,7 +605,14 @@ def main() -> int:
         ('archive_executed=false','records no archive execution'),
         ('deletion_executed=false','records no deletion execution'),
         ('files_deleted=false','records no file deletion'),
-        ('next_stage: review_workspace_hygiene_or_prepare_stage12_skill_capture','hands off to hygiene review or Stage 12 skill capture'),
+        ('skills/SKILL_INTEGRATION_REPORT.yaml','writes Stage 12 skill integration report'),
+        ('skill_capture: stage skill matrix -> required skills -> optional skills -> missing skills -> capture guide -> candidate template -> promotion gate','prints Stage 12 summary'),
+        ('stage12_status: $Stage12Status','prints Stage 12 status'),
+        ('skills_installed=false','records no skill install'),
+        ('skills_patched=false','records no skill patch'),
+        ('skills_promoted=false','records no skill promotion'),
+        ('persistent_memory_written=false','records no memory write'),
+        ('next_stage: review_skill_capture_or_prepare_stage13_evidence_binder','hands off to skill review or Stage 13 evidence binder'),
         ('dependencies_installed=false','records no dependency install'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),

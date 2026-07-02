@@ -181,6 +181,22 @@
         "DELETION_GATE.md",
         "HYGIENE_REPORT.yaml"
       ]
+    },
+    {
+      "id": "stage_12",
+      "name": "Skill capture and stage skill integration pack",
+      "required_outputs": [
+        "START_HERE.md",
+        "STAGE_SKILL_MATRIX.md",
+        "REQUIRED_SKILLS.md",
+        "OPTIONAL_SKILLS.md",
+        "MISSING_SKILLS.md",
+        "SKILL_CAPTURE_GUIDE.md",
+        "SKILL_CANDIDATE_TEMPLATE.md",
+        "SKILL_PROMOTION_GATE.md",
+        "SKILL_INTEGRATION_REPORT.yaml",
+        "../skills-candidates/README.md"
+      ]
     }
   ]
 }

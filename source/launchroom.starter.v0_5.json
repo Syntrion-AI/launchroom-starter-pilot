@@ -214,6 +214,23 @@
         "cleanup, archive, and deletion plans remain proposals only and require explicit owner gate",
         "cleanup, archive, deletion, rename, move, implementation, runtime/cloud/gateway/n8n/git/secret actions remain false"
       ]
+    },
+    {
+      "id": "stage_12",
+      "name": "Skill capture and stage skill integration pack",
+      "purpose": "Create a stage skill matrix and skill-capture package after Stage 11 so future LaunchRoom runs know which skills are required, optional, missing, capture-worthy, and promotion-gated without installing, patching, promoting, loading skills automatically, writing memory, executing implementation, or mutating runtime/cloud/provider/gateway/n8n surfaces.",
+      "pass_requires": [
+        "skills folder and skills-candidates root exist",
+        "START_HERE.md, STAGE_SKILL_MATRIX.md, REQUIRED_SKILLS.md, OPTIONAL_SKILLS.md, MISSING_SKILLS.md, SKILL_CAPTURE_GUIDE.md, SKILL_CANDIDATE_TEMPLATE.md, SKILL_PROMOTION_GATE.md, SKILL_INTEGRATION_REPORT.yaml, and skills-candidates/README.md exist",
+        "skills/SKILL_INTEGRATION_REPORT.yaml parses as YAML",
+        "Stage 11 hygiene, Stage 10 readiness, Stage 9 audit, Stage 4 capability pack, and Stage 3 capability graph are referenced",
+        "stage skill matrix maps Stage 1 through Stage 12 to required skills, optional skills, and load timing",
+        "required, optional, and missing skill registers distinguish available/recommended/gated candidates without claiming automatic installation",
+        "skill capture guide explains when a proven workflow should become a skill candidate and what evidence is required",
+        "candidate template includes SKILL.md, evidence, validation, and promotion gate sections",
+        "promotion gate requires owner review, validation evidence, no secret content, no stale task progress, and explicit install/promote decision",
+        "skill install, patch, promotion, memory write, implementation, runtime/cloud/gateway/n8n/git/secret actions remain false"
+      ]
     }
   ],
   "forbidden_without_separate_gate": [
@@ -234,7 +251,8 @@
     "source/recipes/local-pilot-execution.json",
     "source/recipes/project-plan-integrity-audit.json",
     "source/recipes/agent-execution-readiness.json",
-    "source/recipes/workspace-hygiene.json"
+    "source/recipes/workspace-hygiene.json",
+    "source/recipes/skill-capture.json"
   ],
   "primary_setup_tool": "scripts/install_launchroom_profile.ps1",
   "decision_ui_contract": {
