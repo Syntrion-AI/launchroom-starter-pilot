@@ -92,6 +92,7 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'reports' / 'software-inventory-report.yaml',
             workspace_root / '.hermes' / 'reports' / 'software-purpose-map.yaml',
             workspace_root / '.hermes' / 'reports' / 'software-install-recommendation.yaml',
+            workspace_root / '.hermes' / 'reports' / 'capability-graph.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -110,6 +111,7 @@ def run_self_test_if_available() -> None:
         inventory_report = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-inventory-report.yaml').read_text(encoding='utf-8'))
         purpose_map = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-purpose-map.yaml').read_text(encoding='utf-8'))
         install_rec = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-install-recommendation.yaml').read_text(encoding='utf-8'))
+        capability_graph = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'capability-graph.yaml').read_text(encoding='utf-8'))
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -120,6 +122,30 @@ def run_self_test_if_available() -> None:
                 raise SystemExit(1)
         if install_rec.get('install_gate_required') is not True or install_rec.get('installs_executed') is not False:
             print('FAIL: self-test install recommendation does not enforce gate/no-install')
+            raise SystemExit(1)
+        required_task_classes = [
+            'profile_and_workspace_setup', 'code_change_delivery', 'research_and_evidence',
+            'external_agent_handoff', 'web_browser_qa', 'cloud_runtime_readiness',
+            'communication_gateway_readiness', 'observability_and_reports', 'security_and_secret_safety',
+        ]
+        if capability_graph.get('artifact_id') != 'LAUNCHROOM_ENGINEERING_CAPABILITY_GRAPH_v0_1':
+            print('FAIL: self-test capability graph has wrong artifact_id')
+            raise SystemExit(1)
+        task_classes = capability_graph.get('task_classes', {})
+        for task_class in required_task_classes:
+            entry = task_classes.get(task_class)
+            if not entry:
+                print('FAIL: self-test capability graph missing task class ' + task_class)
+                raise SystemExit(1)
+            for field in ['goal', 'required_tools', 'supporting_skills', 'workflow', 'gates', 'verification']:
+                if field not in entry:
+                    print(f'FAIL: self-test capability graph {task_class} missing {field}')
+                    raise SystemExit(1)
+        if 'select capability workflow before selecting individual software' not in capability_graph.get('selection_rule', ''):
+            print('FAIL: self-test capability graph selection rule missing')
+            raise SystemExit(1)
+        if capability_graph.get('boundaries', {}).get('secrets_read') is not False:
+            print('FAIL: self-test capability graph does not assert secrets_read=false')
             raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
@@ -179,6 +205,18 @@ def main() -> int:
         ('stage_4_starter_capability_pack','hands off to Stage 4 capability pack after tool readiness'),
         ('software-purpose-map.yaml','writes software purpose map'),
         ('software-install-recommendation.yaml','writes gated software install recommendation'),
+        ('capability-graph.yaml','writes engineering capability graph'),
+        ('LAUNCHROOM_ENGINEERING_CAPABILITY_GRAPH_v0_1','capability graph artifact id'),
+        ('selection_rule: select capability workflow before selecting individual software','capability workflow selection rule'),
+        ('code_change_delivery','maps code delivery task class'),
+        ('external_agent_handoff','maps external agent handoff task class'),
+        ('cloud_runtime_readiness','maps cloud/runtime readiness task class'),
+        ('security_and_secret_safety','maps secret-safety task class'),
+        ('supporting_skills','maps skill bundles'),
+        ('required_tools','maps tool bundles'),
+        ('gates:','maps gates'),
+        ('verification:','maps verification'),
+        ('capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification','final capability graph summary'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),
         ('purpose','maps software purpose'),

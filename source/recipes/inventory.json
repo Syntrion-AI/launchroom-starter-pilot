@@ -1,6 +1,6 @@
 {
-  "recipe_id": "launchroom-inventory-v0_6",
-  "objective": "Collect a no-secret local toolchain inventory, create a software purpose map, and propose a gated software install recommendation package.",
+  "recipe_id": "launchroom-inventory-v0_7",
+  "objective": "Collect a no-secret local toolchain inventory, create a software purpose map, create an engineering capability graph, and propose a gated software install recommendation package.",
   "required_checks": [
     "os",
     "shell",
@@ -25,7 +25,12 @@
     "install_pack_requires_gate",
     "software_purpose_map",
     "software_install_recommendation",
-    "do_not_run_without_gate"
+    "do_not_run_without_gate",
+    "capability_graph",
+    "task_to_capability_map",
+    "tool_bundles",
+    "skill_bundles",
+    "gates_and_verification"
   ],
   "rule": "WSL is optional for Local backend and must not block Starter when local terminal works.",
   "stage_3_contract": "source/stages/stage-3-tool-readiness-and-software-map.yaml",
@@ -59,6 +64,68 @@
     "WSL is optional for Local backend and must not block Starter when local terminal works.",
     "Stage 3 proposes install commands only; it never installs software without a separate explicit owner install gate.",
     "Every checked tool must include purpose and agent_use so the agent knows what it has and why it matters.",
-    "Docker and WSL are optional/deferred unless the user selects container or Linux workflows."
-  ]
+    "Docker and WSL are optional/deferred unless the user selects container or Linux workflows.",
+    "Stage 3 must teach the agent to select a capability workflow before selecting individual software.",
+    "Every capability must include task class, tool bundle, skill bundle, gates, and verification.",
+    "Capability graph reports are maps for agent operation, not authorization to run gated actions."
+  ],
+  "capability_graph_required_fields": [
+    "task_class",
+    "goal",
+    "required_tools",
+    "supporting_skills",
+    "workflow",
+    "gates",
+    "verification"
+  ],
+  "task_classes": {
+    "profile_and_workspace_setup": [
+      "hermes",
+      "python",
+      "git"
+    ],
+    "code_change_delivery": [
+      "git",
+      "python",
+      "ripgrep"
+    ],
+    "research_and_evidence": [
+      "hermes",
+      "python",
+      "ripgrep"
+    ],
+    "external_agent_handoff": [
+      "git",
+      "gh",
+      "codex",
+      "claude"
+    ],
+    "web_browser_qa": [
+      "hermes",
+      "browser",
+      "node",
+      "npm"
+    ],
+    "cloud_runtime_readiness": [
+      "git",
+      "docker",
+      "wrangler",
+      "cloudflared",
+      "hcloud"
+    ],
+    "communication_gateway_readiness": [
+      "hermes",
+      "gateway_platform_tools"
+    ],
+    "observability_and_reports": [
+      "python",
+      "git",
+      "ripgrep"
+    ],
+    "security_and_secret_safety": [
+      "hermes",
+      "python",
+      "ripgrep"
+    ]
+  }
 }
