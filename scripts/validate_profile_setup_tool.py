@@ -172,6 +172,15 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'skills' / 'SKILL_PROMOTION_GATE.md',
             workspace_root / '.hermes' / 'skills' / 'SKILL_INTEGRATION_REPORT.yaml',
             workspace_root / '.hermes' / 'skills-candidates' / 'README.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'START_HERE.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'EXECUTED_COMMANDS.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'CHANGED_FILES.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'TEST_RESULTS.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'ACCEPTANCE_EVIDENCE.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'USER_VISIBLE_RESULT.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'RESIDUAL_RISKS.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'ROLLBACK_AND_HANDOFF.md',
+            workspace_root / '.hermes' / 'execution-evidence' / 'EXECUTION_EVIDENCE_REPORT.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -209,6 +218,8 @@ def run_self_test_if_available() -> None:
         hygiene_text = '\n'.join((workspace_root / '.hermes' / 'hygiene' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','ARTIFACT_INDEX.md','ACTIVE_FILES.md','SUPERSEDED_FILES.md','BROKEN_OR_STALE_FILES.md','DO_NOT_USE.md','CLEANUP_PLAN.md','ARCHIVE_PLAN.md','DELETION_GATE.md','HYGIENE_REPORT.yaml'])
         skill_integration_report = yaml.safe_load((workspace_root / '.hermes' / 'skills' / 'SKILL_INTEGRATION_REPORT.yaml').read_text(encoding='utf-8'))
         skill_text = '\n'.join((workspace_root / '.hermes' / 'skills' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','STAGE_SKILL_MATRIX.md','REQUIRED_SKILLS.md','OPTIONAL_SKILLS.md','MISSING_SKILLS.md','SKILL_CAPTURE_GUIDE.md','SKILL_CANDIDATE_TEMPLATE.md','SKILL_PROMOTION_GATE.md','SKILL_INTEGRATION_REPORT.yaml']) + '\n' + (workspace_root / '.hermes' / 'skills-candidates' / 'README.md').read_text(encoding='utf-8')
+        execution_evidence_report = yaml.safe_load((workspace_root / '.hermes' / 'execution-evidence' / 'EXECUTION_EVIDENCE_REPORT.yaml').read_text(encoding='utf-8'))
+        execution_evidence_text = '\n'.join((workspace_root / '.hermes' / 'execution-evidence' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','EXECUTED_COMMANDS.md','CHANGED_FILES.md','TEST_RESULTS.md','ACCEPTANCE_EVIDENCE.md','USER_VISIBLE_RESULT.md','RESIDUAL_RISKS.md','ROLLBACK_AND_HANDOFF.md','EXECUTION_EVIDENCE_REPORT.yaml'])
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -464,6 +475,28 @@ def run_self_test_if_available() -> None:
             if needle not in skill_text:
                 print('FAIL: self-test skill integration text missing ' + needle)
                 raise SystemExit(1)
+        if execution_evidence_report.get('artifact_id') != 'LAUNCHROOM_EXECUTION_EVIDENCE_BINDER_v0_1':
+            print('FAIL: self-test execution evidence report has wrong artifact_id')
+            raise SystemExit(1)
+        if execution_evidence_report.get('stage_id') != 'stage_13_execution_evidence_binder':
+            print('FAIL: self-test execution evidence report has wrong stage_id')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in execution_evidence_report.get('status_marker',''):
+            print('FAIL: self-test execution evidence missing non-authority marker')
+            raise SystemExit(1)
+        evidence_flags = execution_evidence_report.get('action_flags', {})
+        for key in ['real_execution_evidence_present','fabricated_evidence','implementation_executed_by_stage13','commands_executed_by_stage13','file_changes_executed_by_stage13','tests_executed_by_stage13','dependencies_installed_by_stage13','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
+            if evidence_flags.get(key) is not False:
+                print('FAIL: self-test evidence action flag not false: ' + key)
+                raise SystemExit(1)
+        for key in ['executed_commands_present','changed_files_present','test_results_present','acceptance_evidence_present','user_visible_result_present','residual_risks_present','rollback_and_handoff_present']:
+            if evidence_flags.get(key) is not True:
+                print('FAIL: self-test evidence flag not true: ' + key)
+                raise SystemExit(1)
+        for needle in ['Local Execution Evidence Binder','EXECUTED_COMMANDS.md','CHANGED_FILES.md','TEST_RESULTS.md','ACCEPTANCE_EVIDENCE.md','USER_VISIBLE_RESULT.md','RESIDUAL_RISKS.md','ROLLBACK_AND_HANDOFF.md','real_execution_evidence_present: false','fabricated_evidence: false','Do not fabricate evidence','No project tests have been run by Stage 13']:
+            if needle not in execution_evidence_text:
+                print('FAIL: self-test execution evidence text missing ' + needle)
+                raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
         if re.search(r'__LAUNCHROOM_RESOLVE__[A-Z0-9_]+', live_config):
@@ -612,7 +645,13 @@ def main() -> int:
         ('skills_patched=false','records no skill patch'),
         ('skills_promoted=false','records no skill promotion'),
         ('persistent_memory_written=false','records no memory write'),
-        ('next_stage: review_skill_capture_or_prepare_stage13_evidence_binder','hands off to skill review or Stage 13 evidence binder'),
+        ('execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml','writes Stage 13 execution evidence report'),
+        ('execution_evidence_binder: executed commands -> changed files -> test results -> acceptance evidence -> user-visible result -> residual risks -> rollback and handoff','prints Stage 13 summary'),
+        ('stage13_status: $Stage13Status','prints Stage 13 status'),
+        ('real_execution_evidence_present=false','records no real evidence yet'),
+        ('fabricated_evidence=false','records no fabricated evidence'),
+        ('commands_executed_by_stage13=false','records no commands executed'),
+        ('next_stage: grant_implementation_gate_or_review_execution_evidence_scaffold','hands off to implementation gate or evidence review'),
         ('dependencies_installed=false','records no dependency install'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),

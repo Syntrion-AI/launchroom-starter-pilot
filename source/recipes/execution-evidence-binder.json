@@ -1,0 +1,61 @@
+{
+  "recipe_id": "launchroom-execution-evidence-binder-v0_13",
+  "objective": "Create a local execution evidence binder scaffold for real commands, changed files, tests, acceptance evidence, user-visible result, residual risks, and rollback/handoff without executing or fabricating results.",
+  "evidence_root": ".hermes/execution-evidence",
+  "required_files": [
+    "START_HERE.md",
+    "EXECUTED_COMMANDS.md",
+    "CHANGED_FILES.md",
+    "TEST_RESULTS.md",
+    "ACCEPTANCE_EVIDENCE.md",
+    "USER_VISIBLE_RESULT.md",
+    "RESIDUAL_RISKS.md",
+    "ROLLBACK_AND_HANDOFF.md",
+    "EXECUTION_EVIDENCE_REPORT.yaml"
+  ],
+  "consumes": [
+    ".hermes/skills/SKILL_INTEGRATION_REPORT.yaml",
+    ".hermes/hygiene/HYGIENE_REPORT.yaml",
+    ".hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml",
+    ".hermes/local-pilot/EXECUTION_PACKET.md",
+    ".hermes/local-pilot/COMMAND_PLAN.md",
+    ".hermes/local-pilot/TEST_PLAN.md",
+    ".hermes/project-audit/AUDIT_REPORT.yaml"
+  ],
+  "status_marker": "Hermes working artifact / not AIRMIDA authority",
+  "packet_flow": "gated implementation -> command/file/test evidence -> acceptance evidence -> user-visible result -> residual risks -> rollback/handoff -> owner closeout decision",
+  "required_evidence_flags": [
+    "evidence_binder_status: scaffold_only",
+    "real_execution_evidence_present: false",
+    "fabricated_evidence: false",
+    "implementation_executed_by_stage13: false",
+    "commands_executed_by_stage13: false",
+    "file_changes_executed_by_stage13: false",
+    "tests_executed_by_stage13: false",
+    "dependencies_installed_by_stage13: false",
+    "runtime_mutation: false",
+    "cloud_mutation: false",
+    "gateway_mutation: false",
+    "n8n_mutation: false",
+    "secrets_read_or_written: false",
+    "git_publication_executed: false",
+    "executed_commands_present: true",
+    "changed_files_present: true",
+    "test_results_present: true",
+    "acceptance_evidence_present: true",
+    "user_visible_result_present: true",
+    "residual_risks_present: true",
+    "rollback_and_handoff_present: true"
+  ],
+  "blocked_without_gate": [
+    "execute implementation",
+    "run project commands",
+    "change product files",
+    "install dependencies",
+    "claim tests passed without logs",
+    "claim user-visible result without evidence",
+    "include secrets in evidence",
+    "mutate runtime/provider/cloud/gateway/n8n/git surfaces"
+  ],
+  "stage_13_contract": "source/stages/stage-13-execution-evidence-binder.yaml"
+}

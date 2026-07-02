@@ -3826,6 +3826,212 @@ $skillReportLines += @(
 )
 Write-Utf8NoBom (Join-Path $skillPackRoot 'SKILL_INTEGRATION_REPORT.yaml') ($skillReportLines -join "`n")
 
+
+$executionEvidenceRoot = Join-Path $WorkspaceFull '.hermes/execution-evidence'
+New-Item -ItemType Directory -Force -Path $executionEvidenceRoot | Out-Null
+$Stage13Status = 'scaffold_only'
+$evidenceSourceFiles = @(
+  '.hermes/skills/SKILL_INTEGRATION_REPORT.yaml',
+  '.hermes/hygiene/HYGIENE_REPORT.yaml',
+  '.hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml',
+  '.hermes/local-pilot/EXECUTION_PACKET.md',
+  '.hermes/local-pilot/COMMAND_PLAN.md',
+  '.hermes/local-pilot/TEST_PLAN.md',
+  '.hermes/project-audit/AUDIT_REPORT.yaml'
+)
+$missingExecutionEvidenceSources = @($evidenceSourceFiles | Where-Object { -not (Test-Path (Join-Path $WorkspaceFull $_)) })
+if ($missingExecutionEvidenceSources.Count -gt 0) { $Stage13Status = 'blocked_missing_source_lineage' }
+
+$evidenceStartLines = @(
+  '# Start Here — Local Execution Evidence Binder',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'You are at Stage 13. This binder is where a future gated implementation records real execution evidence: commands, changed files, tests, acceptance proof, user-visible result, residual risks, and rollback/handoff.',
+  '',
+  'Stage 13 does not execute implementation, run project commands, change files, install dependencies, publish git, read secrets, deploy, or mutate runtime/cloud/provider/gateway/n8n surfaces.',
+  '',
+  '## Read in this order',
+  '',
+  '1. EXECUTED_COMMANDS.md — real command log after implementation gate.',
+  '2. CHANGED_FILES.md — actual changed-file evidence after implementation gate.',
+  '3. TEST_RESULTS.md — real test/lint/build outputs after they are run.',
+  '4. ACCEPTANCE_EVIDENCE.md — evidence mapped to acceptance criteria.',
+  '5. USER_VISIBLE_RESULT.md — what the user can see or use.',
+  '6. RESIDUAL_RISKS.md — remaining risks and open gaps.',
+  '7. ROLLBACK_AND_HANDOFF.md — rollback and next-owner handoff.',
+  '8. EXECUTION_EVIDENCE_REPORT.yaml — machine-readable status.',
+  '',
+  '## Rule',
+  '',
+  'Do not fabricate evidence. Planned commands are not executed commands; expected tests are not passing tests; intended user-visible output is not observed user-visible output.'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'START_HERE.md') ($evidenceStartLines -join "`n")
+
+$executedCommandsLines = @(
+  '# Executed Commands',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'This is a scaffold. No implementation commands have been executed by Stage 13.',
+  '',
+  '| Timestamp | Command | Workdir | Exit code | Evidence/log path | Gate reference |',
+  '| --- | --- | --- | --- | --- | --- |',
+  '| pending | pending real gated execution | pending | pending | pending | implementation gate required |',
+  '',
+  'Planned commands from `.hermes/local-pilot/COMMAND_PLAN.md` must not be copied here as executed unless they were actually run and verified.'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'EXECUTED_COMMANDS.md') ($executedCommandsLines -join "`n")
+
+$changedFilesLines = @(
+  '# Changed Files',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'This is a scaffold. No product files have been changed by Stage 13.',
+  '',
+  '| Path | Change type | Why changed | Verification | Rollback note |',
+  '| --- | --- | --- | --- | --- |',
+  '| pending | pending real gated execution | pending | pending | pending |',
+  '',
+  'Only list actual changed files after implementation. Do not list planned files as changed.'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'CHANGED_FILES.md') ($changedFilesLines -join "`n")
+
+$testResultsLines = @(
+  '# Test Results',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'This is a scaffold. No project tests have been run by Stage 13.',
+  '',
+  '| Test/check | Command | Result | Evidence/log path | Acceptance link |',
+  '| --- | --- | --- | --- | --- |',
+  '| pending | pending real gated execution | not run | pending | pending |',
+  '',
+  'Expected tests from `.hermes/local-pilot/TEST_PLAN.md` are not passing evidence until executed and logged.'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'TEST_RESULTS.md') ($testResultsLines -join "`n")
+
+$acceptanceLines = @(
+  '# Acceptance Evidence',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Map real evidence to acceptance criteria after implementation. This scaffold contains no real acceptance proof yet.',
+  '',
+  '| Acceptance criterion | Evidence | Source file/log | Status |',
+  '| --- | --- | --- | --- |',
+  '| pending | pending real gated execution | pending | not verified |'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'ACCEPTANCE_EVIDENCE.md') ($acceptanceLines -join "`n")
+
+$userVisibleLines = @(
+  '# User-Visible Result',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Describe what the user can actually see, open, click, run, or receive after implementation. Stage 13 does not claim a user-visible result yet.',
+  '',
+  'current_user_visible_result: pending real gated execution',
+  '',
+  'Do not claim screenshots, app behavior, messages, files, or URLs unless they were observed or verified.'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'USER_VISIBLE_RESULT.md') ($userVisibleLines -join "`n")
+
+$residualLines = @(
+  '# Residual Risks',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Record risks that remain after execution. Before execution, the primary risk is that no real evidence exists yet.',
+  '',
+  '- real_execution_evidence_present: false',
+  '- implementation outcome unknown until separate implementation gate is granted and work is verified',
+  '- secret-bearing logs must be redacted or excluded before evidence promotion'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'RESIDUAL_RISKS.md') ($residualLines -join "`n")
+
+$rollbackLines = @(
+  '# Rollback and Handoff',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Use this file after real execution to describe rollback, handoff, and next decision.',
+  '',
+  '## Rollback',
+  '',
+  '- pending real gated execution',
+  '',
+  '## Handoff',
+  '',
+  '- current state: evidence binder scaffold only',
+  '- next owner decision: grant implementation gate, repair source packet, or close without execution'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'ROLLBACK_AND_HANDOFF.md') ($rollbackLines -join "`n")
+
+$evidenceReportLines = @(
+  'artifact_id: LAUNCHROOM_EXECUTION_EVIDENCE_BINDER_v0_1',
+  'stage_id: stage_13_execution_evidence_binder',
+  "evidence_binder_status: $Stage13Status",
+  'status_marker: Hermes working artifact / not AIRMIDA authority',
+  "evidence_root: $(ConvertTo-YamlSingleQuotedScalar $executionEvidenceRoot)",
+  'source_lineage:',
+  '  stage12_skill_integration: .hermes/skills/SKILL_INTEGRATION_REPORT.yaml',
+  '  stage11_hygiene: .hermes/hygiene/HYGIENE_REPORT.yaml',
+  '  stage10_agent_readiness: .hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml',
+  '  stage9_audit: .hermes/project-audit/AUDIT_REPORT.yaml',
+  '  stage8_execution_packet: .hermes/local-pilot/EXECUTION_PACKET.md',
+  '  stage8_command_plan: .hermes/local-pilot/COMMAND_PLAN.md',
+  '  stage8_test_plan: .hermes/local-pilot/TEST_PLAN.md',
+  'generated_files:',
+  '  - START_HERE.md',
+  '  - EXECUTED_COMMANDS.md',
+  '  - CHANGED_FILES.md',
+  '  - TEST_RESULTS.md',
+  '  - ACCEPTANCE_EVIDENCE.md',
+  '  - USER_VISIBLE_RESULT.md',
+  '  - RESIDUAL_RISKS.md',
+  '  - ROLLBACK_AND_HANDOFF.md',
+  '  - EXECUTION_EVIDENCE_REPORT.yaml',
+  'missing_source_lineage:'
+)
+if ($missingExecutionEvidenceSources.Count -eq 0) {
+  $evidenceReportLines += '  - none'
+} else {
+  foreach ($missingEvidenceSource in $missingExecutionEvidenceSources) { $evidenceReportLines += "  - $(ConvertTo-YamlSingleQuotedScalar $missingEvidenceSource)" }
+}
+$evidenceReportLines += @(
+  'action_flags:',
+  '  real_execution_evidence_present: false',
+  '  fabricated_evidence: false',
+  '  implementation_executed_by_stage13: false',
+  '  commands_executed_by_stage13: false',
+  '  file_changes_executed_by_stage13: false',
+  '  tests_executed_by_stage13: false',
+  '  dependencies_installed_by_stage13: false',
+  '  runtime_mutation: false',
+  '  cloud_mutation: false',
+  '  gateway_mutation: false',
+  '  n8n_mutation: false',
+  '  secrets_read_or_written: false',
+  '  git_publication_executed: false',
+  '  executed_commands_present: true',
+  '  changed_files_present: true',
+  '  test_results_present: true',
+  '  acceptance_evidence_present: true',
+  '  user_visible_result_present: true',
+  '  residual_risks_present: true',
+  '  rollback_and_handoff_present: true',
+  'next_owner_decision:',
+  '  - grant separate implementation gate and then fill binder with real evidence',
+  '  - repair source execution packet before implementation',
+  '  - review empty binder scaffold only',
+  '  - close without execution',
+  '  - promote evidence after owner verification'
+)
+Write-Utf8NoBom (Join-Path $executionEvidenceRoot 'EXECUTION_EVIDENCE_REPORT.yaml') ($evidenceReportLines -join "`n")
+
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
 $ToolsetPartialCount = @($toolsetResults | Where-Object { -not $_.ok }).Count
@@ -3931,6 +4137,15 @@ $verification = [ordered]@{
   skill_promotion_gate_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/SKILL_PROMOTION_GATE.md')
   skill_integration_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/SKILL_INTEGRATION_REPORT.yaml')
   skill_candidates_readme_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills-candidates/README.md')
+  execution_evidence_start_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/START_HERE.md')
+  execution_evidence_commands_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/EXECUTED_COMMANDS.md')
+  execution_evidence_changed_files_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/CHANGED_FILES.md')
+  execution_evidence_test_results_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/TEST_RESULTS.md')
+  execution_evidence_acceptance_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/ACCEPTANCE_EVIDENCE.md')
+  execution_evidence_user_visible_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/USER_VISIBLE_RESULT.md')
+  execution_evidence_residual_risks_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/RESIDUAL_RISKS.md')
+  execution_evidence_rollback_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/ROLLBACK_AND_HANDOFF.md')
+  execution_evidence_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml')
   operator_kit_root_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit')
   stage3_status = $Stage3Status
   stage3_missing_required = ($missingRequired -join ',')
@@ -3944,6 +4159,7 @@ $verification = [ordered]@{
   stage10_status = $Stage10Status
   stage11_status = $Stage11Status
   stage12_status = $Stage12Status
+  stage13_status = $Stage13Status
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -3961,7 +4177,8 @@ $Stage9ReportsOk = $verification.project_audit_start_exists -and $verification.p
 $Stage10ReportsOk = $verification.agent_readiness_start_exists -and $verification.agent_readiness_toolchain_requirements_exists -and $verification.agent_readiness_software_gap_exists -and $verification.agent_readiness_toolset_plan_exists -and $verification.agent_readiness_skill_load_plan_exists -and $verification.agent_readiness_agent_pipeline_plan_exists -and $verification.agent_readiness_install_plan_exists -and $verification.agent_readiness_command_readiness_exists -and $verification.agent_readiness_report_exists
 $Stage11ReportsOk = $verification.hygiene_start_exists -and $verification.hygiene_artifact_index_exists -and $verification.hygiene_active_files_exists -and $verification.hygiene_superseded_files_exists -and $verification.hygiene_broken_or_stale_files_exists -and $verification.hygiene_do_not_use_exists -and $verification.hygiene_cleanup_plan_exists -and $verification.hygiene_archive_plan_exists -and $verification.hygiene_deletion_gate_exists -and $verification.hygiene_report_exists
 $Stage12ReportsOk = $verification.skill_start_exists -and $verification.skill_stage_matrix_exists -and $verification.skill_required_exists -and $verification.skill_optional_exists -and $verification.skill_missing_exists -and $verification.skill_capture_guide_exists -and $verification.skill_candidate_template_exists -and $verification.skill_promotion_gate_exists -and $verification.skill_integration_report_exists -and $verification.skill_candidates_readme_exists
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk -and $Stage10ReportsOk -and $Stage11ReportsOk -and $Stage12ReportsOk
+$Stage13ReportsOk = $verification.execution_evidence_start_exists -and $verification.execution_evidence_commands_exists -and $verification.execution_evidence_changed_files_exists -and $verification.execution_evidence_test_results_exists -and $verification.execution_evidence_acceptance_exists -and $verification.execution_evidence_user_visible_exists -and $verification.execution_evidence_residual_risks_exists -and $verification.execution_evidence_rollback_exists -and $verification.execution_evidence_report_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk -and $Stage10ReportsOk -and $Stage11ReportsOk -and $Stage12ReportsOk -and $Stage13ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -3970,9 +4187,9 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, Stage 12 skill capture pack, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, Stage 12 skill capture pack, Stage 13 execution evidence binder, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml, execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
@@ -3994,8 +4211,10 @@ Write-Host "workspace_hygiene: artifact index -> active files -> superseded file
 Write-Host "stage11_status: $Stage11Status; cleanup_executed=false; archive_executed=false; deletion_executed=false; files_deleted=false; files_moved=false; files_renamed=false"
 Write-Host "skill_capture: stage skill matrix -> required skills -> optional skills -> missing skills -> capture guide -> candidate template -> promotion gate"
 Write-Host "stage12_status: $Stage12Status; skills_installed=false; skills_patched=false; skills_promoted=false; persistent_memory_written=false; skill_candidates_created=false"
+Write-Host "execution_evidence_binder: executed commands -> changed files -> test results -> acceptance evidence -> user-visible result -> residual risks -> rollback and handoff"
+Write-Host "stage13_status: $Stage13Status; real_execution_evidence_present=false; fabricated_evidence=false; commands_executed_by_stage13=false; tests_executed_by_stage13=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: review_skill_capture_or_prepare_stage13_evidence_binder"
+Write-Host "next_stage: grant_implementation_gate_or_review_execution_evidence_scaffold"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }

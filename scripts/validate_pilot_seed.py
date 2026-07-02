@@ -17,6 +17,7 @@ checks = [
     ['scripts/validate_agent_execution_readiness.py'],
     ['scripts/validate_workspace_hygiene.py'],
     ['scripts/validate_skill_capture.py'],
+    ['scripts/validate_execution_evidence_binder.py'],
     ['scripts/validate_profile_distribution.py'],
     ['scripts/validate_profile_setup_tool.py'],
 ]
