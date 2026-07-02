@@ -1,0 +1,141 @@
+artifact_id: LAUNCHROOM_STAGE_13_EXECUTION_EVIDENCE_BINDER_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_13_execution_evidence_binder
+stage_name: Local Execution Evidence Binder
+language: en
+
+purpose:
+  summary: >-
+    Create a local execution evidence binder after Stage 12 so a future gated
+    implementation can record real commands, changed files, test results,
+    acceptance evidence, user-visible results, residual risks, and rollback or
+    handoff details without fabricating execution results.
+  not_purpose:
+    - not executing implementation
+    - not running project commands
+    - not modifying product files
+    - not fabricating command outputs or test results
+    - not installing dependencies
+    - not deploying or publishing
+    - not live channel/provider/runtime/cloud/gateway/n8n/MCP/database mutation
+    - not git publication
+    - not secret readback or storage
+
+stage_boundary:
+  consumes:
+    - .hermes/skills/SKILL_INTEGRATION_REPORT.yaml
+    - .hermes/hygiene/HYGIENE_REPORT.yaml
+    - .hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml
+    - .hermes/local-pilot/EXECUTION_PACKET.md
+    - .hermes/local-pilot/COMMAND_PLAN.md
+    - .hermes/local-pilot/TEST_PLAN.md
+    - .hermes/project-audit/AUDIT_REPORT.yaml
+  owns:
+    - execution evidence folder
+    - executed commands log scaffold
+    - changed files log scaffold
+    - test results log scaffold
+    - acceptance evidence scaffold
+    - user-visible result scaffold
+    - residual risks register
+    - rollback and handoff summary
+    - execution evidence report
+  does_not_own:
+    - executing commands
+    - changing files
+    - creating real test results
+    - promoting evidence without source artifacts
+    - mutating runtime/cloud/provider/gateway/n8n surfaces
+
+evidence_layout:
+  root: .hermes/execution-evidence/
+  required_files:
+    - START_HERE.md
+    - EXECUTED_COMMANDS.md
+    - CHANGED_FILES.md
+    - TEST_RESULTS.md
+    - ACCEPTANCE_EVIDENCE.md
+    - USER_VISIBLE_RESULT.md
+    - RESIDUAL_RISKS.md
+    - ROLLBACK_AND_HANDOFF.md
+    - EXECUTION_EVIDENCE_REPORT.yaml
+
+packet_model:
+  status_marker: Hermes working artifact / not AIRMIDA authority
+  task_flow: gated implementation -> command/file/test evidence -> acceptance evidence -> user-visible result -> residual risks -> rollback/handoff -> owner closeout decision
+  permission_tier: evidence_binder_scaffold_only
+  required_checks:
+    - skill_integration_report_consumed
+    - execution_packet_referenced
+    - executed_commands_scaffold_present
+    - changed_files_scaffold_present
+    - test_results_scaffold_present
+    - acceptance_evidence_scaffold_present
+    - user_visible_result_scaffold_present
+    - residual_risks_present
+    - rollback_and_handoff_present
+    - no_fabricated_evidence
+    - no_execution_without_gate
+
+outputs:
+  required:
+    - .hermes/execution-evidence/START_HERE.md
+    - .hermes/execution-evidence/EXECUTED_COMMANDS.md
+    - .hermes/execution-evidence/CHANGED_FILES.md
+    - .hermes/execution-evidence/TEST_RESULTS.md
+    - .hermes/execution-evidence/ACCEPTANCE_EVIDENCE.md
+    - .hermes/execution-evidence/USER_VISIBLE_RESULT.md
+    - .hermes/execution-evidence/RESIDUAL_RISKS.md
+    - .hermes/execution-evidence/ROLLBACK_AND_HANDOFF.md
+    - .hermes/execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml
+  required_markers:
+    - Hermes working artifact / not AIRMIDA authority
+    - evidence_binder_status: scaffold_only
+    - real_execution_evidence_present: false
+    - fabricated_evidence: false
+    - implementation_executed_by_stage13: false
+    - commands_executed_by_stage13: false
+    - file_changes_executed_by_stage13: false
+    - tests_executed_by_stage13: false
+    - dependencies_installed_by_stage13: false
+    - runtime_mutation: false
+    - cloud_mutation: false
+    - gateway_mutation: false
+    - n8n_mutation: false
+    - secrets_read_or_written: false
+    - git_publication_executed: false
+    - executed_commands_present: true
+    - changed_files_present: true
+    - test_results_present: true
+    - acceptance_evidence_present: true
+    - user_visible_result_present: true
+    - residual_risks_present: true
+    - rollback_and_handoff_present: true
+
+acceptance_criteria:
+  - Execution evidence folder exists under workspace `.hermes/execution-evidence/`.
+  - All required markdown and YAML evidence files exist.
+  - EXECUTION_EVIDENCE_REPORT.yaml parses as YAML.
+  - Stage 13 references Stage 12 skills, Stage 11 hygiene, Stage 10 readiness, Stage 9 audit, and Stage 8 local pilot execution packet.
+  - Executed commands, changed files, test results, acceptance evidence, and user-visible result files are clearly marked as scaffolds until real gated execution fills them.
+  - The binder forbids fabricated evidence and distinguishes planned commands from executed commands.
+  - Residual risks and rollback/handoff sections exist for closeout.
+  - Stage 13 does not execute implementation, commands, tests, file changes, dependency installs, runtime/cloud/gateway/n8n/git/secret actions.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: Evidence binder is ready to receive real evidence after a separate implementation gate.
+  partial:
+    meaning: Binder exists but source packets or real execution evidence are missing.
+  blocked:
+    meaning: Evidence is inconsistent, fabricated, secret-bearing, or missing required source lineage.
+
+next_decision:
+  options:
+    - grant separate implementation gate and then fill binder with real evidence
+    - repair source execution packet before implementation
+    - review empty binder scaffold only
+    - close without execution
+    - promote evidence after owner verification

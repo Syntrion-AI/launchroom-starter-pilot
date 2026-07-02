@@ -268,6 +268,20 @@ Pass requires:
 - promotion gate requires owner review, validation evidence, no secret content, no stale task progress, and explicit install/promote decision
 - skill install, patch, promotion, memory write, implementation, runtime/cloud/gateway/n8n/git/secret actions remain false
 
+### stage_13 - Local execution evidence binder
+
+Purpose: Create a local execution evidence binder after Stage 12 so future gated implementation can record real executed commands, changed files, test results, acceptance evidence, user-visible results, residual risks, and rollback/handoff without fabricating evidence, executing implementation, or mutating runtime/cloud/provider/gateway/n8n surfaces.
+
+Pass requires:
+- execution-evidence folder exists
+- START_HERE.md, EXECUTED_COMMANDS.md, CHANGED_FILES.md, TEST_RESULTS.md, ACCEPTANCE_EVIDENCE.md, USER_VISIBLE_RESULT.md, RESIDUAL_RISKS.md, ROLLBACK_AND_HANDOFF.md, and EXECUTION_EVIDENCE_REPORT.yaml exist
+- execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml parses as YAML
+- Stage 12 skills, Stage 11 hygiene, Stage 10 readiness, Stage 9 audit, and Stage 8 local pilot execution packet are referenced
+- executed commands, changed files, test results, acceptance evidence, and user-visible result files are clearly marked as scaffolds until real gated execution fills them
+- binder forbids fabricated evidence and distinguishes planned commands from executed commands
+- residual risks and rollback/handoff sections exist for closeout
+- Stage 13 does not execute implementation, commands, tests, file changes, dependency installs, runtime/cloud/gateway/n8n/git/secret actions
+
 
 ## Inventory rule
 

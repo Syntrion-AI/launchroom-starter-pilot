@@ -44,6 +44,8 @@ def main() -> int:
         ('hygiene/HYGIENE_REPORT.yaml','Stage 11 hygiene report'),
         ('Skill capture and stage skill integration pack','Stage 12 skill capture'),
         ('skills/SKILL_INTEGRATION_REPORT.yaml','Stage 12 skill integration report'),
+        ('Local execution evidence binder','Stage 13 execution evidence binder'),
+        ('execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml','Stage 13 execution evidence report'),
         ('failed_policy_violation','self-improvement hard fail'),
         ('invalid_bootstrap_report','contradiction guard'),
         ('language the user writes in','detect and mirror language'),
@@ -51,8 +53,8 @@ def main() -> int:
         require(run, needle, label)
     require(skill, 'Positive setup permissions', 'skill positive permissions')
     require(skill, 'patches unrelated installed skills', 'unauthorized self-patch hard stop')
-    if len(source.get('stages', [])) != 13:
-        print('FAIL: expected bootstrap plus twelve stages')
+    if len(source.get('stages', [])) != 14:
+        print('FAIL: expected bootstrap plus thirteen stages')
         return 1
     if not any('selected allowed setup action' in x for x in source.get('stage_pass_requires', [])):
         print('FAIL: pass criteria do not require setup action verification')

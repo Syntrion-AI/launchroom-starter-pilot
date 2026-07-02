@@ -197,6 +197,21 @@
         "SKILL_INTEGRATION_REPORT.yaml",
         "../skills-candidates/README.md"
       ]
+    },
+    {
+      "id": "stage_13",
+      "name": "Local execution evidence binder",
+      "required_outputs": [
+        "START_HERE.md",
+        "EXECUTED_COMMANDS.md",
+        "CHANGED_FILES.md",
+        "TEST_RESULTS.md",
+        "ACCEPTANCE_EVIDENCE.md",
+        "USER_VISIBLE_RESULT.md",
+        "RESIDUAL_RISKS.md",
+        "ROLLBACK_AND_HANDOFF.md",
+        "EXECUTION_EVIDENCE_REPORT.yaml"
+      ]
     }
   ]
 }
