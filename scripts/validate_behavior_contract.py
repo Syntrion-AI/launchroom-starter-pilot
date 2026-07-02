@@ -129,6 +129,102 @@ def main() -> int:
         ('Room transitions should use the Hermes `clarify` tool','wizard room clarify transitions'),
     ]:
         require(run, needle, label)
+
+
+    transition = source.get('wizard_room_transition_contract', {})
+    if transition.get('enabled') is not True:
+        print('FAIL: wizard room transition contract is not enabled')
+        return 1
+    for key in ['interaction_layer_only', 'not_a_new_stage', 'machine_stages_remain_authoritative', 'rooms_contract_required']:
+        if transition.get(key) is not True:
+            print(f'FAIL: wizard room transition contract missing {key}=true')
+            return 1
+    if transition.get('stage_count_must_remain') != len(source.get('stages', [])):
+        print('FAIL: wizard room transition contract stage count guard mismatch')
+        return 1
+    if any(str(stage.get('id', '')).startswith('stage_14') for stage in source.get('stages', [])):
+        print('FAIL: wizard room transition UX must not introduce Stage 14')
+        return 1
+    required_actions = [
+        'enter_room',
+        'complete_room',
+        'pause',
+        'inspect_evidence',
+        'continue_to_next_room',
+        'retry_or_repair',
+    ]
+    if transition.get('required_transition_actions') != required_actions:
+        print('FAIL: wizard room transition actions mismatch')
+        return 1
+    prompt_contract = transition.get('prompt_contract', {})
+    for key in [
+        'clarify_tool_required_when_available',
+        'choices_must_be_tool_choices_array',
+        'question_must_not_embed_options',
+        'plain_text_choices_are_fallback_only',
+        'timeout_is_not_approval',
+    ]:
+        if prompt_contract.get(key) is not True:
+            print(f'FAIL: wizard room prompt contract missing {key}=true')
+            return 1
+    max_choices = prompt_contract.get('max_choices_per_prompt')
+    if max_choices != 4:
+        print('FAIL: wizard room max choices must be 4')
+        return 1
+    templates = transition.get('prompt_templates', {})
+    expected_templates = ['room_entry', 'room_completion', 'blocked_room', 'final_room_completion']
+    if list(templates.keys()) != expected_templates:
+        print('FAIL: wizard room prompt templates/order mismatch')
+        return 1
+    covered_actions = set()
+    for template_id, template in templates.items():
+        choices = template.get('choices', [])
+        action_map = template.get('action_map', {})
+        if not template.get('question_purpose'):
+            print(f'FAIL: wizard room prompt template missing purpose: {template_id}')
+            return 1
+        if not choices or len(choices) > max_choices:
+            print(f'FAIL: wizard room prompt template invalid choices count: {template_id}')
+            return 1
+        if set(choices) != set(action_map.keys()):
+            print(f'FAIL: wizard room prompt template choices/action_map mismatch: {template_id}')
+            return 1
+        for action in action_map.values():
+            if action not in required_actions:
+                print(f'FAIL: wizard room prompt template unknown action {action}')
+                return 1
+            covered_actions.add(action)
+    if not set(required_actions).issubset(covered_actions):
+        print('FAIL: not all wizard room transition actions are covered by prompt templates')
+        return 1
+    room_transitions = transition.get('room_transitions', [])
+    room_ids = [room.get('id') for room in rooms]
+    if [item.get('room_id') for item in room_transitions] != room_ids:
+        print('FAIL: wizard room transition map must preserve room order')
+        return 1
+    for index, item in enumerate(room_transitions):
+        for key in ['entry_prompt_template', 'completion_prompt_template', 'blocked_prompt_template']:
+            if item.get(key) not in templates:
+                print(f'FAIL: wizard room transition map references missing template {item.get(key)}')
+                return 1
+        expected_next = None if index == len(room_ids) - 1 else room_ids[index + 1]
+        if item.get('next_room_id') != expected_next:
+            print('FAIL: wizard room transition next_room_id mismatch')
+            return 1
+        if item.get('continues_to_next_room') is not (expected_next is not None):
+            print('FAIL: wizard room transition continues_to_next_room mismatch')
+            return 1
+    for needle,label in [
+        ('Wizard Room Transition UX','wizard room transition section'),
+        ('not Stage 14','no Stage 14 marker'),
+        ('Required transition actions','transition action list'),
+        ('room_entry','room entry prompt template'),
+        ('room_completion','room completion prompt template'),
+        ('blocked_room','blocked room prompt template'),
+        ('final_room_completion','final room completion prompt template'),
+        ('Timeout or silence is not approval','timeout is not approval marker'),
+    ]:
+        require(run, needle, label)
     print('validate_behavior_contract: ok')
     return 0
 if __name__ == '__main__':

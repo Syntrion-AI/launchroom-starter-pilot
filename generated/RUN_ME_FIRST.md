@@ -92,6 +92,50 @@ Next decision: Open a separate implementation gate or close the setup flow with 
 
 Room transitions should use the Hermes `clarify` tool with `choices` when available; plain text choices are fallback only.
 
+## Wizard Room Transition UX
+
+This is a room-level interaction layer over the Beginner Wizard Rooms. It is not Stage 14, does not replace machine stages, and does not authorize implementation, runtime, provider, gateway, n8n, git publication, or secret handling by itself.
+
+Required transition actions: enter_room, complete_room, pause, inspect_evidence, continue_to_next_room, retry_or_repair
+
+### Clarify prompt contract
+
+Room transition prompts must use the Hermes `clarify` tool with a non-empty `choices` array when available. The question text contains only the question; selectable options live only in `choices`. Plain A/B/C or numbered text is fallback only when `clarify` or native buttons are unavailable. Timeout or silence is not approval.
+
+### Prompt templates
+
+#### room_entry
+
+Purpose: Ask whether to enter the room, inspect current evidence, repair an issue, or pause.
+
+Choices: Enter room, Inspect evidence, Retry or repair, Pause
+
+#### room_completion
+
+Purpose: Ask whether the room is complete, whether to continue, inspect evidence, or pause.
+
+Choices: Complete room, Continue to next room, Inspect evidence, Pause
+
+#### blocked_room
+
+Purpose: Ask how to handle a room blocker without treating timeout or prose as approval.
+
+Choices: Retry or repair, Inspect evidence, Pause
+
+#### final_room_completion
+
+Purpose: Ask how to close the final room without implying implementation or runtime approval.
+
+Choices: Complete room, Inspect evidence, Pause
+
+### Room transition map
+
+- Foundation Room: entry `room_entry`, completion `room_completion`, blocked `blocked_room`, next `room_2_capability`
+- Capability Room: entry `room_entry`, completion `room_completion`, blocked `blocked_room`, next `room_3_product_starter`
+- Product Starter Room: entry `room_entry`, completion `room_completion`, blocked `blocked_room`, next `room_4_readiness_and_drift`
+- Readiness & Drift Room: entry `room_entry`, completion `room_completion`, blocked `blocked_room`, next `room_5_control_and_evidence`
+- Control & Evidence Room: entry `room_entry`, completion `final_room_completion`, blocked `blocked_room`, next `final closeout / next gated decision`
+
 ## Language contract
 
 - Repository documentation, source contracts, scripts, validators, and generated canonical artifacts are written in English.

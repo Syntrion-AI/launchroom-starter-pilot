@@ -302,5 +302,137 @@
     ],
     "interaction_rule": "Each room transition should use clarify with choices when available; plain text choices are fallback only.",
     "validation_rule": "Every source stage must appear in exactly one room and rooms must preserve stage order."
+  },
+  "wizard_room_transition_contract": {
+    "enabled": true,
+    "purpose": "Room-level transition UX for entering, completing, pausing, inspecting evidence, continuing, and repairing Wizard Rooms without adding a new stage.",
+    "interaction_layer_only": true,
+    "not_a_new_stage": true,
+    "machine_stages_remain_authoritative": true,
+    "rooms_contract_required": true,
+    "stage_count_must_remain": 14,
+    "required_transition_actions": [
+      "enter_room",
+      "complete_room",
+      "pause",
+      "inspect_evidence",
+      "continue_to_next_room",
+      "retry_or_repair"
+    ],
+    "prompt_contract": {
+      "clarify_tool_required_when_available": true,
+      "choices_must_be_tool_choices_array": true,
+      "question_must_not_embed_options": true,
+      "plain_text_choices_are_fallback_only": true,
+      "max_choices_per_prompt": 4,
+      "timeout_is_not_approval": true,
+      "fallback_rule": "Use short A/B/C or numbered text only when clarify/native buttons are unavailable; timeout or silence never authorizes mutation."
+    },
+    "prompt_templates": {
+      "room_entry": {
+        "question_purpose": "Ask whether to enter the room, inspect current evidence, repair an issue, or pause.",
+        "choices": [
+          "Enter room",
+          "Inspect evidence",
+          "Retry or repair",
+          "Pause"
+        ],
+        "action_map": {
+          "Enter room": "enter_room",
+          "Inspect evidence": "inspect_evidence",
+          "Retry or repair": "retry_or_repair",
+          "Pause": "pause"
+        }
+      },
+      "room_completion": {
+        "question_purpose": "Ask whether the room is complete, whether to continue, inspect evidence, or pause.",
+        "choices": [
+          "Complete room",
+          "Continue to next room",
+          "Inspect evidence",
+          "Pause"
+        ],
+        "action_map": {
+          "Complete room": "complete_room",
+          "Continue to next room": "continue_to_next_room",
+          "Inspect evidence": "inspect_evidence",
+          "Pause": "pause"
+        }
+      },
+      "blocked_room": {
+        "question_purpose": "Ask how to handle a room blocker without treating timeout or prose as approval.",
+        "choices": [
+          "Retry or repair",
+          "Inspect evidence",
+          "Pause"
+        ],
+        "action_map": {
+          "Retry or repair": "retry_or_repair",
+          "Inspect evidence": "inspect_evidence",
+          "Pause": "pause"
+        }
+      },
+      "final_room_completion": {
+        "question_purpose": "Ask how to close the final room without implying implementation or runtime approval.",
+        "choices": [
+          "Complete room",
+          "Inspect evidence",
+          "Pause"
+        ],
+        "action_map": {
+          "Complete room": "complete_room",
+          "Inspect evidence": "inspect_evidence",
+          "Pause": "pause"
+        }
+      }
+    },
+    "room_transitions": [
+      {
+        "room_id": "room_1_foundation",
+        "room_name": "Foundation Room",
+        "entry_prompt_template": "room_entry",
+        "completion_prompt_template": "room_completion",
+        "blocked_prompt_template": "blocked_room",
+        "next_room_id": "room_2_capability",
+        "continues_to_next_room": true
+      },
+      {
+        "room_id": "room_2_capability",
+        "room_name": "Capability Room",
+        "entry_prompt_template": "room_entry",
+        "completion_prompt_template": "room_completion",
+        "blocked_prompt_template": "blocked_room",
+        "next_room_id": "room_3_product_starter",
+        "continues_to_next_room": true
+      },
+      {
+        "room_id": "room_3_product_starter",
+        "room_name": "Product Starter Room",
+        "entry_prompt_template": "room_entry",
+        "completion_prompt_template": "room_completion",
+        "blocked_prompt_template": "blocked_room",
+        "next_room_id": "room_4_readiness_and_drift",
+        "continues_to_next_room": true
+      },
+      {
+        "room_id": "room_4_readiness_and_drift",
+        "room_name": "Readiness & Drift Room",
+        "entry_prompt_template": "room_entry",
+        "completion_prompt_template": "room_completion",
+        "blocked_prompt_template": "blocked_room",
+        "next_room_id": "room_5_control_and_evidence",
+        "continues_to_next_room": true
+      },
+      {
+        "room_id": "room_5_control_and_evidence",
+        "room_name": "Control & Evidence Room",
+        "entry_prompt_template": "room_entry",
+        "completion_prompt_template": "final_room_completion",
+        "blocked_prompt_template": "blocked_room",
+        "next_room_id": null,
+        "continues_to_next_room": false
+      }
+    ],
+    "validation_rule": "Every room must have entry, completion, and blocked prompts; choices must map to known actions; prompts must stay within max_choices_per_prompt; no stage_14 may be introduced."
   }
 }
