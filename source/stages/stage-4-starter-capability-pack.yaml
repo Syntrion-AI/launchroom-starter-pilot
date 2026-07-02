@@ -1,0 +1,191 @@
+artifact_id: LAUNCHROOM_STAGE_4_STARTER_CAPABILITY_PACK_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_4_starter_capability_pack
+stage_name: Starter Capability Pack
+language: en
+
+purpose:
+  summary: >-
+    Define how LaunchRoom converts the Stage 3 engineering capability graph into
+    a practical starter operating pack: task classes map to Hermes toolsets,
+    starter skills, memory policy, workflow playbooks, gates, and verification.
+    Stage 4 recommends and records capabilities; it does not enable toolsets,
+    install skills from the network, write memory, or mutate providers/runtime
+    surfaces without explicit gates.
+  not_purpose:
+    - not provider/model credential setup
+    - not gateway or messaging setup
+    - not MCP credential wiring
+    - not cloud/runtime/n8n/Cloudflare/Hetzner mutation
+    - not automatic toolset enablement without explicit gate
+    - not writing persistent memory without explicit user approval
+    - not self-patching unrelated skills
+
+stage_boundary:
+  owns:
+    - map Stage 3 task classes to Hermes starter toolsets
+    - map Stage 3 task classes to bundled/starter skills
+    - define memory policy for stable facts vs temporary reports
+    - define workflow playbooks for starter operation
+    - write starter capability pack report
+    - write gated enablement recommendations
+    - hand off to Stage 5 communication setup
+  does_not_own:
+    - installing additional skills from the network without gate
+    - enabling Hermes toolsets without gate
+    - storing user/project memory without explicit user approval
+    - gateway/channel setup
+    - provider/runtime/cloud mutation
+    - git publication
+
+capability_pack:
+  selection_rule: select task class first, then load its workflow/toolset/skill/memory/gate profile
+  default_mode: recommend_and_record_only
+  task_classes:
+    profile_and_workspace_setup:
+      starter_toolsets: [terminal, file, skills, clarify, todo]
+      starter_skills: [hermes-agent, launchroom-profile-operator, launchroom-hermes-settings-guide]
+      memory_policy: remember stable profile/workspace conventions only after user approval
+      workflow_playbook: [confirm_profile, inspect_config_paths, apply_setup_tool, verify_reports]
+      gates: [profile_mutation_gate, memory_write_gate]
+      verification: [profile_reports_parse, workspace_boundary_present, no_secret_readback]
+    code_change_delivery:
+      starter_toolsets: [terminal, file, code_execution, skills, todo, session_search]
+      starter_skills: [github-pr-workflow, test-driven-development, requesting-code-review]
+      memory_policy: do not store commits/issues/PRs; store stable repo conventions only after approval
+      workflow_playbook: [inspect_repo, patch_files, run_validators, inspect_diff, commit_after_gate, pr_after_gate]
+      gates: [commit_gate, push_pr_gate, merge_gate]
+      verification: [tests_or_validators_pass, diff_reviewed, ci_green]
+    research_and_evidence:
+      starter_toolsets: [web, file, terminal, session_search, skills, todo]
+      starter_skills: [experience-grounded-work-preflight, governed-agent-knowledge-extraction]
+      memory_policy: reports hold evidence; memory stores only durable user/project conventions after approval
+      workflow_playbook: [route_question, inspect_sources, capture_evidence, separate_facts_from_assumptions, propose_decision]
+      gates: [authority_mutation_gate, memory_write_gate]
+      verification: [source_paths_recorded, no_secret_values, conclusions_cited]
+    external_agent_handoff:
+      starter_toolsets: [terminal, file, skills, delegation, todo]
+      starter_skills: [airmida-external-agent-tool-readiness, codex, claude-code, github-pr-workflow]
+      memory_policy: do not store credentials or transient run ids; store stable handoff conventions only after approval
+      workflow_playbook: [verify_cli_presence, smoke_check_without_secret_readback, create_handoff_packet, assign_after_gate]
+      gates: [external_agent_gate, credential_flow_gate]
+      verification: [smoke_pass_or_blocked, handoff_packet_scoped, no_credentials_printed]
+    web_browser_qa:
+      starter_toolsets: [browser, computer_use, vision, web, terminal, file, skills]
+      starter_skills: [dogfood, computer-use]
+      memory_policy: do not store screenshots/session ids; store stable QA conventions only after approval
+      workflow_playbook: [target_surface_after_gate, inspect_ui, capture_evidence, report_repro, verify_fix]
+      gates: [browser_runtime_gate, local_server_gate]
+      verification: [screenshot_or_log_evidence, repro_steps, private_surface_gate_checked]
+    cloud_runtime_readiness:
+      starter_toolsets: [terminal, file, web, skills, todo]
+      starter_skills: [airmida-cloudflare-readonly-inventory, airmida-hetzner-readonly-inventory, airmida-n8n-governed-workflow-ops]
+      memory_policy: never store secrets/tokens; store only non-secret runtime routing facts after approval
+      workflow_playbook: [readonly_inventory, identify_cli_gap, propose_install_or_auth_gate, stop_before_mutation]
+      gates: [runtime_provider_gate, secret_gate, deployment_gate]
+      verification: [readonly_only, no_credentials_printed, no_deploy_or_service_mutation]
+    communication_gateway_readiness:
+      starter_toolsets: [terminal, file, skills, clarify]
+      starter_skills: [governed-messaging-gateway-setup, hermes-agent]
+      memory_policy: no tokens/channel secrets; stable delivery preferences only after approval
+      workflow_playbook: [gateway_status_check, channel_map, safe_secret_entry_path, test_after_gate]
+      gates: [gateway_setup_gate, pairing_gate, secret_gate]
+      verification: [gateway_status_recorded, no_tokens_in_reports, delivery_test_after_gate]
+    observability_and_reports:
+      starter_toolsets: [terminal, file, code_execution, skills, todo]
+      starter_skills: [governed-agent-engineering-standards]
+      memory_policy: reports first; memory only for stable conventions after approval
+      workflow_playbook: [write_report, parse_yaml, scan_markers, capture_outputs, keep_status_clean]
+      gates: [publication_gate]
+      verification: [reports_parse, marker_scan_pass, local_or_ci_checks_pass]
+    security_and_secret_safety:
+      starter_toolsets: [terminal, file, skills, session_search]
+      starter_skills: [governed-agent-engineering-standards, hermes-agent]
+      memory_policy: never store secrets or hashes of secrets; store safety conventions only after approval
+      workflow_playbook: [avoid_secret_paths, redact_outputs, scan_changed_files, block_unsafe_actions]
+      gates: [secret_gate, production_mutation_gate]
+      verification: [secret_scan_zero, blocked_actions_recorded, no_env_auth_state_readback]
+
+starter_toolset_policy:
+  recommended_core: [terminal, file, skills, clarify, todo, session_search]
+  recommended_development: [code_execution]
+  gated_by_context: [web, browser, computer_use, vision, delegation, cronjob, memory]
+  deferred_high_risk_or_runtime: [messaging, kanban, discord_admin, homeassistant]
+  rule: Stage 4 may recommend toolsets but must not enable them without explicit owner gate and reset/new session notice.
+
+starter_skill_policy:
+  bundled_profile_skills:
+    - launchroom-profile-operator
+    - launchroom-hermes-settings-guide
+    - launchroom-saas-operator
+  recommended_operational_skills:
+    - hermes-agent
+    - governed-agent-engineering-standards
+    - github-pr-workflow
+    - test-driven-development
+    - requesting-code-review
+    - experience-grounded-work-preflight
+    - governed-agent-knowledge-extraction
+    - airmida-external-agent-tool-readiness
+    - dogfood
+    - computer-use
+  rule: Stage 4 records skill recommendations and confirms bundled skills; network skill installation requires a separate gate.
+
+memory_policy:
+  default: no automatic persistent memory writes
+  allowed_after_user_approval:
+    - stable profile/workspace conventions
+    - stable user preferences
+    - durable environment facts that reduce repeated steering
+  forbidden:
+    - secrets/tokens/passwords/connection strings
+    - transient commits/issues/PRs/run ids
+    - raw evidence dumps
+    - temporary task progress
+  primary_storage: workspace reports and capability pack first; memory only by explicit gate
+
+workflow_pack:
+  rule: workflows are reusable operating playbooks, not permission to bypass gates
+  required_fields: [task_class, starter_toolsets, starter_skills, memory_policy, workflow_playbook, gates, verification]
+
+outputs:
+  required:
+    - .hermes/reports/starter-capability-pack.yaml
+  required_report_fields:
+    - task_classes
+    - starter_toolsets
+    - starter_skills
+    - memory_policy
+    - workflow_playbook
+    - gates
+    - verification
+    - enablement_recommendations
+    - actions_executed
+  required_boundary_markers:
+    - toolsets_enabled_without_gate: false
+    - memory_written_without_gate: false
+    - network_skills_installed_without_gate: false
+    - runtime_mutation: false
+
+acceptance_criteria:
+  - Stage 3 capability graph exists or Stage 4 marks source partial/deferred.
+  - Every Stage 3 task class has starter toolsets, starter skills, memory policy, workflow, gates, and verification.
+  - Starter capability pack report parses as YAML.
+  - No toolsets are enabled by Stage 4 without explicit gate.
+  - No persistent memory is written by Stage 4 without explicit gate.
+  - No network skill install is executed by Stage 4 without explicit gate.
+  - No provider/runtime/gateway/cloud/n8n mutation is executed.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: Starter capability pack is mapped and ready for gated activation choices.
+  partial:
+    meaning: Capability pack exists but some toolsets/skills are missing or intentionally deferred.
+  blocked:
+    meaning: Stage 3 graph is missing or report generation cannot be completed safely.
+
+next_stage:
+  id: stage_5_communications
+  reason: After local toolsets/skills/memory/workflows are mapped, LaunchRoom can prepare communication channels without secrets in chat.

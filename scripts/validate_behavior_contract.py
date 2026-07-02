@@ -27,6 +27,7 @@ def main() -> int:
         ('Tool readiness and software purpose map','inventory stage'),
         ('WSL is optional for Local backend','WSL optional rule'),
         ('starter capability pack','capability pack'),
+        ('Starter capability pack','Stage 4 starter capability pack'),
         ('SaaS operator kit','Stage 6 operator kit'),
         ('failed_policy_violation','self-improvement hard fail'),
         ('invalid_bootstrap_report','contradiction guard'),

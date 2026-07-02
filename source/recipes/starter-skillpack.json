@@ -1,25 +1,82 @@
 {
-  "recipe_id": "launchroom-starter-skillpack-v0_5",
-  "objective": "Turn Hermes tools, skills, and memory into a usable starter capability pack.",
-  "inspect": [
-    "tools list/status",
-    "skills list/status",
-    "memory status",
-    "terminal/file/web/browser availability"
+  "recipe_id": "launchroom-starter-capability-pack-v0_6",
+  "objective": "Map Stage 3 software/capability graph to Hermes starter toolsets, skills, memory policy, and reusable workflow playbooks without enabling gated capabilities automatically.",
+  "source_reports": [
+    ".hermes/reports/capability-graph.yaml",
+    ".hermes/reports/software-purpose-map.yaml",
+    ".hermes/reports/software-install-recommendation.yaml"
   ],
-  "recommend": [
-    "LaunchRoom starter skill",
-    "workspace instructions",
-    "memory mode",
-    "safe local toolsets"
+  "output": [
+    "starter-capability-pack.yaml",
+    "task_class_to_toolsets",
+    "task_class_to_skills",
+    "memory_policy",
+    "workflow_playbooks",
+    "gates_and_verification",
+    "enablement_recommendations",
+    "actions_executed"
   ],
-  "allowed_after_confirmation": [
-    "install/load approved skills",
-    "enable approved toolsets if CLI supports it",
-    "write local capability report"
+  "starter_toolset_policy": {
+    "recommended_core": [
+      "terminal",
+      "file",
+      "skills",
+      "clarify",
+      "todo",
+      "session_search"
+    ],
+    "recommended_development": [
+      "code_execution"
+    ],
+    "gated_by_context": [
+      "web",
+      "browser",
+      "computer_use",
+      "vision",
+      "delegation",
+      "cronjob",
+      "memory"
+    ],
+    "deferred_high_risk_or_runtime": [
+      "messaging",
+      "kanban",
+      "discord_admin",
+      "homeassistant"
+    ]
+  },
+  "required_task_classes": [
+    "profile_and_workspace_setup",
+    "code_change_delivery",
+    "research_and_evidence",
+    "external_agent_handoff",
+    "web_browser_qa",
+    "cloud_runtime_readiness",
+    "communication_gateway_readiness",
+    "observability_and_reports",
+    "security_and_secret_safety"
+  ],
+  "required_fields_per_task_class": [
+    "starter_toolsets",
+    "starter_skills",
+    "memory_policy",
+    "workflow_playbook",
+    "gates",
+    "verification"
+  ],
+  "rules": [
+    "Stage 4 maps capabilities but does not enable Hermes toolsets without explicit owner gate.",
+    "Stage 4 writes no persistent memory without explicit user approval.",
+    "Stage 4 does not install network skills without a separate gate.",
+    "Stage 4 must preserve runtime/provider/gateway/cloud/n8n mutation gates.",
+    "Each task class must map to toolsets, skills, memory policy, workflow, gates, and verification."
   ],
   "hard_fail": [
+    "unauthorized toolset enablement",
+    "persistent memory write without user approval",
+    "network skill install without gate",
     "unauthorized self-improvement mutation",
-    "patch unrelated installed skills"
-  ]
+    "patch unrelated installed skills",
+    "provider/runtime/gateway/cloud/n8n mutation"
+  ],
+  "stage_4_contract": "source/stages/stage-4-starter-capability-pack.yaml"
 }

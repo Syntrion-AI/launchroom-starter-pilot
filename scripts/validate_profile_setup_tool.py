@@ -93,6 +93,7 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'reports' / 'software-purpose-map.yaml',
             workspace_root / '.hermes' / 'reports' / 'software-install-recommendation.yaml',
             workspace_root / '.hermes' / 'reports' / 'capability-graph.yaml',
+            workspace_root / '.hermes' / 'reports' / 'starter-capability-pack.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -112,6 +113,7 @@ def run_self_test_if_available() -> None:
         purpose_map = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-purpose-map.yaml').read_text(encoding='utf-8'))
         install_rec = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-install-recommendation.yaml').read_text(encoding='utf-8'))
         capability_graph = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'capability-graph.yaml').read_text(encoding='utf-8'))
+        starter_pack = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'starter-capability-pack.yaml').read_text(encoding='utf-8'))
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -147,6 +149,30 @@ def run_self_test_if_available() -> None:
         if capability_graph.get('boundaries', {}).get('secrets_read') is not False:
             print('FAIL: self-test capability graph does not assert secrets_read=false')
             raise SystemExit(1)
+        if starter_pack.get('artifact_id') != 'LAUNCHROOM_STARTER_CAPABILITY_PACK_v0_1':
+            print('FAIL: self-test starter capability pack has wrong artifact_id')
+            raise SystemExit(1)
+        if starter_pack.get('stage_id') != 'stage_4_starter_capability_pack':
+            print('FAIL: self-test starter capability pack has wrong stage_id')
+            raise SystemExit(1)
+        for task_class in required_task_classes:
+            entry = starter_pack.get('task_classes', {}).get(task_class)
+            if not entry:
+                print('FAIL: self-test starter capability pack missing task class ' + task_class)
+                raise SystemExit(1)
+            for field in ['starter_toolsets', 'starter_skills', 'memory_policy', 'workflow_playbook', 'gates', 'verification']:
+                if field not in entry:
+                    print(f'FAIL: self-test starter capability pack {task_class} missing {field}')
+                    raise SystemExit(1)
+        actions = starter_pack.get('actions_executed', {})
+        if actions.get('toolsets_enabled') is not False or actions.get('persistent_memory_written') is not False or actions.get('network_skills_installed') is not False:
+            print('FAIL: self-test starter capability pack records unauthorized activation')
+            raise SystemExit(1)
+        boundaries = starter_pack.get('boundaries', {})
+        for key in ['toolsets_enabled_without_gate', 'memory_written_without_gate', 'network_skills_installed_without_gate', 'runtime_mutation']:
+            if boundaries.get(key) is not False:
+                print('FAIL: self-test starter capability pack boundary not false: ' + key)
+                raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
         if re.search(r'__LAUNCHROOM_RESOLVE__[A-Z0-9_]+', live_config):
@@ -217,6 +243,18 @@ def main() -> int:
         ('gates:','maps gates'),
         ('verification:','maps verification'),
         ('capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification','final capability graph summary'),
+        ('starter-capability-pack.yaml','writes Stage 4 starter capability pack'),
+        ('LAUNCHROOM_STARTER_CAPABILITY_PACK_v0_1','starter capability pack artifact id'),
+        ('stage_4_starter_capability_pack','Stage 4 starter capability pack stage id'),
+        ('starter_toolsets','maps Hermes toolsets'),
+        ('starter_skills','maps starter skills'),
+        ('memory_policy','maps memory policy'),
+        ('workflow_playbook','maps workflow playbooks'),
+        ('toolsets_enabled_without_gate: false','records no unauthorized toolset enablement'),
+        ('memory_written_without_gate: false','records no unauthorized memory write'),
+        ('network_skills_installed_without_gate: false','records no unauthorized network skill install'),
+        ('starter_capability_pack: task_class -> Hermes toolsets -> skills -> memory policy -> workflows -> gates','final Stage 4 summary'),
+        ('next_stage: stage_5_communications','hands off to Stage 5 communications'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),
         ('purpose','maps software purpose'),
