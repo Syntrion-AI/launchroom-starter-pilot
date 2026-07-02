@@ -94,6 +94,8 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'reports' / 'software-install-recommendation.yaml',
             workspace_root / '.hermes' / 'reports' / 'capability-graph.yaml',
             workspace_root / '.hermes' / 'reports' / 'starter-capability-pack.yaml',
+            workspace_root / '.hermes' / 'reports' / 'communication-channel-map.yaml',
+            workspace_root / '.hermes' / 'reports' / 'communication-user-guide.md',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -114,6 +116,8 @@ def run_self_test_if_available() -> None:
         install_rec = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'software-install-recommendation.yaml').read_text(encoding='utf-8'))
         capability_graph = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'capability-graph.yaml').read_text(encoding='utf-8'))
         starter_pack = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'starter-capability-pack.yaml').read_text(encoding='utf-8'))
+        communication_map = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'communication-channel-map.yaml').read_text(encoding='utf-8'))
+        communication_guide = (workspace_root / '.hermes' / 'reports' / 'communication-user-guide.md').read_text(encoding='utf-8')
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -172,6 +176,35 @@ def run_self_test_if_available() -> None:
         for key in ['toolsets_enabled_without_gate', 'memory_written_without_gate', 'network_skills_installed_without_gate', 'runtime_mutation']:
             if boundaries.get(key) is not False:
                 print('FAIL: self-test starter capability pack boundary not false: ' + key)
+                raise SystemExit(1)
+        if communication_map.get('artifact_id') != 'LAUNCHROOM_COMMUNICATION_CHANNEL_MAP_v0_1':
+            print('FAIL: self-test communication channel map has wrong artifact_id')
+            raise SystemExit(1)
+        if communication_map.get('stage_id') != 'stage_5_communications':
+            print('FAIL: self-test communication channel map has wrong stage_id')
+            raise SystemExit(1)
+        required_surfaces = ['desktop','telegram','slack','email','discord','teams_matrix_signal_whatsapp','webhooks_api']
+        for surface in required_surfaces:
+            entry = communication_map.get('communication_surfaces', {}).get(surface)
+            if not entry:
+                print('FAIL: self-test communication map missing surface ' + surface)
+                raise SystemExit(1)
+            for field in ['role','manager','best_for','real_options','official_sources','gates','verification']:
+                if field not in entry:
+                    print(f'FAIL: self-test communication map {surface} missing {field}')
+                    raise SystemExit(1)
+        comm_actions = communication_map.get('actions_executed', {})
+        for key in ['gateway_setup','pairing_approved','home_channel_set','gateway_autostart_installed','test_message_sent','secrets_read_or_written']:
+            if comm_actions.get(key) is not False:
+                print('FAIL: self-test communication action not false: ' + key)
+                raise SystemExit(1)
+        for manager in ['hermes_desktop','hermes_gateway_telegram','hermes_gateway_slack','hermes_gateway_email','hermes_gateway_discord','hermes_gateway_platform_adapter','hermes_webhook_or_api_server']:
+            if manager not in communication_map.get('channel_managers', []):
+                print('FAIL: self-test communication map missing manager ' + manager)
+                raise SystemExit(1)
+        for needle in ['Hermes Desktop','Telegram','Slack','Email','Discord','Webhooks / API','Safe secret-entry rule','https://hermes-agent.nousresearch.com/docs/user-guide/messaging/','https://core.telegram.org/bots/api','https://api.slack.com/apis/connections/socket']:
+            if needle not in communication_guide:
+                print('FAIL: self-test communication guide missing ' + needle)
                 raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
@@ -254,7 +287,23 @@ def main() -> int:
         ('memory_written_without_gate: false','records no unauthorized memory write'),
         ('network_skills_installed_without_gate: false','records no unauthorized network skill install'),
         ('starter_capability_pack: task_class -> Hermes toolsets -> skills -> memory policy -> workflows -> gates','final Stage 4 summary'),
-        ('next_stage: stage_5_communications','hands off to Stage 5 communications'),
+        ('communication-channel-map.yaml','writes Stage 5 communication channel map'),
+        ('communication-user-guide.md','writes Stage 5 user guide'),
+        ('LAUNCHROOM_COMMUNICATION_CHANNEL_MAP_v0_1','communication channel map artifact id'),
+        ('stage_5_communications','Stage 5 communications stage id'),
+        ('communication_surfaces','maps communication surfaces'),
+        ('channel_managers','maps channel managers'),
+        ('hermes_gateway_telegram','maps Telegram manager'),
+        ('hermes_gateway_slack','maps Slack manager'),
+        ('hermes_gateway_email','maps Email manager'),
+        ('hermes_webhook_or_api_server','maps webhook/API manager'),
+        ('gateway_setup: false','records no gateway setup'),
+        ('pairing_approved: false','records no pairing approval'),
+        ('home_channel_set: false','records no home-channel mutation'),
+        ('gateway_autostart_installed: false','records no autostart install'),
+        ('test_message_sent: false','records no delivery test'),
+        ('communication_channel_map: Desktop, Telegram, Slack, Email, Discord, adapters, webhooks/API -> managers -> guides -> gates -> verification','final Stage 5 summary'),
+        ('next_stage: stage_6_saas_operator_kit','hands off to Stage 6 SaaS operator kit'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),
         ('purpose','maps software purpose'),

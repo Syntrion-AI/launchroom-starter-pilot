@@ -144,13 +144,17 @@ Pass requires:
 - persistent memory writes require explicit user approval and are not automatic
 - network skill installs and unrelated self-patches are absent
 
-### stage_5 - Communications
+### stage_5 - Communication surfaces and channel managers
 
-Purpose: Choose and prepare the first user communication channel without secrets in chat.
+Purpose: Map Desktop, Telegram, Slack, Email, Discord, additional messaging adapters, and webhooks/API to real user options, official sources, safe guides, gates, and verification without exposing secrets or mutating gateways automatically.
 
 Pass requires:
-- channel selected or deferred
-- safe secret-entry path explained
+- communication-channel-map.yaml exists and parses as YAML
+- communication-user-guide.md exists and explains available channels in user language
+- Desktop, Telegram, Slack, Email, Discord, additional adapters, and webhooks/API are mapped to managers, real options, official sources, gates, and verification
+- safe secret-entry paths are explained without asking for tokens in chat
+- gateway setup, pairing, home-channel, autostart, and delivery tests remain gated
+- no provider/runtime/cloud/n8n mutation is executed
 
 ### stage_6 - SaaS operator kit
 

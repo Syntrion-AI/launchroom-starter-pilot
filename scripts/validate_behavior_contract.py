@@ -28,6 +28,8 @@ def main() -> int:
         ('WSL is optional for Local backend','WSL optional rule'),
         ('starter capability pack','capability pack'),
         ('Starter capability pack','Stage 4 starter capability pack'),
+        ('Communication surfaces and channel managers','Stage 5 communication map'),
+        ('communication-channel-map.yaml','Stage 5 communication report'),
         ('SaaS operator kit','Stage 6 operator kit'),
         ('failed_policy_violation','self-improvement hard fail'),
         ('invalid_bootstrap_report','contradiction guard'),

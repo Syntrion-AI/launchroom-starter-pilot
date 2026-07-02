@@ -952,7 +952,7 @@ $stage4Lines = @(
   '    gates: [secret_gate, production_mutation_gate]',
   '    verification: [secret_scan_zero, blocked_actions_recorded, no_env_auth_state_readback]',
   'enablement_recommendations:',
-  '  safe_default_next_action: review starter-capability-pack.yaml and approve selected toolset/skill activation gates only when needed',
+  '  safe_default_next_action: review starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md and approve selected toolset/skill activation gates only when needed',
   '  reset_required_after_toolset_change: true',
   '  install_gate_required: true',
   'boundaries:',
@@ -963,6 +963,240 @@ $stage4Lines = @(
   '  runtime_mutation: false'
 )
 Write-Utf8NoBom $stage4PackPath ($stage4Lines -join "`n")
+
+$communicationMapPath = Join-Path $WorkspaceFull '.hermes/reports/communication-channel-map.yaml'
+$communicationGuidePath = Join-Path $WorkspaceFull '.hermes/reports/communication-user-guide.md'
+$Stage5Status = 'pass'
+$communicationMapLines = @(
+  'artifact_id: LAUNCHROOM_COMMUNICATION_CHANNEL_MAP_v0_1',
+  'stage_id: stage_5_communications',
+  'status: pass',
+  'purpose: map communication surfaces to channel managers, user options, official sources, gates, and verification',
+  'actions_executed:',
+  '  gateway_setup: false',
+  '  pairing_approved: false',
+  '  home_channel_set: false',
+  '  gateway_autostart_installed: false',
+  '  test_message_sent: false',
+  '  secrets_read_or_written: false',
+  'communication_surfaces:',
+  '  desktop:',
+  '    role: primary local workspace UI',
+  '    manager: hermes_desktop',
+  '    best_for: [long engineering sessions, file/artifact review, workspace setup, verification]',
+  '    real_options: [native Desktop app, session list, file attachments, local workspace control, later handoff to gateway]',
+  '    official_sources:',
+  '      - https://hermes-agent.nousresearch.com/docs',
+  '      - https://hermes-agent.nousresearch.com/docs/reference/cli-commands',
+  '    gates: [local_profile_gate]',
+  '    verification: [profile_status_checked, workspace_reports_present]',
+  '  telegram:',
+  '    role: mobile remote operator channel',
+  '    manager: hermes_gateway_telegram',
+  '    best_for: [quick commands, status updates, topic sessions, home-channel delivery, mobile follow-up]',
+  '    real_options: [DM, pairing, /sethome, /topic, /commands, /status, Desktop/TUI handoff after gate]',
+  '    official_sources:',
+  '      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '      - https://core.telegram.org/bots/api',
+  '    gates: [gateway_setup_gate, secret_gate, pairing_gate, home_channel_gate, handoff_gate]',
+  '    verification: [gateway_status_recorded, no_token_values_in_reports, pairing_approved_after_gate, bot_reply_confirmed_after_test_gate]',
+  '  slack:',
+  '    role: team collaboration channel',
+  '    manager: hermes_gateway_slack',
+  '    best_for: [team DMs, project channels, threads, review/report delivery]',
+  '    real_options: [Socket Mode, app manifest, bot token, app token, /sethome or !sethome, thread delivery]',
+  '    official_sources:',
+  '      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '      - https://api.slack.com/apis/connections/socket',
+  '      - https://api.slack.com/reference/manifests',
+  '    gates: [slack_app_gate, gateway_setup_gate, secret_gate, pairing_gate, home_channel_gate]',
+  '    verification: [gateway_status_recorded, no_token_values_in_reports, socket_mode_configured_after_gate, bot_reply_confirmed_after_test_gate]',
+  '  email:',
+  '    role: asynchronous external communication channel',
+  '    manager: hermes_gateway_email',
+  '    best_for: [summaries, async requests, report delivery, mailbox-driven workflows]',
+  '    real_options: [IMAP/SMTP or provider OAuth, inbound messages, outbound summaries]',
+  '    official_sources:',
+  '      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '    gates: [mailbox_secret_gate, gateway_setup_gate, delivery_test_gate]',
+  '    verification: [mailbox_status_recorded_after_gate, no_credentials_in_reports, delivery_test_after_gate]',
+  '  discord:',
+  '    role: community/team chat channel',
+  '    manager: hermes_gateway_discord',
+  '    best_for: [community operations, project channels, bot interactions]',
+  '    real_options: [bot token, channel messages, slash/adapter commands depending on manifest]',
+  '    official_sources:',
+  '      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '      - https://discord.com/developers/docs/intro',
+  '    gates: [discord_bot_gate, gateway_setup_gate, secret_gate, pairing_gate]',
+  '    verification: [gateway_status_recorded, bot_reply_confirmed_after_test_gate]',
+  '  teams_matrix_signal_whatsapp:',
+  '    role: additional messaging adapters',
+  '    manager: hermes_gateway_platform_adapter',
+  '    best_for: [organization-specific channels, mobile/external contact surfaces]',
+  '    real_options: [adapter-specific setup, pairing or account linking, gateway delivery]',
+  '    official_sources:',
+  '      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '    gates: [platform_specific_gate, secret_gate, pairing_gate]',
+  '    verification: [adapter_status_recorded_after_gate, no_tokens_in_reports]',
+  '  webhooks_api:',
+  '    role: integration/event surface',
+  '    manager: hermes_webhook_or_api_server',
+  '    best_for: [SaaS events, automation triggers, external system integration]',
+  '    real_options: [webhook routes, API server adapter, Open WebUI/API integration]',
+  '    official_sources:',
+  '      - https://hermes-agent.nousresearch.com/docs/user-guide/features/webhooks',
+  '      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '    gates: [api_runtime_gate, webhook_security_gate, deployment_gate]',
+  '    verification: [route_config_after_gate, no_public_endpoint_without_gate]',
+  'channel_managers:',
+  '  - hermes_desktop',
+  '  - hermes_gateway_telegram',
+  '  - hermes_gateway_slack',
+  '  - hermes_gateway_email',
+  '  - hermes_gateway_discord',
+  '  - hermes_gateway_platform_adapter',
+  '  - hermes_webhook_or_api_server',
+  'commands_to_explain:',
+  '  gateway_cli: [hermes gateway setup, hermes gateway run, hermes gateway install, hermes gateway status, hermes pairing approve]',
+  '  gateway_slash: [/sethome, /topic, /handoff <platform>, /platforms, /status, /commands, /restart]',
+  'forbidden_without_gate:',
+  '  - ask token in chat',
+  '  - print token',
+  '  - store token in repo or reports',
+  '  - run gateway setup',
+  '  - approve pairing',
+  '  - set home channel',
+  '  - install gateway autostart',
+  '  - send test message',
+  '  - mutate n8n/cloud/runtime/provider surfaces',
+  'safe_secret_entry:',
+  '  rule: secrets go through Hermes Desktop, hermes gateway setup, .env edited locally, or approved secret stores; never through chat or reports',
+  'next_stage: stage_6_saas_operator_kit'
+)
+Write-Utf8NoBom $communicationMapPath ($communicationMapLines -join "`n")
+
+$communicationGuideLines = @(
+  '# LaunchRoom Communication User Guide',
+  '',
+  'Stage 5 explains how a user can work with the agent through Desktop, Telegram, Slack, Email, Discord, additional messaging adapters, and webhooks/API. It does not connect channels automatically.',
+  '',
+  '## How to choose',
+  '',
+  '- Use **Hermes Desktop** for long engineering work, file review, workspace setup, and verification.',
+  '- Use **Telegram** for fast mobile remote control, quick status checks, topic sessions, and home-channel delivery.',
+  '- Use **Slack** for team/project collaboration, DMs, channels, threads, and review/report delivery.',
+  '- Use **Email** for asynchronous requests, summaries, and report delivery.',
+  '- Use **Discord** for community/team bot interactions.',
+  '- Use **Teams/Matrix/Signal/WhatsApp** when the organization requires a specific messenger adapter.',
+  '- Use **Webhooks/API** for SaaS events and automation triggers, not for beginner chat setup.',
+  '',
+  '## Safe secret-entry rule',
+  '',
+  'Never paste tokens, passwords, OAuth values, bot tokens, private keys, chat IDs, or connection strings into chat or project reports. Use Hermes Desktop, `hermes gateway setup`, a local `.env` edit, or an approved secret store.',
+  '',
+  '## Per-channel guides',
+  '',
+  '### Hermes Desktop',
+  '',
+  '- Best for: long sessions, file artifacts, workspace setup, and verification.',
+  '- Manager: `hermes_desktop`.',
+  '- Setup gate: local profile/workspace gate only.',
+  '- Verification: profile opens, workspace reports exist, session can continue.',
+  '',
+  'Official sources:',
+  '- https://hermes-agent.nousresearch.com/docs',
+  '- https://hermes-agent.nousresearch.com/docs/reference/cli-commands',
+  '',
+  '### Telegram',
+  '',
+  '- Best for: mobile remote control, quick commands, topic sessions, `/sethome`, and Desktop/TUI handoff after gate.',
+  '- Manager: `hermes_gateway_telegram`.',
+  '- Real options: DM, pairing, `/topic`, `/commands`, `/status`, `/sethome`, `/handoff telegram`.',
+  '- Gates: gateway setup, secret entry, pairing, home channel, handoff, delivery test.',
+  '- Verification: `hermes gateway status`, approved pairing after gate, bot reply after test gate, no token values in reports.',
+  '',
+  'Official sources:',
+  '- https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '- https://core.telegram.org/bots/api',
+  '',
+  '### Slack',
+  '',
+  '- Best for: team DMs, project channels, threads, and delivery to review/report threads.',
+  '- Manager: `hermes_gateway_slack`.',
+  '- Real options: Socket Mode, Slack app manifest, bot token, app token, `/sethome` or `!sethome` in thread contexts.',
+  '- Gates: Slack app setup, gateway setup, secret entry, pairing, home channel, delivery test.',
+  '- Verification: gateway status, Socket Mode configured after gate, bot reply after test gate, no token values in reports.',
+  '',
+  'Official sources:',
+  '- https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '- https://api.slack.com/apis/connections/socket',
+  '- https://api.slack.com/reference/manifests',
+  '',
+  '### Email',
+  '',
+  '- Best for: asynchronous requests, summaries, report delivery, and mailbox-driven workflows.',
+  '- Manager: `hermes_gateway_email`.',
+  '- Gates: mailbox credentials/OAuth, gateway setup, delivery test.',
+  '- Verification: mailbox status after gate, no credentials in reports, delivery test after gate.',
+  '',
+  'Official source:',
+  '- https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '',
+  '### Discord',
+  '',
+  '- Best for: community/project channels and bot interactions.',
+  '- Manager: `hermes_gateway_discord`.',
+  '- Gates: Discord bot token, gateway setup, secret entry, pairing/delivery test.',
+  '- Verification: gateway status and bot reply after test gate.',
+  '',
+  'Official sources:',
+  '- https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '- https://discord.com/developers/docs/intro',
+  '',
+  '### Teams / Matrix / Signal / WhatsApp',
+  '',
+  '- Best for: organization-specific channels and mobile/external contact surfaces.',
+  '- Manager: `hermes_gateway_platform_adapter`.',
+  '- Gates: platform-specific setup, secret entry, pairing/account-linking, delivery test.',
+  '',
+  'Official source:',
+  '- https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '',
+  '### Webhooks / API',
+  '',
+  '- Best for: SaaS events, automation triggers, and integrations with external systems.',
+  '- Manager: `hermes_webhook_or_api_server`.',
+  '- Gates: API runtime, webhook security, endpoint exposure, deployment.',
+  '- Verification: route config after gate and no public endpoint without approval.',
+  '',
+  'Official sources:',
+  '- https://hermes-agent.nousresearch.com/docs/user-guide/features/webhooks',
+  '- https://hermes-agent.nousresearch.com/docs/user-guide/messaging/',
+  '',
+  '## Commands explained simply',
+  '',
+  '- `hermes gateway setup`: guided setup for messaging platforms; use only after gate.',
+  '- `hermes gateway status`: technical check of gateway/platform status.',
+  '- `hermes gateway run`: start gateway in foreground for testing.',
+  '- `hermes gateway install`: install gateway autostart; separate gate only after successful test.',
+  '- `hermes pairing approve`: approve a pending user/platform pairing; only for expected users.',
+  '- `/sethome`: make the current chat the delivery home channel.',
+  '- `/topic`: inspect/use Telegram topic sessions.',
+  '- `/handoff <platform>`: move a live session to a messaging platform after gate.',
+  '- `/platforms`: show connected gateway platforms.',
+  '- `/commands`: list available gateway commands.',
+  '',
+  '## Verification checklist',
+  '',
+  '- Channel selected or explicitly deferred.',
+  '- Safe secret-entry path explained.',
+  '- No tokens or credentials in chat/reports.',
+  '- Gateway setup/test/pairing/home-channel/autostart remain gated.',
+  '- Official source links included.',
+  '- Next stage: Stage 6 SaaS operator kit.'
+)
+Write-Utf8NoBom $communicationGuidePath ($communicationGuideLines -join "`n")
 
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
@@ -996,11 +1230,14 @@ $verification = [ordered]@{
   software_purpose_map_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-purpose-map.yaml')
   software_install_recommendation_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-install-recommendation.yaml')
   capability_graph_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/capability-graph.yaml')
-  starter_capability_pack_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/starter-capability-pack.yaml')
+  starter_capability_pack_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md')
+  communication_channel_map_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/communication-channel-map.yaml')
+  communication_user_guide_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/communication-user-guide.md')
   stage3_status = $Stage3Status
   stage3_missing_required = ($missingRequired -join ',')
   stage3_missing_recommended = ($missingRecommended -join ',')
   stage4_status = $Stage4Status
+  stage5_status = $Stage5Status
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -1010,7 +1247,8 @@ $verification = [ordered]@{
 if ($IsSelfTest -and $LiveConfigHasPlaceholder) { throw 'Self-test failed: simulated live config.yaml contains unresolved __LAUNCHROOM_RESOLVE__ placeholder.' }
 $Stage3ReportsOk = if ($NoInventory) { $true } else { $verification.inventory_report_exists -and $verification.software_purpose_map_exists -and $verification.software_install_recommendation_exists -and $verification.capability_graph_exists }
 $Stage4ReportsOk = $verification.starter_capability_pack_exists
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk
+$Stage5ReportsOk = $verification.communication_channel_map_exists -and $verification.communication_user_guide_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -1019,16 +1257,18 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
 Write-Host "starter_capability_pack: task_class -> Hermes toolsets -> skills -> memory policy -> workflows -> gates"
 Write-Host "stage4_status: $Stage4Status; toolsets_enabled_without_gate=false; memory_written_without_gate=false"
+Write-Host "communication_channel_map: Desktop, Telegram, Slack, Email, Discord, adapters, webhooks/API -> managers -> guides -> gates -> verification"
+Write-Host "stage5_status: $Stage5Status; gateway_setup_executed=false; pairing_approved=false; tokens_in_reports=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: stage_5_communications"
+Write-Host "next_stage: stage_6_saas_operator_kit"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }
