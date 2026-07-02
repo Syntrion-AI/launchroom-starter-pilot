@@ -78,6 +78,57 @@ def main() -> int:
         if point not in decision.get('required_decision_points', []):
             print('FAIL: decision UI required point missing ' + point)
             return 1
+
+
+    rooms_contract = source.get('wizard_rooms_contract', {})
+    if rooms_contract.get('enabled') is not True:
+        print('FAIL: wizard rooms contract is not enabled')
+        return 1
+    if rooms_contract.get('machine_stages_remain_authoritative') is not True:
+        print('FAIL: wizard rooms must not replace machine stages')
+        return 1
+    if rooms_contract.get('rooms_are_user_navigation_only') is not True:
+        print('FAIL: wizard rooms must be user navigation only')
+        return 1
+    rooms = rooms_contract.get('rooms', [])
+    if rooms_contract.get('room_count') != 5 or len(rooms) != 5:
+        print('FAIL: expected five beginner wizard rooms')
+        return 1
+    expected_room_names = [
+        'Foundation Room',
+        'Capability Room',
+        'Product Starter Room',
+        'Readiness & Drift Room',
+        'Control & Evidence Room',
+    ]
+    if [room.get('name') for room in rooms] != expected_room_names:
+        print('FAIL: wizard room names/order mismatch')
+        return 1
+    source_stage_ids = [stage.get('id') for stage in source.get('stages', [])]
+    room_stage_ids = [stage_id for room in rooms for stage_id in room.get('stages', [])]
+    if room_stage_ids != source_stage_ids:
+        print('FAIL: wizard rooms must cover every source stage exactly once and preserve order')
+        return 1
+    for room in rooms:
+        for key in ['id', 'name', 'label', 'stages', 'user_goal', 'plain_language_result', 'next_decision']:
+            if not room.get(key):
+                print(f'FAIL: wizard room missing {key}')
+                return 1
+    interaction_rule = rooms_contract.get('interaction_rule', '')
+    if 'clarify' not in interaction_rule or 'fallback only' not in interaction_rule:
+        print('FAIL: wizard room interaction rule must require clarify and mark plain text as fallback')
+        return 1
+    for needle,label in [
+        ('Beginner Wizard Rooms','wizard rooms section'),
+        ('Room 1: Foundation Room','foundation room'),
+        ('Room 2: Capability Room','capability room'),
+        ('Room 3: Product Starter Room','product starter room'),
+        ('Room 4: Readiness & Drift Room','readiness drift room'),
+        ('Room 5: Control & Evidence Room','control evidence room'),
+        ('do not replace or collapse the stage contracts','machine stage preservation'),
+        ('Room transitions should use the Hermes `clarify` tool','wizard room clarify transitions'),
+    ]:
+        require(run, needle, label)
     print('validate_behavior_contract: ok')
     return 0
 if __name__ == '__main__':
