@@ -119,6 +119,21 @@
         "implementation, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated",
         "next implementation gate is explicit"
       ]
+    },
+    {
+      "id": "stage_8",
+      "name": "Local pilot execution packet",
+      "required_outputs": [
+        "START_HERE.md",
+        "EXECUTION_PACKET.md",
+        "FILE_CHANGE_PLAN.md",
+        "COMMAND_PLAN.md",
+        "TEST_PLAN.md",
+        "EVIDENCE_LOG.md",
+        "REVIEW_CHECKLIST.md",
+        "HANDOFF_SUMMARY.md",
+        "READINESS_REPORT.yaml"
+      ]
     }
   ]
 }

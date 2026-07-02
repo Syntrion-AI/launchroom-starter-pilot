@@ -952,7 +952,7 @@ $stage4Lines = @(
   '    gates: [secret_gate, production_mutation_gate]',
   '    verification: [secret_scan_zero, blocked_actions_recorded, no_env_auth_state_readback]',
   'enablement_recommendations:',
-  '  safe_default_next_action: review starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml and approve selected toolset/skill activation gates only when needed',
+  '  safe_default_next_action: review starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml and approve selected toolset/skill activation gates only when needed',
   '  reset_required_after_toolset_change: true',
   '  install_gate_required: true',
   'boundaries:',
@@ -2284,6 +2284,284 @@ $firstSliceReadinessLines += @(
 )
 Write-Utf8NoBom (Join-Path $firstSliceRoot 'READINESS_REPORT.yaml') ($firstSliceReadinessLines -join "`n")
 
+
+$localPilotRoot = Join-Path $WorkspaceFull '.hermes/local-pilot'
+New-Item -ItemType Directory -Force -Path $localPilotRoot | Out-Null
+$Stage8Status = 'pass'
+$localPilotEvidenceFiles = @(
+  '.hermes/first-slice/IMPLEMENTATION_BRIEF.md',
+  '.hermes/first-slice/LOCAL_PILOT_PLAN.md',
+  '.hermes/first-slice/ACCEPTANCE_TESTS.md',
+  '.hermes/first-slice/USER_DEMO_SCRIPT.md',
+  '.hermes/first-slice/RISKS_AND_ROLLBACK.md',
+  '.hermes/first-slice/DECISION_GATE.md',
+  '.hermes/first-slice/READINESS_REPORT.yaml'
+)
+$missingLocalPilotEvidence = @($localPilotEvidenceFiles | Where-Object { -not (Test-Path (Join-Path $WorkspaceFull $_)) })
+if ($missingLocalPilotEvidence.Count -gt 0) { $Stage8Status = 'partial_stage7_evidence_missing' }
+
+$localPilotStartLines = @(
+  '# Start Here — Local Pilot Execution Packet',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'You are at Stage 8. Stage 7 created a first-slice implementation plan. Stage 8 turns that plan into a bounded local execution packet for a later agent/developer after an explicit implementation gate.',
+  '',
+  'This stage does not write product code, modify files, run commands, run tests, install dependencies, connect live channels, read secrets, deploy, or mutate runtime/cloud/provider/gateway/n8n surfaces.',
+  '',
+  '## Read in this order',
+  '',
+  '1. EXECUTION_PACKET.md — what a later executor should do after approval.',
+  '2. FILE_CHANGE_PLAN.md — which paths are allowed, forbidden, or require approval.',
+  '3. COMMAND_PLAN.md — which commands are read-only, gated, or forbidden.',
+  '4. TEST_PLAN.md — how the later result should be checked.',
+  '5. EVIDENCE_LOG.md — where real command/test outputs will be recorded later.',
+  '6. REVIEW_CHECKLIST.md — how the owner reviews the result.',
+  '7. HANDOFF_SUMMARY.md — what to pass to the next agent/developer.',
+  '8. READINESS_REPORT.yaml — machine-readable safety and evidence status.',
+  '',
+  '## Your next action',
+  '',
+  'Review EXECUTION_PACKET.md and decide whether to approve local implementation execution, revise the packet, gather missing evidence, prepare a separate communication/runtime gate, or defer.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'START_HERE.md') ($localPilotStartLines -join "`n")
+
+$executionPacketLines = @(
+  '# Execution Packet',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Objective',
+  '',
+  'Prepare one bounded local implementation slice from the Stage 7 first-slice plan after an explicit owner implementation gate.',
+  '',
+  '## Source lineage',
+  '',
+  '- .hermes/first-slice/IMPLEMENTATION_BRIEF.md',
+  '- .hermes/first-slice/LOCAL_PILOT_PLAN.md',
+  '- .hermes/first-slice/ACCEPTANCE_TESTS.md',
+  '- .hermes/first-slice/USER_DEMO_SCRIPT.md',
+  '- .hermes/first-slice/RISKS_AND_ROLLBACK.md',
+  '- .hermes/first-slice/DECISION_GATE.md',
+  '- .hermes/first-slice/READINESS_REPORT.yaml',
+  '',
+  '## Executor instruction',
+  '',
+  'Do not start implementation from this file alone. First obtain the next execution gate, then inspect the real project files, confirm scope, and update this packet with concrete paths and commands.',
+  '',
+  '## Expected working result',
+  '',
+  'A small local result that can be demonstrated with the Stage 7 user demo script and accepted with the Stage 7 acceptance tests.',
+  '',
+  '## Owner review gate',
+  '',
+  'Required before any file changes, command execution beyond read-only inspection, dependency install, or test run.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'EXECUTION_PACKET.md') ($executionPacketLines -join "`n")
+
+$fileChangePlanLines = @(
+  '# File Change Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Allowed file scope after gate',
+  '',
+  '- Project files explicitly named by the implementation gate.',
+  '- Workspace-local `.hermes` execution/evidence artifacts.',
+  '- New local pilot files approved by the owner.',
+  '',
+  '## Forbidden file scope',
+  '',
+  '- `.env`, `auth.json`, `state.db`, OAuth/session/token stores, private keys, credential directories.',
+  '- Hermes runtime/profile credentials or another profile identity.',
+  '- Production runtime/cloud/gateway/n8n/MCP/provider configuration.',
+  '- Git history rewriting or public publication without a separate gate.',
+  '',
+  '## Approval-required unknowns',
+  '',
+  '- Any file path not inspected yet.',
+  '- Any generated file outside the selected workspace.',
+  '- Any change that would alter deployment, billing, or external integrations.',
+  '',
+  '## Executor rule',
+  '',
+  'Read relevant files first, make the smallest scoped edit, and record exact changed paths in EVIDENCE_LOG.md after execution.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'FILE_CHANGE_PLAN.md') ($fileChangePlanLines -join "`n")
+
+$commandPlanLines = @(
+  '# Command Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Safe read-only commands after gate',
+  '',
+  '- project file listing/search through approved tools',
+  '- `git status --short --branch`',
+  '- version checks for already installed local tools',
+  '- test discovery commands that do not mutate state',
+  '',
+  '## Gated local commands',
+  '',
+  '- formatters, linters, unit tests, local build checks, or local scripts named by the implementation plan.',
+  '- package manager commands only when the owner explicitly approves dependency installation.',
+  '',
+  '## Forbidden commands without separate gate',
+  '',
+  '- cloud deploys or provider CLIs that mutate resources',
+  '- gateway pairing/autostart or live messenger/email/calendar setup',
+  '- n8n/MCP/database mutation commands',
+  '- git push/merge/rebase/reset/clean',
+  '- commands that print or read secrets',
+  '',
+  '## Evidence rule',
+  '',
+  'Do not invent outputs. Copy only real command summaries into EVIDENCE_LOG.md after execution.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'COMMAND_PLAN.md') ($commandPlanLines -join "`n")
+
+$testPlanLines = @(
+  '# Test Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Test mapping',
+  '',
+  '| Check | Source | Expected evidence |',
+  '| --- | --- | --- |',
+  '| Acceptance tests | .hermes/first-slice/ACCEPTANCE_TESTS.md | pass/fail notes with real output |',
+  '| User demo | .hermes/first-slice/USER_DEMO_SCRIPT.md | screenshot/log/manual confirmation after gate |',
+  '| Safety boundaries | FILE_CHANGE_PLAN.md and COMMAND_PLAN.md | no forbidden path/command touched |',
+  '| Rollback readiness | .hermes/first-slice/RISKS_AND_ROLLBACK.md | rollback step identified before execution |',
+  '',
+  '## Executor rule',
+  '',
+  'Run only the tests approved by the implementation gate. If a test fails, stop, record the real failure, and revise the packet instead of covering it up.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'TEST_PLAN.md') ($testPlanLines -join "`n")
+
+$evidenceLogLines = @(
+  '# Evidence Log',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'No implementation, file changes, commands, or tests have been executed by Stage 8.',
+  '',
+  '## To fill after explicit execution gate',
+  '',
+  '- Gate granted by:',
+  '- Scope approved:',
+  '- Files changed:',
+  '- Commands run:',
+  '- Tests run:',
+  '- Real outputs:',
+  '- Failures/blockers:',
+  '- Rollback performed or available:',
+  '- Owner review result:',
+  '',
+  'Do not fabricate evidence. Empty evidence is safer than invented success.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'EVIDENCE_LOG.md') ($evidenceLogLines -join "`n")
+
+$reviewChecklistLines = @(
+  '# Review Checklist',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '- [ ] The implementation objective is still the right first slice.',
+  '- [ ] Allowed/forbidden file scope is clear.',
+  '- [ ] Command plan is clear and does not include production/runtime mutation.',
+  '- [ ] Test plan maps to acceptance tests and user demo.',
+  '- [ ] Secrets and credential files were not requested or read.',
+  '- [ ] Evidence log will contain real outputs only after execution.',
+  '- [ ] Rollback path is known before execution.',
+  '- [ ] Next gate is explicit: execute, revise, gather evidence, prepare runtime gate, or defer.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'REVIEW_CHECKLIST.md') ($reviewChecklistLines -join "`n")
+
+$handoffSummaryLines = @(
+  '# Handoff Summary',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## For the next agent/developer',
+  '',
+  'Start with START_HERE.md, then read EXECUTION_PACKET.md, FILE_CHANGE_PLAN.md, COMMAND_PLAN.md, TEST_PLAN.md, and the Stage 7 first-slice files.',
+  '',
+  '## Current state',
+  '',
+  '- Stage 8 generated a local pilot execution packet only.',
+  '- No implementation has been executed.',
+  '- No commands or tests have been run by this stage.',
+  '- No runtime/cloud/provider/gateway/n8n/git/secret surfaces have been mutated.',
+  '',
+  '## Next required decision',
+  '',
+  'Owner must choose one: approve local implementation execution, revise packet, gather missing evidence, prepare a separate communication/runtime gate, or defer.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'HANDOFF_SUMMARY.md') ($handoffSummaryLines -join "`n")
+
+$localPilotReadinessLines = @(
+  'artifact_id: LAUNCHROOM_LOCAL_PILOT_EXECUTION_READINESS_v0_1',
+  'stage_id: stage_8_local_pilot_execution_packet',
+  "status: $Stage8Status",
+  'status_marker: Hermes working artifact / not AIRMIDA authority',
+  "local_pilot_root: $(ConvertTo-YamlSingleQuotedScalar $localPilotRoot)",
+  'source_lineage:',
+  '  implementation_brief: .hermes/first-slice/IMPLEMENTATION_BRIEF.md',
+  '  local_pilot_plan: .hermes/first-slice/LOCAL_PILOT_PLAN.md',
+  '  acceptance_tests: .hermes/first-slice/ACCEPTANCE_TESTS.md',
+  '  user_demo_script: .hermes/first-slice/USER_DEMO_SCRIPT.md',
+  '  risks_and_rollback: .hermes/first-slice/RISKS_AND_ROLLBACK.md',
+  '  decision_gate: .hermes/first-slice/DECISION_GATE.md',
+  '  first_slice_readiness: .hermes/first-slice/READINESS_REPORT.yaml',
+  'generated_files:',
+  '  - START_HERE.md',
+  '  - EXECUTION_PACKET.md',
+  '  - FILE_CHANGE_PLAN.md',
+  '  - COMMAND_PLAN.md',
+  '  - TEST_PLAN.md',
+  '  - EVIDENCE_LOG.md',
+  '  - REVIEW_CHECKLIST.md',
+  '  - HANDOFF_SUMMARY.md',
+  '  - READINESS_REPORT.yaml',
+  'missing_stage7_evidence:'
+)
+if ($missingLocalPilotEvidence.Count -eq 0) {
+  $localPilotReadinessLines += '  - none'
+} else {
+  foreach ($missingEvidence in $missingLocalPilotEvidence) { $localPilotReadinessLines += "  - $(ConvertTo-YamlSingleQuotedScalar $missingEvidence)" }
+}
+$localPilotReadinessLines += @(
+  'action_flags:',
+  '  implementation_executed: false',
+  '  file_changes_executed: false',
+  '  commands_executed: false',
+  '  tests_executed: false',
+  '  dependencies_installed: false',
+  '  runtime_mutation: false',
+  '  cloud_mutation: false',
+  '  gateway_mutation: false',
+  '  n8n_mutation: false',
+  '  secrets_read_or_written: false',
+  '  git_publication_executed: false',
+  '  execution_packet_present: true',
+  '  file_change_plan_present: true',
+  '  command_plan_present: true',
+  '  test_plan_present: true',
+  '  evidence_log_present: true',
+  '  review_checklist_present: true',
+  '  handoff_summary_present: true',
+  '  next_execution_gate_present: true',
+  'next_owner_decision:',
+  '  - approve local implementation execution',
+  '  - revise execution packet',
+  '  - gather missing project evidence',
+  '  - prepare communication/runtime gate separately',
+  '  - defer implementation'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'READINESS_REPORT.yaml') ($localPilotReadinessLines -join "`n")
+
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
 $ToolsetPartialCount = @($toolsetResults | Where-Object { -not $_.ok }).Count
@@ -2341,6 +2619,15 @@ $verification = [ordered]@{
   first_slice_risks_rollback_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/first-slice/RISKS_AND_ROLLBACK.md')
   first_slice_decision_gate_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/first-slice/DECISION_GATE.md')
   first_slice_readiness_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/first-slice/READINESS_REPORT.yaml')
+  local_pilot_start_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/START_HERE.md')
+  local_pilot_execution_packet_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/EXECUTION_PACKET.md')
+  local_pilot_file_change_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/FILE_CHANGE_PLAN.md')
+  local_pilot_command_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/COMMAND_PLAN.md')
+  local_pilot_test_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/TEST_PLAN.md')
+  local_pilot_evidence_log_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/EVIDENCE_LOG.md')
+  local_pilot_review_checklist_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/REVIEW_CHECKLIST.md')
+  local_pilot_handoff_summary_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/HANDOFF_SUMMARY.md')
+  local_pilot_readiness_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/READINESS_REPORT.yaml')
   operator_kit_root_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit')
   stage3_status = $Stage3Status
   stage3_missing_required = ($missingRequired -join ',')
@@ -2348,6 +2635,8 @@ $verification = [ordered]@{
   stage4_status = $Stage4Status
   stage5_status = $Stage5Status
   stage6_status = $Stage6Status
+  stage7_status = $Stage7Status
+  stage8_status = $Stage8Status
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -2360,7 +2649,8 @@ $Stage4ReportsOk = $verification.starter_capability_pack_exists
 $Stage5ReportsOk = $verification.communication_channel_map_exists -and $verification.communication_user_guide_exists
 $Stage6ReportsOk = $verification.operator_kit_root_exists -and $verification.operator_kit_start_here_exists -and $verification.operator_kit_next_decision_exists -and $verification.operator_kit_check_it_works_exists -and $verification.operator_kit_examples_exists -and $verification.operator_kit_readiness_exists -and $verification.guided_session_state_exists -and $verification.guided_session_agent_guide_exists -and $verification.guided_session_user_lesson_exists -and $verification.guided_session_idea_intake_exists -and $verification.guided_session_project_blueprint_exists -and $verification.guided_session_first_slice_exists -and $verification.guided_session_default_catalog_exists -and $verification.guided_session_implementation_roadmap_exists -and $verification.guided_session_completion_summary_exists
 $Stage7ReportsOk = $verification.first_slice_start_exists -and $verification.first_slice_implementation_brief_exists -and $verification.first_slice_local_pilot_plan_exists -and $verification.first_slice_acceptance_tests_exists -and $verification.first_slice_user_demo_script_exists -and $verification.first_slice_risks_rollback_exists -and $verification.first_slice_decision_gate_exists -and $verification.first_slice_readiness_exists
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk
+$Stage8ReportsOk = $verification.local_pilot_start_exists -and $verification.local_pilot_execution_packet_exists -and $verification.local_pilot_file_change_plan_exists -and $verification.local_pilot_command_plan_exists -and $verification.local_pilot_test_plan_exists -and $verification.local_pilot_evidence_log_exists -and $verification.local_pilot_review_checklist_exists -and $verification.local_pilot_handoff_summary_exists -and $verification.local_pilot_readiness_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -2369,9 +2659,9 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
@@ -2383,8 +2673,10 @@ Write-Host "saas_operator_kit: START_HERE -> examples -> next decision -> produc
 Write-Host "stage6_status: $Stage6Status; guided_session_present=true; no_idea_default_workflow_catalog_present=true; blueprint_to_solution_path_present=true; implementation_executed=false; runtime_mutation=false; cloud_mutation=false"
 Write-Host "first_slice_planning: implementation brief -> local pilot plan -> acceptance tests -> demo script -> decision gate"
 Write-Host "stage7_status: $Stage7Status; implementation_executed=false; dependencies_installed=false; runtime_mutation=false; gateway_mutation=false"
+Write-Host "local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary"
+Write-Host "stage8_status: $Stage8Status; implementation_executed=false; file_changes_executed: false; commands_executed: false; tests_executed: false; runtime_mutation=false; gateway_mutation=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: review_first_slice_decision_gate"
+Write-Host "next_stage: review_local_pilot_execution_gate"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }

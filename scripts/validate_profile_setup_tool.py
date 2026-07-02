@@ -124,6 +124,15 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'first-slice' / 'RISKS_AND_ROLLBACK.md',
             workspace_root / '.hermes' / 'first-slice' / 'DECISION_GATE.md',
             workspace_root / '.hermes' / 'first-slice' / 'READINESS_REPORT.yaml',
+            workspace_root / '.hermes' / 'local-pilot' / 'START_HERE.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'EXECUTION_PACKET.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'FILE_CHANGE_PLAN.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'COMMAND_PLAN.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'TEST_PLAN.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'EVIDENCE_LOG.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'REVIEW_CHECKLIST.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'HANDOFF_SUMMARY.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'READINESS_REPORT.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -151,6 +160,8 @@ def run_self_test_if_available() -> None:
         guided_text = '\n'.join((workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / name).read_text(encoding='utf-8') for name in ['SESSION_STATE.yaml','AGENT_GUIDE.md','USER_LESSON.md','IDEA_INTAKE.md','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','DEFAULT_WORKFLOW_CATALOG.md','IMPLEMENTATION_ROADMAP.md','COMPLETION_SUMMARY.md'])
         first_slice_readiness = yaml.safe_load((workspace_root / '.hermes' / 'first-slice' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
         first_slice_text = '\n'.join((workspace_root / '.hermes' / 'first-slice' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','USER_DEMO_SCRIPT.md','RISKS_AND_ROLLBACK.md','DECISION_GATE.md'])
+        local_pilot_readiness = yaml.safe_load((workspace_root / '.hermes' / 'local-pilot' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
+        local_pilot_text = '\n'.join((workspace_root / '.hermes' / 'local-pilot' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md'])
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -287,6 +298,28 @@ def run_self_test_if_available() -> None:
             if needle not in first_slice_text:
                 print('FAIL: self-test first slice text missing ' + needle)
                 raise SystemExit(1)
+        if local_pilot_readiness.get('artifact_id') != 'LAUNCHROOM_LOCAL_PILOT_EXECUTION_READINESS_v0_1':
+            print('FAIL: self-test local pilot readiness has wrong artifact_id')
+            raise SystemExit(1)
+        if local_pilot_readiness.get('stage_id') != 'stage_8_local_pilot_execution_packet':
+            print('FAIL: self-test local pilot readiness has wrong stage_id')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in local_pilot_readiness.get('status_marker',''):
+            print('FAIL: self-test local pilot readiness missing non-authority marker')
+            raise SystemExit(1)
+        local_pilot_flags = local_pilot_readiness.get('action_flags', {})
+        for key in ['implementation_executed','file_changes_executed','commands_executed','tests_executed','dependencies_installed','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
+            if local_pilot_flags.get(key) is not False:
+                print('FAIL: self-test local pilot action flag not false: ' + key)
+                raise SystemExit(1)
+        for key in ['execution_packet_present','file_change_plan_present','command_plan_present','test_plan_present','evidence_log_present','review_checklist_present','handoff_summary_present','next_execution_gate_present']:
+            if local_pilot_flags.get(key) is not True:
+                print('FAIL: self-test local pilot readiness flag not true: ' + key)
+                raise SystemExit(1)
+        for needle in ['Local Pilot Execution Packet','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md','Do not fabricate evidence','approve local implementation execution']:
+            if needle not in local_pilot_text:
+                print('FAIL: self-test local pilot text missing ' + needle)
+                raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
         if re.search(r'__LAUNCHROOM_RESOLVE__[A-Z0-9_]+', live_config):
@@ -404,8 +437,14 @@ def main() -> int:
         ('first-slice/READINESS_REPORT.yaml','writes Stage 7 first-slice readiness report'),
         ('first_slice_planning: implementation brief -> local pilot plan -> acceptance tests -> demo script -> decision gate','prints Stage 7 summary'),
         ('stage7_status: $Stage7Status','prints Stage 7 status'),
+        ('local-pilot/READINESS_REPORT.yaml','writes Stage 8 local pilot readiness report'),
+        ('local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary','prints Stage 8 summary'),
+        ('stage8_status: $Stage8Status','prints Stage 8 status'),
+        ('file_changes_executed: false','records no file changes executed'),
+        ('commands_executed: false','records no commands executed'),
+        ('tests_executed: false','records no tests executed'),
+        ('next_stage: review_local_pilot_execution_gate','hands off to local pilot execution gate'),
         ('dependencies_installed=false','records no dependency install'),
-        ('next_stage: review_first_slice_decision_gate','hands off to first-slice decision gate'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),
         ('purpose','maps software purpose'),

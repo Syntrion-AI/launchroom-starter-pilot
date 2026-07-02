@@ -145,6 +145,23 @@
         "implementation, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated",
         "next implementation gate is explicit"
       ]
+    },
+    {
+      "id": "stage_8",
+      "name": "Local pilot execution packet",
+      "purpose": "Convert the Stage 7 first-slice planning packet into a bounded local-only execution packet with file-change scope, command plan, test plan, evidence log, review checklist, handoff summary, and explicit next gate without executing implementation or mutating runtime/cloud/provider/gateway/n8n surfaces.",
+      "pass_requires": [
+        "local pilot execution folder exists",
+        "EXECUTION_PACKET.md, FILE_CHANGE_PLAN.md, COMMAND_PLAN.md, TEST_PLAN.md, EVIDENCE_LOG.md, REVIEW_CHECKLIST.md, HANDOFF_SUMMARY.md, and READINESS_REPORT.yaml exist",
+        "local-pilot/READINESS_REPORT.yaml parses as YAML",
+        "Stage 7 implementation brief, local pilot plan, acceptance tests, user demo script, risks/rollback, decision gate, and readiness report are referenced",
+        "file change plan separates allowed, forbidden, and approval-required paths",
+        "command plan separates read-only commands, gated local commands, and forbidden commands",
+        "test plan maps checks to expected evidence and acceptance criteria",
+        "evidence log is scaffolded and does not fabricate execution results",
+        "implementation, file changes, commands, tests, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated",
+        "next execution gate is explicit"
+      ]
     }
   ],
   "forbidden_without_separate_gate": [
@@ -161,7 +178,8 @@
     "source/recipes/starter-skillpack.json",
     "source/recipes/messaging.json",
     "source/recipes/saas-operator-kit.json",
-    "source/recipes/first-slice-planning.json"
+    "source/recipes/first-slice-planning.json",
+    "source/recipes/local-pilot-execution.json"
   ],
   "primary_setup_tool": "scripts/install_launchroom_profile.ps1",
   "decision_ui_contract": {
