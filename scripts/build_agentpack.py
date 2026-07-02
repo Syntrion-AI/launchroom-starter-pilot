@@ -77,6 +77,61 @@ def render_wizard_room_transitions(source: dict) -> str:
         ])
     return '\n'.join(lines)
 
+def render_first_run_demo(source: dict) -> str:
+    contract = source.get('first_run_demo_contract', {})
+    if not contract.get('enabled'):
+        return ''
+    lines = [
+        '## First-run Demo / Self-test Scenario',
+        '',
+        'This scenario demonstrates LaunchRoom Starter as a beginner-safe onboarding wizard. It uses self-test mode only, is not a new stage, and must stop before installs, gateway pairing, provider/runtime changes, cloud/n8n mutation, git publication, secret handling, or implementation execution.',
+        '',
+        '### Self-test command',
+        '',
+        '```powershell',
+        contract.get('self_test_command', ''),
+        '```',
+        '',
+        '### Demo path',
+        '',
+    ]
+    for step in contract.get('demo_path', []):
+        evidence = '; '.join(step.get('expected_evidence', []))
+        room = step.get('room_id') or 'repo/self-test'
+        lines.extend([
+            f"#### {step.get('step_id', '')}",
+            '',
+            f"Room/context: {room}",
+            '',
+            f"Action: {step.get('action', '')}",
+            '',
+            f"User-visible text: {step.get('user_visible_text', '')}",
+            '',
+            f"Expected evidence: {evidence}",
+            '',
+        ])
+    lines.extend([
+        '### Expected self-test outputs',
+        '',
+    ])
+    for output in contract.get('expected_self_test_outputs', []):
+        lines.append(f"- {output}")
+    lines.extend([
+        '',
+        '### What the user should see',
+        '',
+    ])
+    for item in contract.get('user_visible_checklist', []):
+        lines.append(f"- {item}")
+    lines.extend([
+        '',
+        '### Stop before gated actions',
+        '',
+    ])
+    for action in contract.get('stop_before_gated_actions', []):
+        lines.append(f"- {action}")
+    return '\n'.join(lines)
+
 def render_runbook(source: dict) -> str:
     stages = []
     for stage in source['stages']:
@@ -119,7 +174,7 @@ When the repository is used through a raw GitHub link, ask the user to clone or 
 
 Use the Hermes `clarify` tool for interactive decisions whenever it is available. Real Desktop buttons require a pending `clarify` tool call with a non-empty `choices` array; Telegram native buttons are adapter-specific and also come from `clarify`, not from markdown. Put selectable options only in the `choices` array, not inside the question text. Required clarify decisions: profile strategy, workspace strategy, apply setup tool, software install gate, starter capability pack, communication channel, every stage transition, git publication gate, implementation gate, and runtime/provider/secret/destructive-action gates. Plain A/B/C or numbered text is fallback only when `clarify` or native buttons are unavailable.
 
-""" + render_wizard_rooms(source) + "\n\n" + render_wizard_room_transitions(source) + """
+""" + render_wizard_rooms(source) + "\n\n" + render_wizard_room_transitions(source) + "\n\n" + render_first_run_demo(source) + """
 
 ## Language contract
 

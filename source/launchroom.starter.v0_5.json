@@ -504,5 +504,121 @@
       }
     ],
     "validation_rule": "Every room must have entry, completion, and blocked prompts; choices must map to known actions; prompts must stay within max_choices_per_prompt; no stage_14 may be introduced."
+  },
+  "first_run_demo_contract": {
+    "enabled": true,
+    "purpose": "Show the whole LaunchRoom Starter as a beginner-safe onboarding wizard using a non-mutating self-test scenario, not only as valid contracts.",
+    "demo_is_self_test_only": true,
+    "not_a_new_stage": true,
+    "machine_stages_remain_authoritative": true,
+    "uses_wizard_rooms": true,
+    "uses_wizard_room_transition_contract": true,
+    "self_test_command": "powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom-selftest -TestOutputRoot \"$env:TEMP\\launchroom-selftest\" -Yes -NoInventory -NoToolsets",
+    "self_test_safety_markers": {
+      "uses_test_output_root": true,
+      "must_not_call_hermes_profile_create": true,
+      "must_not_call_hermes_config_set": true,
+      "must_not_call_hermes_tools_enable": true,
+      "must_not_read_or_write_secrets": true,
+      "safe_to_run_in_ci": true
+    },
+    "demo_path": [
+      {
+        "step_id": "demo_1_prepare_repo",
+        "room_id": null,
+        "action": "prepare_repo",
+        "user_visible_text": "Clone or open the LaunchRoom Starter repository and read RUN_ME_FIRST.md.",
+        "expected_evidence": [
+          "RUN_ME_FIRST.md exists",
+          "scripts/install_launchroom_profile.ps1 exists"
+        ]
+      },
+      {
+        "step_id": "demo_2_run_self_test",
+        "room_id": null,
+        "action": "run_self_test",
+        "user_visible_text": "Run the self-test command with -TestOutputRoot so generated files go to a disposable test tree.",
+        "expected_evidence": [
+          "validate_profile_setup_tool self-test generated files ok",
+          "no live Hermes profile/config/toolset mutation"
+        ]
+      },
+      {
+        "step_id": "demo_3_enter_foundation_room",
+        "room_id": "room_1_foundation",
+        "action": "enter_room",
+        "user_visible_text": "Enter Foundation Room and confirm what profile/workspace foundation means.",
+        "expected_evidence": [
+          "Foundation Room is visible",
+          "room_entry clarify choices are available or fallback is labeled"
+        ]
+      },
+      {
+        "step_id": "demo_4_inspect_foundation_evidence",
+        "room_id": "room_1_foundation",
+        "action": "inspect_evidence",
+        "user_visible_text": "Inspect generated foundation evidence before continuing.",
+        "expected_evidence": [
+          "profile SOUL.md or deferred marker",
+          "profile contract/report artifacts or deferred marker",
+          "workspace README/AGENTS/HERMES or deferred marker"
+        ]
+      },
+      {
+        "step_id": "demo_5_continue_to_capability_room",
+        "room_id": "room_2_capability",
+        "action": "continue_to_next_room",
+        "user_visible_text": "Continue to Capability Room without enabling tools, installing software, or connecting communication channels.",
+        "expected_evidence": [
+          "Capability Room is visible",
+          "software/toolset/channel steps remain recommendations or gated decisions"
+        ]
+      },
+      {
+        "step_id": "demo_6_stop_at_gated_decision",
+        "room_id": "room_2_capability",
+        "action": "pause",
+        "user_visible_text": "Stop at the first gated decision and report what was demonstrated versus what remains gated.",
+        "expected_evidence": [
+          "runtime/cloud/gateway/n8n/git/secret/implementation actions remain false or gated",
+          "next decision is explicit"
+        ]
+      }
+    ],
+    "expected_self_test_outputs": [
+      "simulated profile directory under TestOutputRoot",
+      "profile SOUL.md",
+      "profile PROFILE_INSTRUCTIONS.md",
+      "profile LAUNCHROOM_PROFILE_CONTRACT.yaml",
+      "profile .env.EXAMPLE with variable names only",
+      "profile reports/profile-foundation-report.yaml",
+      "profile reports/profile-apply-plan.yaml",
+      "profile reports/stage-1-selected-settings.yaml",
+      "workspace README.md",
+      "workspace AGENTS.md",
+      "workspace HERMES.md",
+      "workspace .hermes/reports/profile-setup-report.yaml",
+      "LaunchRoom starter skill pack in the simulated profile tree"
+    ],
+    "user_visible_checklist": [
+      "User can see the 5 Wizard Rooms as the simple navigation layer.",
+      "User can see room transition choices for enter, inspect evidence, continue, retry/repair, and pause.",
+      "User can identify where self-test files were generated.",
+      "User can distinguish demonstrated self-test behavior from real profile/workspace mutation.",
+      "User can see that installs, gateway pairing, provider/runtime, n8n/cloud, git publication, secret handling, and implementation remain gated.",
+      "User receives a clear next decision after the demo stops."
+    ],
+    "stop_before_gated_actions": [
+      "software_install",
+      "hermes_toolset_enablement",
+      "gateway_setup_or_pairing",
+      "provider_or_model_runtime_change",
+      "cloud_or_vps_mutation",
+      "n8n_mutation",
+      "git_publication_or_release",
+      "secret_readback_or_storage",
+      "implementation_execution"
+    ],
+    "validation_rule": "The demo scenario must use self-test mode, reference Wizard Rooms and room transitions, expose expected outputs and user-visible checklist, and stop before gated mutation surfaces."
   }
 }

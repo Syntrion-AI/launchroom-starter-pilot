@@ -225,6 +225,92 @@ def main() -> int:
         ('Timeout or silence is not approval','timeout is not approval marker'),
     ]:
         require(run, needle, label)
+
+
+    demo = source.get('first_run_demo_contract', {})
+    if demo.get('enabled') is not True:
+        print('FAIL: first-run demo contract is not enabled')
+        return 1
+    for key in ['demo_is_self_test_only', 'not_a_new_stage', 'machine_stages_remain_authoritative', 'uses_wizard_rooms', 'uses_wizard_room_transition_contract']:
+        if demo.get(key) is not True:
+            print(f'FAIL: first-run demo contract missing {key}=true')
+            return 1
+    self_test_command = demo.get('self_test_command', '')
+    for needle in ['scripts/install_launchroom_profile.ps1', '-TestOutputRoot', '-NoInventory', '-NoToolsets']:
+        if needle not in self_test_command:
+            print(f'FAIL: first-run demo self-test command missing {needle}')
+            return 1
+    forbidden_command_fragments = ['hermes profile create', 'hermes config set', 'hermes tools enable']
+    for fragment in forbidden_command_fragments:
+        if fragment in self_test_command:
+            print(f'FAIL: first-run demo self-test command must not call {fragment}')
+            return 1
+    safety = demo.get('self_test_safety_markers', {})
+    for key in [
+        'uses_test_output_root',
+        'must_not_call_hermes_profile_create',
+        'must_not_call_hermes_config_set',
+        'must_not_call_hermes_tools_enable',
+        'must_not_read_or_write_secrets',
+        'safe_to_run_in_ci',
+    ]:
+        if safety.get(key) is not True:
+            print(f'FAIL: first-run demo safety marker missing {key}=true')
+            return 1
+    demo_path = demo.get('demo_path', [])
+    expected_step_ids = [
+        'demo_1_prepare_repo',
+        'demo_2_run_self_test',
+        'demo_3_enter_foundation_room',
+        'demo_4_inspect_foundation_evidence',
+        'demo_5_continue_to_capability_room',
+        'demo_6_stop_at_gated_decision',
+    ]
+    if [step.get('step_id') for step in demo_path] != expected_step_ids:
+        print('FAIL: first-run demo path step ids/order mismatch')
+        return 1
+    allowed_demo_actions = set(['prepare_repo', 'run_self_test'] + required_actions)
+    room_ids_set = set(room_ids)
+    for step in demo_path:
+        if step.get('action') not in allowed_demo_actions:
+            print('FAIL: first-run demo path uses unknown action ' + str(step.get('action')))
+            return 1
+        room_id = step.get('room_id')
+        if room_id is not None and room_id not in room_ids_set:
+            print('FAIL: first-run demo path references unknown room ' + str(room_id))
+            return 1
+        if not step.get('user_visible_text') or not step.get('expected_evidence'):
+            print('FAIL: first-run demo path step missing user-visible text or expected evidence')
+            return 1
+    outputs = demo.get('expected_self_test_outputs', [])
+    for needle in ['profile SOUL.md', 'profile LAUNCHROOM_PROFILE_CONTRACT.yaml', 'workspace README.md', 'workspace AGENTS.md', 'workspace HERMES.md', 'LaunchRoom starter skill pack']:
+        if not any(needle in output for output in outputs):
+            print('FAIL: first-run demo expected output missing ' + needle)
+            return 1
+    checklist = demo.get('user_visible_checklist', [])
+    for needle in ['5 Wizard Rooms', 'room transition choices', 'self-test files', 'gated']:
+        if not any(needle.lower() in item.lower() for item in checklist):
+            print('FAIL: first-run demo user-visible checklist missing ' + needle)
+            return 1
+    gated = demo.get('stop_before_gated_actions', [])
+    for action in ['software_install', 'gateway_setup_or_pairing', 'provider_or_model_runtime_change', 'cloud_or_vps_mutation', 'n8n_mutation', 'git_publication_or_release', 'secret_readback_or_storage', 'implementation_execution']:
+        if action not in gated:
+            print('FAIL: first-run demo stop-before gated action missing ' + action)
+            return 1
+    for needle,label in [
+        ('First-run Demo / Self-test Scenario','first-run demo section'),
+        ('This scenario demonstrates LaunchRoom Starter as a beginner-safe onboarding wizard','demo purpose marker'),
+        ('### Self-test command','self-test command section'),
+        ('-TestOutputRoot','self-test output root marker'),
+        ('### Demo path','demo path section'),
+        ('demo_3_enter_foundation_room','foundation room demo step'),
+        ('demo_5_continue_to_capability_room','capability room demo step'),
+        ('### Expected self-test outputs','expected outputs section'),
+        ('### What the user should see','user-visible checklist section'),
+        ('### Stop before gated actions','gated stop section'),
+        ('implementation_execution','implementation gated stop marker'),
+    ]:
+        require(run, needle, label)
     print('validate_behavior_contract: ok')
     return 0
 if __name__ == '__main__':
