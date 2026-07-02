@@ -10,6 +10,7 @@ checks = [
     ['scripts/validate_inventory_contract.py'],
     ['scripts/validate_starter_capability_pack.py'],
     ['scripts/validate_messaging_contract.py'],
+    ['scripts/validate_saas_operator_kit.py'],
     ['scripts/validate_profile_distribution.py'],
     ['scripts/validate_profile_setup_tool.py'],
 ]

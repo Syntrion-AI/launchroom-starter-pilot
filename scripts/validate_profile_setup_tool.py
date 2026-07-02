@@ -96,6 +96,26 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'reports' / 'starter-capability-pack.yaml',
             workspace_root / '.hermes' / 'reports' / 'communication-channel-map.yaml',
             workspace_root / '.hermes' / 'reports' / 'communication-user-guide.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'START_HERE.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'NEXT_DECISION.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'CHECK_IT_WORKS.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'PAIN_TO_WORKFLOW_EXAMPLES.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'product_brief.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'target_user.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'first_workflow.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'backlog.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'local_task_packet.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'gates.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'readiness_report.yaml',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'SESSION_STATE.yaml',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'AGENT_GUIDE.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'USER_LESSON.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'IDEA_INTAKE.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'PROJECT_BLUEPRINT.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'FIRST_SLICE_PACKET.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'DEFAULT_WORKFLOW_CATALOG.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'IMPLEMENTATION_ROADMAP.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'COMPLETION_SUMMARY.md',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -118,6 +138,9 @@ def run_self_test_if_available() -> None:
         starter_pack = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'starter-capability-pack.yaml').read_text(encoding='utf-8'))
         communication_map = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'communication-channel-map.yaml').read_text(encoding='utf-8'))
         communication_guide = (workspace_root / '.hermes' / 'reports' / 'communication-user-guide.md').read_text(encoding='utf-8')
+        operator_readiness = yaml.safe_load((workspace_root / '.hermes' / 'operator-kit' / 'readiness_report.yaml').read_text(encoding='utf-8'))
+        operator_text = '\n'.join((workspace_root / '.hermes' / 'operator-kit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','NEXT_DECISION.md','CHECK_IT_WORKS.md','PAIN_TO_WORKFLOW_EXAMPLES.md','product_brief.md','target_user.md','first_workflow.md','backlog.md','local_task_packet.md','gates.md'])
+        guided_text = '\n'.join((workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / name).read_text(encoding='utf-8') for name in ['SESSION_STATE.yaml','AGENT_GUIDE.md','USER_LESSON.md','IDEA_INTAKE.md','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','DEFAULT_WORKFLOW_CATALOG.md','IMPLEMENTATION_ROADMAP.md','COMPLETION_SUMMARY.md'])
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -205,6 +228,32 @@ def run_self_test_if_available() -> None:
         for needle in ['Hermes Desktop','Telegram','Slack','Email','Discord','Webhooks / API','Safe secret-entry rule','https://hermes-agent.nousresearch.com/docs/user-guide/messaging/','https://core.telegram.org/bots/api','https://api.slack.com/apis/connections/socket']:
             if needle not in communication_guide:
                 print('FAIL: self-test communication guide missing ' + needle)
+                raise SystemExit(1)
+        if operator_readiness.get('artifact_id') != 'LAUNCHROOM_SAAS_OPERATOR_KIT_READINESS_v0_1':
+            print('FAIL: self-test operator readiness has wrong artifact_id')
+            raise SystemExit(1)
+        if operator_readiness.get('stage_id') != 'stage_6_saas_operator_kit':
+            print('FAIL: self-test operator readiness has wrong stage_id')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in operator_readiness.get('status_marker',''):
+            print('FAIL: self-test operator readiness missing non-authority marker')
+            raise SystemExit(1)
+        action_flags = operator_readiness.get('action_flags', {})
+        for key in ['runtime_mutation','cloud_mutation','n8n_mutation','gateway_mutation','git_publication_executed','secrets_read_or_written','implementation_executed']:
+            if action_flags.get(key) is not False:
+                print('FAIL: self-test operator kit action flag not false: ' + key)
+                raise SystemExit(1)
+        for key in ['beginner_next_decision_present','pain_to_workflow_examples_present','guided_session_present','no_idea_default_workflow_catalog_present','blueprint_to_solution_path_present']:
+            if action_flags.get(key) is not True:
+                print('FAIL: self-test operator kit navigation flag not true: ' + key)
+                raise SystemExit(1)
+        for needle in ['Hermes working artifact / not AIRMIDA authority','intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision','implementation_gate','runtime_provider_gate','secret_readback','Done when','Stage 6','Check It Works','Pain to Workflow Examples','Recommended beginner path','Show me 3 first workflow options','Which one small pain do I want the agent to help solve first']:
+            if needle not in operator_text:
+                print('FAIL: self-test operator kit text missing ' + needle)
+                raise SystemExit(1)
+        for needle in ['agent must lead','DEFAULT_WORKFLOW_CATALOG.md','messenger setup','Telegram or Discord channel management','Email, calendar, and notes assistant','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','IMPLEMENTATION_ROADMAP.md','blueprint -> first slice packet -> implementation plan -> local pilot -> verification -> next gate','working result']:
+            if needle not in guided_text:
+                print('FAIL: self-test guided session text missing ' + needle)
                 raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
@@ -303,7 +352,24 @@ def main() -> int:
         ('gateway_autostart_installed: false','records no autostart install'),
         ('test_message_sent: false','records no delivery test'),
         ('communication_channel_map: Desktop, Telegram, Slack, Email, Discord, adapters, webhooks/API -> managers -> guides -> gates -> verification','final Stage 5 summary'),
-        ('next_stage: stage_6_saas_operator_kit','hands off to Stage 6 SaaS operator kit'),
+        ('operator-kit/START_HERE.md','writes Stage 6 beginner entrypoint'),
+        ('operator-kit/NEXT_DECISION.md','writes Stage 6 next decision guide'),
+        ('operator-kit/CHECK_IT_WORKS.md','writes Stage 6 user verification guide'),
+        ('operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md','writes Stage 6 pain-to-workflow examples'),
+        ('operator-kit/readiness_report.yaml','writes Stage 6 operator kit readiness report'),
+        ('guided-session/DEFAULT_WORKFLOW_CATALOG.md','writes no-idea default workflow catalog'),
+        ('guided-session/IMPLEMENTATION_ROADMAP.md','writes blueprint-to-working-result roadmap'),
+        ('LAUNCHROOM_SAAS_OPERATOR_KIT_READINESS_v0_1','operator kit readiness artifact id'),
+        ('stage_6_saas_operator_kit','Stage 6 SaaS operator kit stage id'),
+        ('saas_operator_kit: START_HERE -> examples -> next decision -> product brief -> target user -> first workflow -> backlog -> local task packet -> gates -> readiness report','final Stage 6 summary'),
+        ('implementation_executed=false','records no implementation execution'),
+        ('beginner_next_decision_present: true','records beginner decision guide'),
+        ('pain_to_workflow_examples_present: true','records pain-to-workflow examples'),
+        ('guided_session_present=true','prints guided session present'),
+        ('no_idea_default_workflow_catalog_present=true','prints no-idea default catalog present'),
+        ('blueprint_to_solution_path_present=true','prints blueprint-to-solution path present'),
+        ('cloud_mutation=false','records no cloud mutation'),
+        ('next_stage: review_operator_kit_or_choose_first_vertical_slice','hands off to operator kit review'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),
         ('purpose','maps software purpose'),

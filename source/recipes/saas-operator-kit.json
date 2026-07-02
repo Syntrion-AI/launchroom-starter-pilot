@@ -1,20 +1,85 @@
 {
-  "recipe_id": "launchroom-saas-operator-kit-v0_5",
-  "objective": "Create a local SaaS project operator kit inside the selected workspace after Stage 6 confirmation.",
-  "create": [
+  "recipe_id": "launchroom-saas-operator-kit-v0_6",
+  "objective": "Create an agent-led local SaaS operator kit with beginner navigation, no-idea default workflows, guided session scaffolds, and a blueprint-to-working-result roadmap after Stage 1-5 readiness is present.",
+  "operator_kit_root": ".hermes/operator-kit",
+  "required_files": [
+    "PAIN_TO_WORKFLOW_EXAMPLES.md",
+    "CHECK_IT_WORKS.md",
+    "NEXT_DECISION.md",
+    "START_HERE.md",
     "product_brief.md",
     "target_user.md",
     "first_workflow.md",
     "backlog.md",
     "local_task_packet.md",
     "gates.md",
-    "readiness_report.yaml"
+    "readiness_report.yaml",
+    "guided-session/SESSION_STATE.yaml",
+    "guided-session/AGENT_GUIDE.md",
+    "guided-session/USER_LESSON.md",
+    "guided-session/IDEA_INTAKE.md",
+    "guided-session/PROJECT_BLUEPRINT.md",
+    "guided-session/FIRST_SLICE_PACKET.md",
+    "guided-session/DEFAULT_WORKFLOW_CATALOG.md",
+    "guided-session/IMPLEMENTATION_ROADMAP.md",
+    "guided-session/COMPLETION_SUMMARY.md"
+  ],
+  "status_marker": "Hermes working artifact / not AIRMIDA authority",
+  "packet_flow": "intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision",
+  "required_readiness_flags": [
+    "runtime_mutation: false",
+    "cloud_mutation: false",
+    "n8n_mutation: false",
+    "gateway_mutation: false",
+    "git_publication_executed: false",
+    "secrets_read_or_written: false",
+    "implementation_executed: false",
+    "beginner_next_decision_present: true",
+    "pain_to_workflow_examples_present: true",
+    "guided_session_present: true",
+    "no_idea_default_workflow_catalog_present: true",
+    "blueprint_to_solution_path_present: true"
   ],
   "blocked_without_gate": [
     "Cloudflare mutation",
     "Hetzner mutation",
     "n8n mutation",
+    "MCP/runtime mutation",
+    "provider/model/billing mutation",
+    "gateway setup/autostart/pairing",
     "production deploy",
-    "public git push"
-  ]
+    "public git push",
+    "secret readback or storage"
+  ],
+  "stage_6_contract": "source/stages/stage-6-saas-operator-kit.yaml",
+  "beginner_navigation_files": [
+    "START_HERE.md",
+    "NEXT_DECISION.md",
+    "CHECK_IT_WORKS.md",
+    "PAIN_TO_WORKFLOW_EXAMPLES.md"
+  ],
+  "guided_session_required": true,
+  "guided_session_states": [
+    "orientation",
+    "structure_created",
+    "idea_or_default_workflow_intake",
+    "pain_selected",
+    "target_user_selected",
+    "first_workflow_selected",
+    "first_output_defined",
+    "project_blueprint_created",
+    "first_slice_packet_created",
+    "implementation_roadmap_created",
+    "user_training_completed",
+    "completion_summary_created",
+    "next_gate_pending"
+  ],
+  "no_idea_default_workflows": [
+    "messenger_setup_and_control",
+    "telegram_or_discord_channel_management",
+    "email_calendar_notes_assistant",
+    "personal_daily_briefing",
+    "idea_to_project_blueprint"
+  ],
+  "blueprint_to_solution_path_required": true
 }
