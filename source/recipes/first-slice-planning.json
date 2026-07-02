@@ -1,0 +1,53 @@
+{
+  "recipe_id": "launchroom-first-slice-planning-v0_7",
+  "objective": "Convert the Stage 6 guided operator kit into a concrete first-slice implementation planning and local pilot readiness packet without executing implementation, dependency install, runtime, cloud, gateway, n8n, git publication, or secret actions.",
+  "first_slice_root": ".hermes/first-slice",
+  "required_files": [
+    "START_HERE.md",
+    "IMPLEMENTATION_BRIEF.md",
+    "LOCAL_PILOT_PLAN.md",
+    "ACCEPTANCE_TESTS.md",
+    "USER_DEMO_SCRIPT.md",
+    "RISKS_AND_ROLLBACK.md",
+    "DECISION_GATE.md",
+    "READINESS_REPORT.yaml"
+  ],
+  "consumes": [
+    ".hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md",
+    ".hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md",
+    ".hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md",
+    ".hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md"
+  ],
+  "status_marker": "Hermes working artifact / not AIRMIDA authority",
+  "packet_flow": "blueprint -> first slice packet -> implementation brief -> local pilot plan -> acceptance tests -> demo script -> decision gate",
+  "required_readiness_flags": [
+    "implementation_executed: false",
+    "dependencies_installed: false",
+    "runtime_mutation: false",
+    "cloud_mutation: false",
+    "gateway_mutation: false",
+    "n8n_mutation: false",
+    "secrets_read_or_written: false",
+    "git_publication_executed: false",
+    "local_pilot_plan_present: true",
+    "acceptance_tests_present: true",
+    "user_demo_script_present: true",
+    "next_implementation_gate_present: true"
+  ],
+  "blocked_without_gate": [
+    "write product code",
+    "install dependencies",
+    "connect live messenger/email/calendar/notes",
+    "gateway setup/autostart/pairing",
+    "Cloudflare mutation",
+    "Hetzner mutation",
+    "n8n mutation",
+    "MCP/runtime mutation",
+    "provider/model/billing mutation",
+    "database mutation",
+    "production deploy",
+    "public git push",
+    "secret readback or storage"
+  ],
+  "stage_7_contract": "source/stages/stage-7-first-slice-planning.yaml"
+}

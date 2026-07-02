@@ -174,6 +174,19 @@ Pass requires:
 - runtime/cloud/provider/gateway/n8n/git/secret actions remain false or gated
 - next owner decision is explicit
 
+### stage_7 - First slice implementation planning and local pilot readiness
+
+Purpose: Convert the Stage 6 blueprint and first-slice packet into a concrete implementation brief, local pilot plan, acceptance tests, user demo script, rollback plan, and decision gate without executing implementation or mutating runtime/cloud/provider/gateway/n8n surfaces.
+
+Pass requires:
+- first-slice planning folder exists
+- IMPLEMENTATION_BRIEF.md, LOCAL_PILOT_PLAN.md, ACCEPTANCE_TESTS.md, USER_DEMO_SCRIPT.md, RISKS_AND_ROLLBACK.md, DECISION_GATE.md, and READINESS_REPORT.yaml exist
+- READINESS_REPORT.yaml parses as YAML
+- Stage 6 blueprint, first slice packet, roadmap, and default workflow catalog are referenced
+- acceptance tests and user demo script explain the user-visible working result
+- implementation, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated
+- next implementation gate is explicit
+
 
 ## Inventory rule
 

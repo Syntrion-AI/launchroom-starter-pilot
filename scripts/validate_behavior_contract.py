@@ -32,6 +32,8 @@ def main() -> int:
         ('communication-channel-map.yaml','Stage 5 communication report'),
         ('SaaS operator kit','Stage 6 operator kit'),
         ('operator-kit/readiness_report.yaml','Stage 6 operator kit report'),
+        ('First slice implementation planning and local pilot readiness','Stage 7 first-slice planning'),
+        ('READINESS_REPORT.yaml parses as YAML','Stage 7 first-slice report'),
         ('failed_policy_violation','self-improvement hard fail'),
         ('invalid_bootstrap_report','contradiction guard'),
         ('language the user writes in','detect and mirror language'),
@@ -39,8 +41,8 @@ def main() -> int:
         require(run, needle, label)
     require(skill, 'Positive setup permissions', 'skill positive permissions')
     require(skill, 'patches unrelated installed skills', 'unauthorized self-patch hard stop')
-    if len(source.get('stages', [])) != 7:
-        print('FAIL: expected bootstrap plus six stages')
+    if len(source.get('stages', [])) != 8:
+        print('FAIL: expected bootstrap plus seven stages')
         return 1
     if not any('selected allowed setup action' in x for x in source.get('stage_pass_requires', [])):
         print('FAIL: pass criteria do not require setup action verification')
