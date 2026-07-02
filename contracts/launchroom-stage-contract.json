@@ -150,6 +150,21 @@
         "REPAIR_RECOMMENDATIONS.md",
         "AUDIT_REPORT.yaml"
       ]
+    },
+    {
+      "id": "stage_10",
+      "name": "Agent execution readiness and toolchain activation plan",
+      "required_outputs": [
+        "START_HERE.md",
+        "PROJECT_TOOLCHAIN_REQUIREMENTS.md",
+        "SOFTWARE_GAP_ANALYSIS.md",
+        "HERMES_TOOLSET_PLAN.md",
+        "SKILL_LOAD_PLAN.md",
+        "AGENT_PIPELINE_PLAN.md",
+        "INSTALL_PLAN.md",
+        "COMMAND_READINESS.md",
+        "EXECUTION_READINESS_REPORT.yaml"
+      ]
     }
   ]
 }

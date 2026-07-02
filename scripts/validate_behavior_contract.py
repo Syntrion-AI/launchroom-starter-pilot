@@ -38,6 +38,8 @@ def main() -> int:
         ('local-pilot/READINESS_REPORT.yaml','Stage 8 local pilot report'),
         ('Project plan integrity and drift audit','Stage 9 project plan integrity audit'),
         ('project-audit/AUDIT_REPORT.yaml','Stage 9 project audit report'),
+        ('Agent execution readiness and toolchain activation plan','Stage 10 agent execution readiness'),
+        ('agent-readiness/EXECUTION_READINESS_REPORT.yaml','Stage 10 agent readiness report'),
         ('failed_policy_violation','self-improvement hard fail'),
         ('invalid_bootstrap_report','contradiction guard'),
         ('language the user writes in','detect and mirror language'),
@@ -45,8 +47,8 @@ def main() -> int:
         require(run, needle, label)
     require(skill, 'Positive setup permissions', 'skill positive permissions')
     require(skill, 'patches unrelated installed skills', 'unauthorized self-patch hard stop')
-    if len(source.get('stages', [])) != 10:
-        print('FAIL: expected bootstrap plus nine stages')
+    if len(source.get('stages', [])) != 11:
+        print('FAIL: expected bootstrap plus ten stages')
         return 1
     if not any('selected allowed setup action' in x for x in source.get('stage_pass_requires', [])):
         print('FAIL: pass criteria do not require setup action verification')

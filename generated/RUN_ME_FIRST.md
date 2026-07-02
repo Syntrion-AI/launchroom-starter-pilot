@@ -220,6 +220,23 @@ Pass requires:
 - implementation, file changes, commands, tests, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated
 - next repair/readiness decision is explicit
 
+### stage_10 - Agent execution readiness and toolchain activation plan
+
+Purpose: Map the Stage 9 project audit to concrete software, Hermes toolsets, skills, agent pipeline, install gates, command readiness, and execution blockers without installing, enabling, spawning, executing implementation, or mutating runtime/cloud/provider/gateway/n8n surfaces.
+
+Pass requires:
+- agent-readiness folder exists
+- PROJECT_TOOLCHAIN_REQUIREMENTS.md, SOFTWARE_GAP_ANALYSIS.md, HERMES_TOOLSET_PLAN.md, SKILL_LOAD_PLAN.md, AGENT_PIPELINE_PLAN.md, INSTALL_PLAN.md, COMMAND_READINESS.md, and EXECUTION_READINESS_REPORT.yaml exist
+- agent-readiness/EXECUTION_READINESS_REPORT.yaml parses as YAML
+- Stage 9 audit, Stage 8 execution packet, Stage 3 software reports, and Stage 4 starter capability pack are referenced
+- toolchain requirements map project work to software, Hermes toolsets, skills, agent roles, commands, gates, and verification
+- software gap analysis separates present, missing/unknown, optional, and gated install candidates
+- install plan includes why, command shape, verification command, risk, rollback, admin/restart/PATH notes, and owner gate
+- toolset and skill plans recommend activation/load order without enabling or installing anything automatically
+- agent pipeline plan defines planner/repair, toolchain verifier, implementer, verification arbiter, and owner gate without spawning agents
+- command readiness separates read-only inspection, gated local commands, install commands, and forbidden runtime/secret/git/publication commands
+- execution_ready and execution_allowed remain false until Stage 9 issues are repaired, Stage 10 readiness is accepted, and a separate implementation gate is granted
+
 
 ## Inventory rule
 

@@ -2872,6 +2872,351 @@ $projectAuditReportLines += @(
 )
 Write-Utf8NoBom (Join-Path $projectAuditRoot 'AUDIT_REPORT.yaml') ($projectAuditReportLines -join "`n")
 
+
+$agentReadinessRoot = Join-Path $WorkspaceFull '.hermes/agent-readiness'
+New-Item -ItemType Directory -Force -Path $agentReadinessRoot | Out-Null
+$Stage10Status = 'partial'
+$agentReadinessEvidenceFiles = @(
+  '.hermes/project-audit/AUDIT_REPORT.yaml',
+  '.hermes/project-audit/PLAN_INTEGRITY_REPORT.md',
+  '.hermes/project-audit/IMPLEMENTATION_BLOCKERS.md',
+  '.hermes/project-audit/REPAIR_RECOMMENDATIONS.md',
+  '.hermes/local-pilot/EXECUTION_PACKET.md',
+  '.hermes/local-pilot/FILE_CHANGE_PLAN.md',
+  '.hermes/local-pilot/COMMAND_PLAN.md',
+  '.hermes/local-pilot/TEST_PLAN.md',
+  '.hermes/reports/software-inventory-report.yaml',
+  '.hermes/reports/software-purpose-map.yaml',
+  '.hermes/reports/software-install-recommendation.yaml',
+  '.hermes/reports/capability-graph.yaml',
+  '.hermes/reports/starter-capability-pack.yaml'
+)
+$missingAgentReadinessEvidence = @($agentReadinessEvidenceFiles | Where-Object { -not (Test-Path (Join-Path $WorkspaceFull $_)) })
+if ($missingAgentReadinessEvidence.Count -gt 0) { $Stage10Status = 'blocked_missing_evidence' }
+
+$agentReadinessStartLines = @(
+  '# Start Here — Agent Execution Readiness and Toolchain Activation Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'You are at Stage 10. Stage 9 checked whether the plan is coherent. Stage 10 checks whether the agent, local software, Hermes toolsets, skills, agent pipeline, install gates, and command plan are ready for real execution.',
+  '',
+  'Stage 10 does not install software, enable Hermes toolsets, install skills, spawn agents, run implementation commands, run tests, read secrets, publish git, deploy, or mutate runtime/cloud/provider/gateway/n8n surfaces.',
+  '',
+  '## Read in this order',
+  '',
+  '1. PROJECT_TOOLCHAIN_REQUIREMENTS.md — what this project may need to execute.',
+  '2. SOFTWARE_GAP_ANALYSIS.md — present, missing, optional, and unknown software surfaces.',
+  '3. HERMES_TOOLSET_PLAN.md — which Hermes toolsets should be active for each work class after gate.',
+  '4. SKILL_LOAD_PLAN.md — which skills should be loaded before planning, implementation, verification, and PR work.',
+  '5. AGENT_PIPELINE_PLAN.md — planner, toolchain verifier, implementer, verification arbiter, owner gate.',
+  '6. INSTALL_PLAN.md — gated install command shapes, verification commands, risks, rollback.',
+  '7. COMMAND_READINESS.md — read-only, gated local, install, and forbidden command classes.',
+  '8. EXECUTION_READINESS_REPORT.yaml — machine-readable status.',
+  '',
+  '## Rule',
+  '',
+  'Execution is still blocked. Stage 10 may approve readiness analysis, not implementation. Real execution needs repaired Stage 9 blockers, owner readiness acceptance, and a separate implementation gate.'
+)
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'START_HERE.md') ($agentReadinessStartLines -join "`n")
+
+$toolchainRequirementsLines = @(
+  '# Project Toolchain Requirements',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Source lineage',
+  '',
+  '- .hermes/project-audit/AUDIT_REPORT.yaml',
+  '- .hermes/local-pilot/EXECUTION_PACKET.md',
+  '- .hermes/local-pilot/FILE_CHANGE_PLAN.md',
+  '- .hermes/local-pilot/COMMAND_PLAN.md',
+  '- .hermes/local-pilot/TEST_PLAN.md',
+  '- .hermes/reports/capability-graph.yaml',
+  '- .hermes/reports/starter-capability-pack.yaml',
+  '',
+  '## Universal execution requirement model',
+  '',
+  '| Work class | Software | Hermes toolsets | Skills | Gate | Verification |',
+  '| --- | --- | --- | --- | --- | --- |',
+  '| Local docs/config packet | git, python, ripgrep | file, terminal, code_execution, skills, todo | governed-agent-engineering-standards, experience-grounded-work-preflight | implementation_gate | readback + validators |',
+  '| Node/Web SaaS slice | git, node, npm, ripgrep | file, terminal, code_execution, browser optional | test-driven-development, requesting-code-review, github-pr-workflow | install_gate if node/npm missing | npm test/build after gate |',
+  '| Python/API slice | git, python, uv, ripgrep | file, terminal, code_execution | test-driven-development, systematic-debugging, github-pr-workflow | install_gate if uv/python deps missing | python tests after gate |',
+  '| External agent handoff | git, gh, codex/claude optional | terminal, file, skills, delegation optional | airmida-external-agent-tool-readiness, codex, claude-code | external_agent_gate | smoke pass or blocker recorded |',
+  '| Runtime/channel setup | hermes gateway, platform CLIs optional | terminal, file, skills | governed-messaging-gateway-setup, hermes-agent | runtime/provider/gateway/secret gates | status check after gate |',
+  '',
+  '## Current Stage 10 decision',
+  '',
+  'The project has a readiness model, but concrete execution remains blocked until Stage 9 blockers are resolved and project-specific software/toolset/skill gates are accepted.'
+)
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'PROJECT_TOOLCHAIN_REQUIREMENTS.md') ($toolchainRequirementsLines -join "`n")
+
+$softwareGapLines = @(
+  '# Software Gap Analysis',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'This file interprets Stage 3 software reports for execution readiness. It does not install anything.',
+  '',
+  '## Required baseline',
+  '',
+  '- Hermes: needed for operator session and generated reports.',
+  '- Git: needed for repository inspection, diffs, branch/PR workflow after gate.',
+  '- Python: needed for validators, scripts, and local checks.',
+  '',
+  '## Common SaaS implementation candidates',
+  '',
+  '- Node.js LTS + npm: common for frontend/web SaaS work.',
+  '- ripgrep: fast repo search and drift inspection.',
+  '- uv: Python dependency/tool runner when Python project work is selected.',
+  '- gh: GitHub PR/CI workflow after publication gate.',
+  '- Docker/WSL: optional, only when the project or runtime plan explicitly requires them.',
+  '',
+  '## Readiness classes',
+  '',
+  '- present: Stage 3 reported usable on this machine.',
+  '- missing_or_unknown: Stage 3 did not prove presence.',
+  '- optional_deferred: not required for current local slice.',
+  '- gated_install_candidate: may be installed only after owner install gate.',
+  '',
+  '## Current Stage 10 result',
+  '',
+  'Use .hermes/reports/software-inventory-report.yaml and software-install-recommendation.yaml as evidence. Do not infer installation readiness from memory or chat.'
+)
+if ($missingAgentReadinessEvidence.Count -gt 0) {
+  $softwareGapLines += @('', '## Missing source evidence')
+  foreach ($missingEvidence in $missingAgentReadinessEvidence) { $softwareGapLines += "- $missingEvidence" }
+}
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'SOFTWARE_GAP_ANALYSIS.md') ($softwareGapLines -join "`n")
+
+$toolsetPlanLines = @(
+  '# Hermes Toolset Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Stage 10 recommends toolsets. It does not enable them. Toolset changes require an explicit gate and usually a reset/new session.',
+  '',
+  '## Starter load order by work phase',
+  '',
+  '1. Planning/repair: file, terminal, code_execution, skills, todo.',
+  '2. Implementation after gate: file, terminal, code_execution, skills, todo.',
+  '3. Browser/UI verification after local server gate: browser, computer_use, vision.',
+  '4. Web research after research gate: web, session_search.',
+  '5. External agent handoff after gate: delegation, terminal, file, skills.',
+  '6. Messaging/runtime setup after separate gates: gateway/messaging-related tools only through approved setup path.',
+  '',
+  '## Boundaries',
+  '',
+  '- toolsets_enabled_without_gate: false',
+  '- toolset_activation_gate_required: true',
+  '- reset_required_after_toolset_change: true',
+  '- no runtime/provider/cloud/gateway/n8n mutation from this plan'
+)
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'HERMES_TOOLSET_PLAN.md') ($toolsetPlanLines -join "`n")
+
+$skillLoadPlanLines = @(
+  '# Skill Load Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Stage 10 selects skills to load before execution. It does not install network skills, patch unrelated skills, or write memory automatically.',
+  '',
+  '## Required skill stack before implementation planning',
+  '',
+  '- experience-grounded-work-preflight: verify proven path, gaps, gates, and next action.',
+  '- governed-agent-engineering-standards: packet/gate/verification discipline.',
+  '- hermes-agent: current Hermes commands, toolsets, profiles, gateway, skills behavior.',
+  '',
+  '## Conditional implementation skills',
+  '',
+  '- test-driven-development: when writing code/tests.',
+  '- systematic-debugging: when a failure needs root-cause analysis.',
+  '- requesting-code-review: before commit/PR quality checks.',
+  '- github-pr-workflow: branch, PR, CI, merge after publication gate.',
+  '- airmida-external-agent-tool-readiness: before Codex/Claude/gh external handoff.',
+  '- governed-messaging-gateway-setup: before live communication channel setup.',
+  '',
+  '## Boundaries',
+  '',
+  '- skill_load_gate_required: true',
+  '- skills_installed_without_gate: false',
+  '- persistent_memory_written_without_gate: false',
+  '- skills capture happens later through a dedicated skill-capture stage after proven success'
+)
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'SKILL_LOAD_PLAN.md') ($skillLoadPlanLines -join "`n")
+
+$agentPipelineLines = @(
+  '# Agent Pipeline Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Stage 10 defines the pipeline. It does not spawn agents or assign real work yet.',
+  '',
+  '## Recommended first pipeline',
+  '',
+  '1. Planner / Repair Agent',
+  '   - Reads Stage 9 audit.',
+  '   - Repairs missing fragments or records blockers.',
+  '',
+  '2. Toolchain Verifier',
+  '   - Reads Stage 3/4 reports and this Stage 10 package.',
+  '   - Verifies command/tool presence without secret readback.',
+  '   - Produces blockers or owner install/toolset gates.',
+  '',
+  '3. Implementer',
+  '   - Starts only after implementation gate.',
+  '   - Touches only approved file scope.',
+  '',
+  '4. Verification Arbiter',
+  '   - Runs approved tests/validators.',
+  '   - Compares result against expected output and acceptance tests.',
+  '',
+  '5. Owner Gate',
+  '   - Chooses accept, revise, publish, runtime readiness, or defer.',
+  '',
+  '## Boundaries',
+  '',
+  '- agents_spawned: false',
+  '- agent_pipeline_gate_required: true',
+  '- external_agent_gate required before Codex/Claude/Copilot-style execution'
+)
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'AGENT_PIPELINE_PLAN.md') ($agentPipelineLines -join "`n")
+
+$installPlanLines = @(
+  '# Install Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Stage 10 prepares install decisions. It does not run install commands.',
+  '',
+  '| Software | Why it may be needed | Example install command shape | Verify | Risk | Rollback | Gate |',
+  '| --- | --- | --- | --- | --- | --- | --- |',
+  '| Node.js LTS + npm | frontend/web SaaS implementation | winget install OpenJS.NodeJS.LTS | node --version; npm --version | PATH/restart/system change | winget uninstall OpenJS.NodeJS.LTS | install_gate |',
+  '| ripgrep | fast repo search and drift control | winget install BurntSushi.ripgrep.MSVC | rg --version | PATH/system package change | winget uninstall BurntSushi.ripgrep.MSVC | install_gate |',
+  '| uv | Python project/dependency runner | winget install astral-sh.uv or official installer | uv --version | PATH/system package change | winget uninstall astral-sh.uv | install_gate |',
+  '| GitHub CLI gh | PR/CI workflow | winget install GitHub.cli | gh --version; gh auth status | auth flow may be needed; no token in chat | winget uninstall GitHub.cli | install/auth gate |',
+  '| Docker Desktop | containerized runtime only if selected | winget install Docker.DockerDesktop | docker --version | service/runtime/system change | winget uninstall Docker.DockerDesktop | high-risk install gate |',
+  '',
+  '## Required rule',
+  '',
+  'Every install decision must include why, exact target, command, verification, risk, rollback, admin/restart/PATH notes, and explicit owner gate before execution.'
+)
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'INSTALL_PLAN.md') ($installPlanLines -join "`n")
+
+$commandReadinessLines = @(
+  '# Command Readiness',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Safe read-only before implementation gate',
+  '',
+  '- inspect approved project files',
+  '- git status --short --branch',
+  '- version checks for already installed tools',
+  '- read generated Stage 3-10 reports',
+  '',
+  '## Gated local commands',
+  '',
+  '- package install commands from INSTALL_PLAN.md after install_gate',
+  '- project tests/builds after implementation_gate and command approval',
+  '- format/lint commands after file scope is approved',
+  '',
+  '## Forbidden without separate gate',
+  '',
+  '- commands that read or print secrets',
+  '- git push/merge/rebase/reset/clean/publication',
+  '- cloud/provider/runtime deploy or mutation',
+  '- gateway pairing/autostart or live messenger/email/calendar setup',
+  '- n8n/MCP/database mutation',
+  '',
+  '## Stage 10 result',
+  '',
+  'commands_executed: false',
+  'tests_executed: false',
+  'dependencies_installed: false'
+)
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'COMMAND_READINESS.md') ($commandReadinessLines -join "`n")
+
+$executionReadinessLines = @(
+  'artifact_id: LAUNCHROOM_AGENT_EXECUTION_READINESS_v0_1',
+  'stage_id: stage_10_agent_execution_readiness',
+  "readiness_status: $Stage10Status",
+  'execution_ready: false',
+  'execution_allowed: false',
+  'install_gate_required: true',
+  'toolset_activation_gate_required: true',
+  'skill_load_gate_required: true',
+  'agent_pipeline_gate_required: true',
+  'status_marker: Hermes working artifact / not AIRMIDA authority',
+  "agent_readiness_root: $(ConvertTo-YamlSingleQuotedScalar $agentReadinessRoot)",
+  'source_lineage:',
+  '  stage9_audit: .hermes/project-audit/AUDIT_REPORT.yaml',
+  '  stage8_execution_packet: .hermes/local-pilot/EXECUTION_PACKET.md',
+  '  stage8_command_plan: .hermes/local-pilot/COMMAND_PLAN.md',
+  '  stage3_software_inventory: .hermes/reports/software-inventory-report.yaml',
+  '  stage3_install_recommendation: .hermes/reports/software-install-recommendation.yaml',
+  '  stage4_starter_capability_pack: .hermes/reports/starter-capability-pack.yaml',
+  'generated_files:',
+  '  - START_HERE.md',
+  '  - PROJECT_TOOLCHAIN_REQUIREMENTS.md',
+  '  - SOFTWARE_GAP_ANALYSIS.md',
+  '  - HERMES_TOOLSET_PLAN.md',
+  '  - SKILL_LOAD_PLAN.md',
+  '  - AGENT_PIPELINE_PLAN.md',
+  '  - INSTALL_PLAN.md',
+  '  - COMMAND_READINESS.md',
+  '  - EXECUTION_READINESS_REPORT.yaml',
+  'missing_source_evidence:'
+)
+if ($missingAgentReadinessEvidence.Count -eq 0) {
+  $executionReadinessLines += '  - none'
+} else {
+  foreach ($missingEvidence in $missingAgentReadinessEvidence) { $executionReadinessLines += "  - $(ConvertTo-YamlSingleQuotedScalar $missingEvidence)" }
+}
+$executionReadinessLines += @(
+  'readiness_checks:',
+  '  stage_9_audit_consumed: true',
+  '  project_toolchain_requirements_present: true',
+  '  software_gap_analysis_present: true',
+  '  hermes_toolset_plan_present: true',
+  '  skill_load_plan_present: true',
+  '  agent_pipeline_plan_present: true',
+  '  install_plan_present: true',
+  '  command_readiness_present: true',
+  '  execution_ready_false_until_owner_gate: true',
+  'action_flags:',
+  '  software_installed: false',
+  '  toolsets_enabled_without_gate: false',
+  '  skills_installed_without_gate: false',
+  '  persistent_memory_written_without_gate: false',
+  '  agents_spawned: false',
+  '  implementation_executed: false',
+  '  file_changes_executed: false',
+  '  commands_executed: false',
+  '  tests_executed: false',
+  '  dependencies_installed: false',
+  '  runtime_mutation: false',
+  '  cloud_mutation: false',
+  '  gateway_mutation: false',
+  '  n8n_mutation: false',
+  '  secrets_read_or_written: false',
+  '  git_publication_executed: false',
+  '  project_toolchain_requirements_present: true',
+  '  software_gap_analysis_present: true',
+  '  hermes_toolset_plan_present: true',
+  '  skill_load_plan_present: true',
+  '  agent_pipeline_plan_present: true',
+  '  install_plan_present: true',
+  '  command_readiness_present: true',
+  'next_owner_decision:',
+  '  - repair Stage 9 blockers',
+  '  - approve install plan for missing software',
+  '  - approve Hermes toolset or skill loading plan',
+  '  - approve implementation gate after readiness acceptance',
+  '  - defer execution'
+)
+Write-Utf8NoBom (Join-Path $agentReadinessRoot 'EXECUTION_READINESS_REPORT.yaml') ($executionReadinessLines -join "`n")
+
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
 $ToolsetPartialCount = @($toolsetResults | Where-Object { -not $_.ok }).Count
@@ -2948,6 +3293,15 @@ $verification = [ordered]@{
   project_audit_implementation_blockers_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/IMPLEMENTATION_BLOCKERS.md')
   project_audit_repair_recommendations_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/REPAIR_RECOMMENDATIONS.md')
   project_audit_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/AUDIT_REPORT.yaml')
+  agent_readiness_start_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/START_HERE.md')
+  agent_readiness_toolchain_requirements_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/PROJECT_TOOLCHAIN_REQUIREMENTS.md')
+  agent_readiness_software_gap_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/SOFTWARE_GAP_ANALYSIS.md')
+  agent_readiness_toolset_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/HERMES_TOOLSET_PLAN.md')
+  agent_readiness_skill_load_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/SKILL_LOAD_PLAN.md')
+  agent_readiness_agent_pipeline_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/AGENT_PIPELINE_PLAN.md')
+  agent_readiness_install_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/INSTALL_PLAN.md')
+  agent_readiness_command_readiness_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/COMMAND_READINESS.md')
+  agent_readiness_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml')
   operator_kit_root_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit')
   stage3_status = $Stage3Status
   stage3_missing_required = ($missingRequired -join ',')
@@ -2958,6 +3312,7 @@ $verification = [ordered]@{
   stage7_status = $Stage7Status
   stage8_status = $Stage8Status
   stage9_status = $Stage9Status
+  stage10_status = $Stage10Status
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -2972,7 +3327,8 @@ $Stage6ReportsOk = $verification.operator_kit_root_exists -and $verification.ope
 $Stage7ReportsOk = $verification.first_slice_start_exists -and $verification.first_slice_implementation_brief_exists -and $verification.first_slice_local_pilot_plan_exists -and $verification.first_slice_acceptance_tests_exists -and $verification.first_slice_user_demo_script_exists -and $verification.first_slice_risks_rollback_exists -and $verification.first_slice_decision_gate_exists -and $verification.first_slice_readiness_exists
 $Stage8ReportsOk = $verification.local_pilot_start_exists -and $verification.local_pilot_execution_packet_exists -and $verification.local_pilot_file_change_plan_exists -and $verification.local_pilot_command_plan_exists -and $verification.local_pilot_test_plan_exists -and $verification.local_pilot_evidence_log_exists -and $verification.local_pilot_review_checklist_exists -and $verification.local_pilot_handoff_summary_exists -and $verification.local_pilot_readiness_exists
 $Stage9ReportsOk = $verification.project_audit_start_exists -and $verification.project_audit_plan_integrity_exists -and $verification.project_audit_expected_result_exists -and $verification.project_audit_missing_fragments_exists -and $verification.project_audit_contradiction_scan_exists -and $verification.project_audit_stage_drift_scan_exists -and $verification.project_audit_assumption_register_exists -and $verification.project_audit_implementation_blockers_exists -and $verification.project_audit_repair_recommendations_exists -and $verification.project_audit_report_exists
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk
+$Stage10ReportsOk = $verification.agent_readiness_start_exists -and $verification.agent_readiness_toolchain_requirements_exists -and $verification.agent_readiness_software_gap_exists -and $verification.agent_readiness_toolset_plan_exists -and $verification.agent_readiness_skill_load_plan_exists -and $verification.agent_readiness_agent_pipeline_plan_exists -and $verification.agent_readiness_install_plan_exists -and $verification.agent_readiness_command_readiness_exists -and $verification.agent_readiness_report_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk -and $Stage10ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -2981,9 +3337,9 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
@@ -2999,8 +3355,10 @@ Write-Host "local_pilot_execution_packet: execution packet -> file change plan -
 Write-Host "stage8_status: $Stage8Status; implementation_executed=false; file_changes_executed: false; commands_executed: false; tests_executed: false; runtime_mutation=false; gateway_mutation=false"
 Write-Host "project_plan_integrity_audit: expected result map -> missing fragments -> contradiction scan -> stage drift scan -> repair recommendations"
 Write-Host "stage9_status: $Stage9Status; execution_allowed=false; implementation_executed=false; commands_executed=false; tests_executed=false; runtime_mutation=false"
+Write-Host "agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness"
+Write-Host "stage10_status: $Stage10Status; execution_ready=false; execution_allowed=false; install_gate_required=true; toolsets_enabled_without_gate=false; skills_installed_without_gate=false; agents_spawned=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: review_project_audit_or_prepare_stage10_readiness"
+Write-Host "next_stage: review_agent_readiness_or_prepare_stage11_hygiene"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }
