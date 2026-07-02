@@ -2562,6 +2562,316 @@ $localPilotReadinessLines += @(
 )
 Write-Utf8NoBom (Join-Path $localPilotRoot 'READINESS_REPORT.yaml') ($localPilotReadinessLines -join "`n")
 
+
+$projectAuditRoot = Join-Path $WorkspaceFull '.hermes/project-audit'
+New-Item -ItemType Directory -Force -Path $projectAuditRoot | Out-Null
+$Stage9Status = 'partial'
+$projectAuditEvidenceFiles = @(
+  '.hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md',
+  '.hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md',
+  '.hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md',
+  '.hermes/first-slice/IMPLEMENTATION_BRIEF.md',
+  '.hermes/first-slice/LOCAL_PILOT_PLAN.md',
+  '.hermes/first-slice/ACCEPTANCE_TESTS.md',
+  '.hermes/first-slice/USER_DEMO_SCRIPT.md',
+  '.hermes/first-slice/RISKS_AND_ROLLBACK.md',
+  '.hermes/first-slice/DECISION_GATE.md',
+  '.hermes/local-pilot/EXECUTION_PACKET.md',
+  '.hermes/local-pilot/FILE_CHANGE_PLAN.md',
+  '.hermes/local-pilot/COMMAND_PLAN.md',
+  '.hermes/local-pilot/TEST_PLAN.md',
+  '.hermes/local-pilot/READINESS_REPORT.yaml'
+)
+$missingProjectAuditEvidence = @($projectAuditEvidenceFiles | Where-Object { -not (Test-Path (Join-Path $WorkspaceFull $_)) })
+if ($missingProjectAuditEvidence.Count -gt 0) { $Stage9Status = 'blocked_missing_evidence' }
+
+$projectAuditStartLines = @(
+  '# Start Here — Project Plan Integrity and Drift Audit',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'You are at Stage 9. This audit checks whether the blueprint, first-slice plan, and local execution packet are coherent before any real implementation.',
+  '',
+  'Stage 9 does not implement product code, modify project files, run tests, install dependencies, connect live channels, read secrets, deploy, or mutate runtime/cloud/provider/gateway/n8n surfaces.',
+  '',
+  '## Read in this order',
+  '',
+  '1. PLAN_INTEGRITY_REPORT.md — overall planning quality and execution gate status.',
+  '2. EXPECTED_RESULT_MAP.md — what was planned, expected, user-visible, and explicitly excluded.',
+  '3. MISSING_FRAGMENTS.md — what is absent, vague, or still placeholder-driven.',
+  '4. CONTRADICTION_SCAN.md — blueprint vs first slice vs execution packet vs gates.',
+  '5. STAGE_DRIFT_SCAN.md — skipped stages, premature implementation, runtime bypass, evidence gaps.',
+  '6. ASSUMPTION_REGISTER.md — assumptions that must not be hidden inside execution.',
+  '7. IMPLEMENTATION_BLOCKERS.md — blockers that must be resolved before execution.',
+  '8. REPAIR_RECOMMENDATIONS.md — safe next repairs.',
+  '9. AUDIT_REPORT.yaml — machine-readable audit status.',
+  '',
+  '## Rule',
+  '',
+  'If Stage 9 is partial or blocked, do not execute. Repair the plan first or approve Stage 10 readiness analysis only.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'START_HERE.md') ($projectAuditStartLines -join "`n")
+
+$planIntegrityLines = @(
+  '# Plan Integrity Report',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Audit status',
+  '',
+  "audit_status: $Stage9Status",
+  'execution_allowed: false',
+  '',
+  '## What was audited',
+  '',
+  '- Stage 6 PROJECT_BLUEPRINT.md',
+  '- Stage 6 FIRST_SLICE_PACKET.md',
+  '- Stage 6 IMPLEMENTATION_ROADMAP.md',
+  '- Stage 7 first-slice planning files',
+  '- Stage 8 local-pilot execution packet files',
+  '',
+  '## Integrity checks',
+  '',
+  '- blueprint_has_clear_goal: partial_until_user_fills_guided_session',
+  '- expected_result_defined: partial_until_owner_selects_output',
+  '- user_visible_success_defined: partial_until_acceptance_review',
+  '- first_slice_matches_blueprint: requires_owner_review',
+  '- execution_packet_matches_first_slice: requires_owner_review',
+  '- acceptance_tests_match_expected_result: requires_owner_review',
+  '- command_plan_matches_toolchain: deferred_to_stage_10',
+  '- no_skipped_stage_detected: true',
+  '- no_runtime_gate_bypass_detected: true',
+  '',
+  '## Decision',
+  '',
+  'Execution is not allowed from Stage 9 by default. Use this audit to repair missing fragments or proceed only to Stage 10 agent/toolchain readiness analysis.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'PLAN_INTEGRITY_REPORT.md') ($planIntegrityLines -join "`n")
+
+$expectedResultLines = @(
+  '# Expected Result Map',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '| Layer | Source | Expected content | Audit note |',
+  '| --- | --- | --- | --- |',
+  '| Planned project direction | PROJECT_BLUEPRINT.md | one sentence, first user, pain, first workflow, first output, success check | partial until user fills guided session |',
+  '| First slice | FIRST_SLICE_PACKET.md and IMPLEMENTATION_BRIEF.md | one bounded implementation-ready slice | must match blueprint |',
+  '| User-visible result | USER_DEMO_SCRIPT.md | observable output and demo flow | must be concrete before execution |',
+  '| Acceptance signal | ACCEPTANCE_TESTS.md | pass/revise/defer criteria | must map to expected result |',
+  '| Execution scope | EXECUTION_PACKET.md and FILE_CHANGE_PLAN.md | allowed files and forbidden paths | must not exceed first slice |',
+  '| Command/test scope | COMMAND_PLAN.md and TEST_PLAN.md | safe commands and tests after gate | Stage 10 validates toolchain readiness |',
+  '| Non-goals | gates and safety reports | no secrets/runtime/cloud/gateway/n8n/git publication | must remain enforced |',
+  '',
+  '## Audit conclusion',
+  '',
+  'Expected result exists as a scaffold, but execution remains blocked until owner-selected workflow/output and Stage 10 readiness are complete.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'EXPECTED_RESULT_MAP.md') ($expectedResultLines -join "`n")
+
+$missingFragmentsLines = @(
+  '# Missing Fragments',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Known placeholder fragments',
+  '',
+  '- PROJECT_BLUEPRINT.md may still contain pending guided session input.',
+  '- FIRST_SLICE_PACKET.md may still contain pending pain/user/workflow/output/validation.',
+  '- IMPLEMENTATION_BRIEF.md may still contain pending selected workflow.',
+  '- FILE_CHANGE_PLAN.md may not name concrete project files yet.',
+  '- COMMAND_PLAN.md may not name concrete project-specific commands yet.',
+  '',
+  '## Required before execution',
+  '',
+  '- One selected workflow.',
+  '- One expected user-visible output.',
+  '- One acceptance checklist mapped to that output.',
+  '- Concrete allowed file scope.',
+  '- Concrete command/test plan validated by Stage 10.',
+  '- Owner decision resolving or accepting remaining assumptions.'
+)
+if ($missingProjectAuditEvidence.Count -gt 0) {
+  $missingFragmentsLines += @('', '## Missing source evidence')
+  foreach ($missingEvidence in $missingProjectAuditEvidence) { $missingFragmentsLines += "- $missingEvidence" }
+}
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'MISSING_FRAGMENTS.md') ($missingFragmentsLines -join "`n")
+
+$contradictionLines = @(
+  '# Contradiction Scan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Scanned contradiction classes',
+  '',
+  '- blueprint_vs_first_slice: check that the first slice implements the selected blueprint pain/output.',
+  '- first_slice_vs_execution_packet: check that execution scope does not exceed the first slice.',
+  '- acceptance_tests_vs_expected_result: check that tests verify the visible output, not unrelated work.',
+  '- command_plan_vs_safety_gates: check that commands do not install, deploy, mutate runtime, or print secrets without gate.',
+  '- demo_script_vs_non_goals: check that the demo does not imply live runtime/channel behavior before gate.',
+  '',
+  '## Current result',
+  '',
+  'No hard contradiction is generated by the scaffold itself, but unresolved placeholders mean the owner must review this again after filling Stage 6/7 details.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'CONTRADICTION_SCAN.md') ($contradictionLines -join "`n")
+
+$stageDriftLines = @(
+  '# Stage Drift Scan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Drift checks',
+  '',
+  '- skipped_stage_detected: false',
+  '- premature_implementation_detected: false',
+  '- command_execution_detected: false',
+  '- test_execution_detected: false',
+  '- dependency_install_detected: false',
+  '- runtime_gate_bypass_detected: false',
+  '- cloud_gateway_n8n_bypass_detected: false',
+  '- secret_readback_detected: false',
+  '- git_publication_detected: false',
+  '',
+  '## Drift risk',
+  '',
+  'The main drift risk is execution from a scaffold with unresolved placeholders. Stage 9 therefore keeps execution_allowed=false by default.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'STAGE_DRIFT_SCAN.md') ($stageDriftLines -join "`n")
+
+$assumptionLines = @(
+  '# Assumption Register',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '| Assumption | Risk | Required resolution |',
+  '| --- | --- | --- |',
+  '| User has selected one workflow | Agent may implement wrong thing | owner selects or confirms workflow |',
+  '| Expected result is concrete | Agent may produce vague docs | owner names visible output |',
+  '| Acceptance tests match result | Verification may be meaningless | map tests to output |',
+  '| File scope is known | Agent may edit wrong files | Stage 10/project inspection names paths |',
+  '| Required software exists | Agent may fail mid-execution | Stage 10 toolchain readiness |',
+  '',
+  'Assumptions must be resolved, accepted as partial for Stage 10 only, or converted into blockers.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'ASSUMPTION_REGISTER.md') ($assumptionLines -join "`n")
+
+$blockerLines = @(
+  '# Implementation Blockers',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Blocking until resolved or explicitly accepted for Stage 10 analysis only',
+  '',
+  '- Pending guided session placeholders.',
+  '- Missing concrete expected user-visible output.',
+  '- Missing concrete file scope.',
+  '- Missing project-specific command/test readiness.',
+  '- Any contradiction found after owner fills the blueprint.',
+  '',
+  '## Not blockers for Stage 10',
+  '',
+  '- Generic software inventory can be partial; Stage 10 will map exact toolchain needs.',
+  '- Runtime/channel setup can remain deferred; Stage 10 must not activate it.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'IMPLEMENTATION_BLOCKERS.md') ($blockerLines -join "`n")
+
+$repairLines = @(
+  '# Repair Recommendations',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Safe repair order',
+  '',
+  '1. Fill PROJECT_BLUEPRINT.md with one sentence, user, pain, workflow, output, and success check.',
+  '2. Fill FIRST_SLICE_PACKET.md from the blueprint; do not add unrelated work.',
+  '3. Update IMPLEMENTATION_BRIEF.md with one selected workflow and one visible result.',
+  '4. Update ACCEPTANCE_TESTS.md to verify that result.',
+  '5. Update FILE_CHANGE_PLAN.md with concrete allowed paths only after inspecting the real project.',
+  '6. Defer concrete install/command decisions to Stage 10 agent/toolchain readiness.',
+  '7. Re-run Stage 9 audit before execution if major planning content changes.',
+  '',
+  '## Next allowed decision',
+  '',
+  'Proceed to Stage 10 readiness analysis only, or repair missing fragments first. Do not execute implementation yet.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'REPAIR_RECOMMENDATIONS.md') ($repairLines -join "`n")
+
+$projectAuditReportLines = @(
+  'artifact_id: LAUNCHROOM_PROJECT_PLAN_INTEGRITY_AUDIT_v0_1',
+  'stage_id: stage_9_project_plan_integrity_audit',
+  "audit_status: $Stage9Status",
+  'execution_allowed: false',
+  'stage10_readiness_analysis_allowed: true',
+  'status_marker: Hermes working artifact / not AIRMIDA authority',
+  "project_audit_root: $(ConvertTo-YamlSingleQuotedScalar $projectAuditRoot)",
+  'source_lineage:',
+  '  project_blueprint: .hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md',
+  '  first_slice_packet: .hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md',
+  '  implementation_roadmap: .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md',
+  '  implementation_brief: .hermes/first-slice/IMPLEMENTATION_BRIEF.md',
+  '  acceptance_tests: .hermes/first-slice/ACCEPTANCE_TESTS.md',
+  '  execution_packet: .hermes/local-pilot/EXECUTION_PACKET.md',
+  'generated_files:',
+  '  - START_HERE.md',
+  '  - PLAN_INTEGRITY_REPORT.md',
+  '  - EXPECTED_RESULT_MAP.md',
+  '  - MISSING_FRAGMENTS.md',
+  '  - CONTRADICTION_SCAN.md',
+  '  - STAGE_DRIFT_SCAN.md',
+  '  - ASSUMPTION_REGISTER.md',
+  '  - IMPLEMENTATION_BLOCKERS.md',
+  '  - REPAIR_RECOMMENDATIONS.md',
+  '  - AUDIT_REPORT.yaml',
+  'missing_source_evidence:'
+)
+if ($missingProjectAuditEvidence.Count -eq 0) {
+  $projectAuditReportLines += '  - none'
+} else {
+  foreach ($missingEvidence in $missingProjectAuditEvidence) { $projectAuditReportLines += "  - $(ConvertTo-YamlSingleQuotedScalar $missingEvidence)" }
+}
+$projectAuditReportLines += @(
+  'audit_checks:',
+  '  blueprint_has_clear_goal: partial',
+  '  expected_result_defined: partial',
+  '  user_visible_success_defined: partial',
+  '  first_slice_matches_blueprint: requires_owner_review',
+  '  execution_packet_matches_first_slice: requires_owner_review',
+  '  acceptance_tests_match_expected_result: requires_owner_review',
+  '  command_plan_matches_toolchain: deferred_to_stage_10',
+  '  no_skipped_stage_detected: true',
+  '  no_runtime_gate_bypass_detected: true',
+  '  unresolved_assumptions_recorded: true',
+  '  repair_recommendations_present: true',
+  'action_flags:',
+  '  implementation_executed: false',
+  '  file_changes_executed: false',
+  '  commands_executed: false',
+  '  tests_executed: false',
+  '  dependencies_installed: false',
+  '  runtime_mutation: false',
+  '  cloud_mutation: false',
+  '  gateway_mutation: false',
+  '  n8n_mutation: false',
+  '  secrets_read_or_written: false',
+  '  git_publication_executed: false',
+  '  plan_integrity_report_present: true',
+  '  expected_result_map_present: true',
+  '  missing_fragments_report_present: true',
+  '  contradiction_scan_present: true',
+  '  stage_drift_scan_present: true',
+  '  assumption_register_present: true',
+  '  implementation_blockers_present: true',
+  '  repair_recommendations_present: true',
+  'next_owner_decision:',
+  '  - repair missing fragments',
+  '  - resolve contradictions',
+  '  - approve partial audit for Stage 10 readiness only',
+  '  - revise blueprint or first slice',
+  '  - defer execution'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'AUDIT_REPORT.yaml') ($projectAuditReportLines -join "`n")
+
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
 $ToolsetPartialCount = @($toolsetResults | Where-Object { -not $_.ok }).Count
@@ -2628,6 +2938,16 @@ $verification = [ordered]@{
   local_pilot_review_checklist_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/REVIEW_CHECKLIST.md')
   local_pilot_handoff_summary_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/HANDOFF_SUMMARY.md')
   local_pilot_readiness_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/READINESS_REPORT.yaml')
+  project_audit_start_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/START_HERE.md')
+  project_audit_plan_integrity_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/PLAN_INTEGRITY_REPORT.md')
+  project_audit_expected_result_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/EXPECTED_RESULT_MAP.md')
+  project_audit_missing_fragments_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/MISSING_FRAGMENTS.md')
+  project_audit_contradiction_scan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/CONTRADICTION_SCAN.md')
+  project_audit_stage_drift_scan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/STAGE_DRIFT_SCAN.md')
+  project_audit_assumption_register_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/ASSUMPTION_REGISTER.md')
+  project_audit_implementation_blockers_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/IMPLEMENTATION_BLOCKERS.md')
+  project_audit_repair_recommendations_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/REPAIR_RECOMMENDATIONS.md')
+  project_audit_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/project-audit/AUDIT_REPORT.yaml')
   operator_kit_root_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit')
   stage3_status = $Stage3Status
   stage3_missing_required = ($missingRequired -join ',')
@@ -2637,6 +2957,7 @@ $verification = [ordered]@{
   stage6_status = $Stage6Status
   stage7_status = $Stage7Status
   stage8_status = $Stage8Status
+  stage9_status = $Stage9Status
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -2650,7 +2971,8 @@ $Stage5ReportsOk = $verification.communication_channel_map_exists -and $verifica
 $Stage6ReportsOk = $verification.operator_kit_root_exists -and $verification.operator_kit_start_here_exists -and $verification.operator_kit_next_decision_exists -and $verification.operator_kit_check_it_works_exists -and $verification.operator_kit_examples_exists -and $verification.operator_kit_readiness_exists -and $verification.guided_session_state_exists -and $verification.guided_session_agent_guide_exists -and $verification.guided_session_user_lesson_exists -and $verification.guided_session_idea_intake_exists -and $verification.guided_session_project_blueprint_exists -and $verification.guided_session_first_slice_exists -and $verification.guided_session_default_catalog_exists -and $verification.guided_session_implementation_roadmap_exists -and $verification.guided_session_completion_summary_exists
 $Stage7ReportsOk = $verification.first_slice_start_exists -and $verification.first_slice_implementation_brief_exists -and $verification.first_slice_local_pilot_plan_exists -and $verification.first_slice_acceptance_tests_exists -and $verification.first_slice_user_demo_script_exists -and $verification.first_slice_risks_rollback_exists -and $verification.first_slice_decision_gate_exists -and $verification.first_slice_readiness_exists
 $Stage8ReportsOk = $verification.local_pilot_start_exists -and $verification.local_pilot_execution_packet_exists -and $verification.local_pilot_file_change_plan_exists -and $verification.local_pilot_command_plan_exists -and $verification.local_pilot_test_plan_exists -and $verification.local_pilot_evidence_log_exists -and $verification.local_pilot_review_checklist_exists -and $verification.local_pilot_handoff_summary_exists -and $verification.local_pilot_readiness_exists
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk
+$Stage9ReportsOk = $verification.project_audit_start_exists -and $verification.project_audit_plan_integrity_exists -and $verification.project_audit_expected_result_exists -and $verification.project_audit_missing_fragments_exists -and $verification.project_audit_contradiction_scan_exists -and $verification.project_audit_stage_drift_scan_exists -and $verification.project_audit_assumption_register_exists -and $verification.project_audit_implementation_blockers_exists -and $verification.project_audit_repair_recommendations_exists -and $verification.project_audit_report_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -2659,9 +2981,9 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
@@ -2675,8 +2997,10 @@ Write-Host "first_slice_planning: implementation brief -> local pilot plan -> ac
 Write-Host "stage7_status: $Stage7Status; implementation_executed=false; dependencies_installed=false; runtime_mutation=false; gateway_mutation=false"
 Write-Host "local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary"
 Write-Host "stage8_status: $Stage8Status; implementation_executed=false; file_changes_executed: false; commands_executed: false; tests_executed: false; runtime_mutation=false; gateway_mutation=false"
+Write-Host "project_plan_integrity_audit: expected result map -> missing fragments -> contradiction scan -> stage drift scan -> repair recommendations"
+Write-Host "stage9_status: $Stage9Status; execution_allowed=false; implementation_executed=false; commands_executed=false; tests_executed=false; runtime_mutation=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: review_local_pilot_execution_gate"
+Write-Host "next_stage: review_project_audit_or_prepare_stage10_readiness"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }

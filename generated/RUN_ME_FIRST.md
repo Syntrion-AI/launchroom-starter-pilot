@@ -203,6 +203,23 @@ Pass requires:
 - implementation, file changes, commands, tests, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated
 - next execution gate is explicit
 
+### stage_9 - Project plan integrity and drift audit
+
+Purpose: Audit the Stage 6 blueprint, Stage 7 first-slice plan, and Stage 8 local execution packet before implementation; detect missing fragments, contradictions, incompatible assumptions, skipped stages, execution drift risk, and repair recommendations without executing implementation or mutating runtime/cloud/provider/gateway/n8n surfaces.
+
+Pass requires:
+- project audit folder exists
+- PLAN_INTEGRITY_REPORT.md, EXPECTED_RESULT_MAP.md, MISSING_FRAGMENTS.md, CONTRADICTION_SCAN.md, STAGE_DRIFT_SCAN.md, ASSUMPTION_REGISTER.md, IMPLEMENTATION_BLOCKERS.md, REPAIR_RECOMMENDATIONS.md, and AUDIT_REPORT.yaml exist
+- project-audit/AUDIT_REPORT.yaml parses as YAML
+- Stage 6 blueprint, Stage 7 first-slice plan, and Stage 8 local execution packet are referenced
+- expected result map separates planned result, user-visible result, acceptance signal, and non-goals
+- missing fragments and assumptions are explicitly recorded
+- contradiction scan checks blueprint vs first slice vs execution packet vs gates
+- stage drift scan checks skipped stages, premature implementation, runtime bypass, and evidence gaps
+- execution_allowed is false by default until blockers are resolved or owner accepts partial audit for Stage 10 only
+- implementation, file changes, commands, tests, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated
+- next repair/readiness decision is explicit
+
 
 ## Inventory rule
 
