@@ -1,0 +1,127 @@
+artifact_id: LAUNCHROOM_STAGE_7_FIRST_SLICE_PLANNING_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_7_first_slice_planning
+stage_name: First Slice Implementation Planning and Local Pilot Readiness
+language: en
+
+purpose:
+  summary: >-
+    Convert the Stage 6 guided operator kit into a concrete, gated first-slice
+    implementation planning packet and local pilot readiness folder. Stage 7 does
+    not implement product code, connect live channels, install dependencies, deploy,
+    or mutate runtime/cloud/provider/gateway/n8n surfaces. It prepares the next
+    safe working result before an implementation gate.
+  not_purpose:
+    - not application implementation
+    - not production deployment
+    - not live messenger/email/calendar/notes connection
+    - not dependency installation
+    - not provider/model/billing changes
+    - not Cloudflare, Hetzner, n8n, MCP, database, or gateway mutation
+    - not git push/public release from generated artifacts
+    - not secret readback or credential storage
+
+stage_boundary:
+  consumes:
+    - .hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md
+    - .hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md
+    - .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md
+    - .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md
+  owns:
+    - first-slice planning folder
+    - implementation brief scaffold
+    - local pilot plan scaffold
+    - acceptance test checklist
+    - user demo script
+    - risk and rollback plan
+    - decision gate checklist
+    - readiness report with evidence and next gates
+  does_not_own:
+    - writing product code
+    - connecting real communication channels
+    - reading/writing secrets
+    - changing Hermes runtime/provider/gateway configuration
+    - creating cloud resources
+
+first_slice_layout:
+  root: .hermes/first-slice/
+  required_files:
+    - START_HERE.md
+    - IMPLEMENTATION_BRIEF.md
+    - LOCAL_PILOT_PLAN.md
+    - ACCEPTANCE_TESTS.md
+    - USER_DEMO_SCRIPT.md
+    - RISKS_AND_ROLLBACK.md
+    - DECISION_GATE.md
+    - READINESS_REPORT.yaml
+
+packet_model:
+  status_marker: Hermes working artifact / not AIRMIDA authority
+  task_flow: blueprint -> first slice packet -> implementation brief -> local pilot plan -> acceptance tests -> demo script -> decision gate
+  permission_tier: local_planning_and_pilot_readiness_only
+  required_fields:
+    - objective
+    - source_lineage
+    - selected_workflow
+    - output_target
+    - user_visible_success
+    - acceptance_tests
+    - allowed_actions
+    - forbidden_actions
+    - rollback_plan
+    - next_gate
+
+outputs:
+  required:
+    - .hermes/first-slice/START_HERE.md
+    - .hermes/first-slice/IMPLEMENTATION_BRIEF.md
+    - .hermes/first-slice/LOCAL_PILOT_PLAN.md
+    - .hermes/first-slice/ACCEPTANCE_TESTS.md
+    - .hermes/first-slice/USER_DEMO_SCRIPT.md
+    - .hermes/first-slice/RISKS_AND_ROLLBACK.md
+    - .hermes/first-slice/DECISION_GATE.md
+    - .hermes/first-slice/READINESS_REPORT.yaml
+  required_markers:
+    - Hermes working artifact / not AIRMIDA authority
+    - implementation_executed: false
+    - dependencies_installed: false
+    - runtime_mutation: false
+    - cloud_mutation: false
+    - gateway_mutation: false
+    - n8n_mutation: false
+    - secrets_read_or_written: false
+    - git_publication_executed: false
+    - local_pilot_plan_present: true
+    - acceptance_tests_present: true
+    - user_demo_script_present: true
+    - next_implementation_gate_present: true
+
+acceptance_criteria:
+  - First-slice folder exists under workspace `.hermes/first-slice/`.
+  - All required markdown and YAML planning files exist.
+  - READINESS_REPORT.yaml parses as YAML.
+  - Stage 7 references Stage 6 blueprint, first slice packet, roadmap, and default workflow catalog.
+  - Implementation brief states one output target and one user-visible success check.
+  - Local pilot plan describes how to verify the first slice without live runtime/cloud/provider/gateway/n8n mutation.
+  - Acceptance tests are human-readable and executor-ready after an implementation gate.
+  - User demo script explains how the user will see the working result.
+  - Decision gate separates implement, revise, connect channel, runtime readiness, and defer.
+  - All implementation/runtime/cloud/provider/gateway/n8n/git/secret actions remain false/gated.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: First-slice implementation planning and local pilot readiness packet exists.
+  partial:
+    meaning: Packet exists but some Stage 6 evidence is missing or deferred.
+  blocked:
+    meaning: First-slice planning cannot be generated safely.
+
+next_decision:
+  options:
+    - approve implementation planning
+    - revise first slice
+    - run a local-only pilot after gate
+    - prepare communication channel setup gate
+    - defer implementation

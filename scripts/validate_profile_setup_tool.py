@@ -116,6 +116,14 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'DEFAULT_WORKFLOW_CATALOG.md',
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'IMPLEMENTATION_ROADMAP.md',
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'COMPLETION_SUMMARY.md',
+            workspace_root / '.hermes' / 'first-slice' / 'START_HERE.md',
+            workspace_root / '.hermes' / 'first-slice' / 'IMPLEMENTATION_BRIEF.md',
+            workspace_root / '.hermes' / 'first-slice' / 'LOCAL_PILOT_PLAN.md',
+            workspace_root / '.hermes' / 'first-slice' / 'ACCEPTANCE_TESTS.md',
+            workspace_root / '.hermes' / 'first-slice' / 'USER_DEMO_SCRIPT.md',
+            workspace_root / '.hermes' / 'first-slice' / 'RISKS_AND_ROLLBACK.md',
+            workspace_root / '.hermes' / 'first-slice' / 'DECISION_GATE.md',
+            workspace_root / '.hermes' / 'first-slice' / 'READINESS_REPORT.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -141,6 +149,8 @@ def run_self_test_if_available() -> None:
         operator_readiness = yaml.safe_load((workspace_root / '.hermes' / 'operator-kit' / 'readiness_report.yaml').read_text(encoding='utf-8'))
         operator_text = '\n'.join((workspace_root / '.hermes' / 'operator-kit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','NEXT_DECISION.md','CHECK_IT_WORKS.md','PAIN_TO_WORKFLOW_EXAMPLES.md','product_brief.md','target_user.md','first_workflow.md','backlog.md','local_task_packet.md','gates.md'])
         guided_text = '\n'.join((workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / name).read_text(encoding='utf-8') for name in ['SESSION_STATE.yaml','AGENT_GUIDE.md','USER_LESSON.md','IDEA_INTAKE.md','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','DEFAULT_WORKFLOW_CATALOG.md','IMPLEMENTATION_ROADMAP.md','COMPLETION_SUMMARY.md'])
+        first_slice_readiness = yaml.safe_load((workspace_root / '.hermes' / 'first-slice' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
+        first_slice_text = '\n'.join((workspace_root / '.hermes' / 'first-slice' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','USER_DEMO_SCRIPT.md','RISKS_AND_ROLLBACK.md','DECISION_GATE.md'])
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -254,6 +264,28 @@ def run_self_test_if_available() -> None:
         for needle in ['agent must lead','DEFAULT_WORKFLOW_CATALOG.md','messenger setup','Telegram or Discord channel management','Email, calendar, and notes assistant','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','IMPLEMENTATION_ROADMAP.md','blueprint -> first slice packet -> implementation plan -> local pilot -> verification -> next gate','working result']:
             if needle not in guided_text:
                 print('FAIL: self-test guided session text missing ' + needle)
+                raise SystemExit(1)
+        if first_slice_readiness.get('artifact_id') != 'LAUNCHROOM_FIRST_SLICE_READINESS_v0_1':
+            print('FAIL: self-test first slice readiness has wrong artifact_id')
+            raise SystemExit(1)
+        if first_slice_readiness.get('stage_id') != 'stage_7_first_slice_planning':
+            print('FAIL: self-test first slice readiness has wrong stage_id')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in first_slice_readiness.get('status_marker',''):
+            print('FAIL: self-test first slice readiness missing non-authority marker')
+            raise SystemExit(1)
+        first_slice_flags = first_slice_readiness.get('action_flags', {})
+        for key in ['implementation_executed','dependencies_installed','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
+            if first_slice_flags.get(key) is not False:
+                print('FAIL: self-test first slice action flag not false: ' + key)
+                raise SystemExit(1)
+        for key in ['local_pilot_plan_present','acceptance_tests_present','user_demo_script_present','next_implementation_gate_present']:
+            if first_slice_flags.get(key) is not True:
+                print('FAIL: self-test first slice readiness flag not true: ' + key)
+                raise SystemExit(1)
+        for needle in ['First Slice Planning','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','USER_DEMO_SCRIPT.md','DECISION_GATE.md','implementation_planning_gate','communication_channel_setup_gate','working result','No implementation before implementation_gate']:
+            if needle not in first_slice_text:
+                print('FAIL: self-test first slice text missing ' + needle)
                 raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
@@ -369,7 +401,11 @@ def main() -> int:
         ('no_idea_default_workflow_catalog_present=true','prints no-idea default catalog present'),
         ('blueprint_to_solution_path_present=true','prints blueprint-to-solution path present'),
         ('cloud_mutation=false','records no cloud mutation'),
-        ('next_stage: review_operator_kit_or_choose_first_vertical_slice','hands off to operator kit review'),
+        ('first-slice/READINESS_REPORT.yaml','writes Stage 7 first-slice readiness report'),
+        ('first_slice_planning: implementation brief -> local pilot plan -> acceptance tests -> demo script -> decision gate','prints Stage 7 summary'),
+        ('stage7_status: $Stage7Status','prints Stage 7 status'),
+        ('dependencies_installed=false','records no dependency install'),
+        ('next_stage: review_first_slice_decision_gate','hands off to first-slice decision gate'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),
         ('purpose','maps software purpose'),
