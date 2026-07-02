@@ -132,6 +132,56 @@ def render_first_run_demo(source: dict) -> str:
         lines.append(f"- {action}")
     return '\n'.join(lines)
 
+def render_release_distribution_readiness(source: dict) -> str:
+    contract = source.get('release_distribution_readiness_contract', {})
+    if not contract.get('enabled'):
+        return ''
+    lines = [
+        '## Release / Distribution Readiness',
+        '',
+        'This section prepares LaunchRoom Starter for a clear public/test distribution package. It is readiness only: it does not create a GitHub release, tag, package publication, deployment, provider/runtime change, gateway pairing, Cloudflare/Hetzner/n8n mutation, distribution broadcast, or secret-handling path.',
+        '',
+        '### Distribution quickstart',
+        '',
+    ]
+    for step in contract.get('distribution_quickstart', []):
+        lines.extend([
+            f"#### {step.get('step_id', '')}",
+            '',
+            f"Surface: {step.get('surface', '')}",
+            '',
+            f"User action: {step.get('user_action', '')}",
+            '',
+            f"Expected result: {step.get('expected_result', '')}",
+            '',
+        ])
+    lines.extend([
+        '### Artifact manifest',
+        '',
+    ])
+    for item in contract.get('artifact_manifest', []):
+        required = 'required' if item.get('required') else 'optional'
+        lines.append(f"- `{item.get('path', '')}` — {item.get('role', '')} ({required})")
+    lines.extend([
+        '',
+        '### Release readiness checklist',
+        '',
+    ])
+    for item in contract.get('release_readiness_checklist', []):
+        lines.append(f"- {item}")
+    lines.extend([
+        '',
+        '### Blocked until separate owner release gate',
+        '',
+    ])
+    for action in contract.get('blocked_until_separate_release_gate', []):
+        lines.append(f"- {action}")
+    lines.extend([
+        '',
+        'Release readiness is not release execution. No tag, GitHub release, package publication, website publication, runtime/provider/gateway/cloud/n8n mutation, distribution broadcast, or secret handling is authorized by this section.',
+    ])
+    return '\n'.join(lines)
+
 def render_runbook(source: dict) -> str:
     stages = []
     for stage in source['stages']:
@@ -174,7 +224,7 @@ When the repository is used through a raw GitHub link, ask the user to clone or 
 
 Use the Hermes `clarify` tool for interactive decisions whenever it is available. Real Desktop buttons require a pending `clarify` tool call with a non-empty `choices` array; Telegram native buttons are adapter-specific and also come from `clarify`, not from markdown. Put selectable options only in the `choices` array, not inside the question text. Required clarify decisions: profile strategy, workspace strategy, apply setup tool, software install gate, starter capability pack, communication channel, every stage transition, git publication gate, implementation gate, and runtime/provider/secret/destructive-action gates. Plain A/B/C or numbered text is fallback only when `clarify` or native buttons are unavailable.
 
-""" + render_wizard_rooms(source) + "\n\n" + render_wizard_room_transitions(source) + "\n\n" + render_first_run_demo(source) + """
+""" + render_wizard_rooms(source) + "\n\n" + render_wizard_room_transitions(source) + "\n\n" + render_first_run_demo(source) + "\n\n" + render_release_distribution_readiness(source) + """
 
 ## Language contract
 
