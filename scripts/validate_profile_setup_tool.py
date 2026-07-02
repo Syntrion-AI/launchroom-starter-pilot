@@ -152,6 +152,16 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'agent-readiness' / 'INSTALL_PLAN.md',
             workspace_root / '.hermes' / 'agent-readiness' / 'COMMAND_READINESS.md',
             workspace_root / '.hermes' / 'agent-readiness' / 'EXECUTION_READINESS_REPORT.yaml',
+            workspace_root / '.hermes' / 'hygiene' / 'START_HERE.md',
+            workspace_root / '.hermes' / 'hygiene' / 'ARTIFACT_INDEX.md',
+            workspace_root / '.hermes' / 'hygiene' / 'ACTIVE_FILES.md',
+            workspace_root / '.hermes' / 'hygiene' / 'SUPERSEDED_FILES.md',
+            workspace_root / '.hermes' / 'hygiene' / 'BROKEN_OR_STALE_FILES.md',
+            workspace_root / '.hermes' / 'hygiene' / 'DO_NOT_USE.md',
+            workspace_root / '.hermes' / 'hygiene' / 'CLEANUP_PLAN.md',
+            workspace_root / '.hermes' / 'hygiene' / 'ARCHIVE_PLAN.md',
+            workspace_root / '.hermes' / 'hygiene' / 'DELETION_GATE.md',
+            workspace_root / '.hermes' / 'hygiene' / 'HYGIENE_REPORT.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -185,6 +195,8 @@ def run_self_test_if_available() -> None:
         project_audit_text = '\n'.join((workspace_root / '.hermes' / 'project-audit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md'])
         agent_readiness_report = yaml.safe_load((workspace_root / '.hermes' / 'agent-readiness' / 'EXECUTION_READINESS_REPORT.yaml').read_text(encoding='utf-8'))
         agent_readiness_text = '\n'.join((workspace_root / '.hermes' / 'agent-readiness' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','EXECUTION_READINESS_REPORT.yaml'])
+        hygiene_report = yaml.safe_load((workspace_root / '.hermes' / 'hygiene' / 'HYGIENE_REPORT.yaml').read_text(encoding='utf-8'))
+        hygiene_text = '\n'.join((workspace_root / '.hermes' / 'hygiene' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','ARTIFACT_INDEX.md','ACTIVE_FILES.md','SUPERSEDED_FILES.md','BROKEN_OR_STALE_FILES.md','DO_NOT_USE.md','CLEANUP_PLAN.md','ARCHIVE_PLAN.md','DELETION_GATE.md','HYGIENE_REPORT.yaml'])
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -396,6 +408,28 @@ def run_self_test_if_available() -> None:
             if needle not in agent_readiness_text:
                 print('FAIL: self-test agent readiness text missing ' + needle)
                 raise SystemExit(1)
+        if hygiene_report.get('artifact_id') != 'LAUNCHROOM_WORKSPACE_HYGIENE_v0_1':
+            print('FAIL: self-test hygiene report has wrong artifact_id')
+            raise SystemExit(1)
+        if hygiene_report.get('stage_id') != 'stage_11_workspace_hygiene':
+            print('FAIL: self-test hygiene report has wrong stage_id')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in hygiene_report.get('status_marker',''):
+            print('FAIL: self-test hygiene missing non-authority marker')
+            raise SystemExit(1)
+        hygiene_flags = hygiene_report.get('action_flags', {})
+        for key in ['cleanup_executed','archive_executed','deletion_executed','files_deleted','files_moved','files_renamed','implementation_executed','commands_executed','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
+            if hygiene_flags.get(key) is not False:
+                print('FAIL: self-test hygiene action flag not false: ' + key)
+                raise SystemExit(1)
+        for key in ['artifact_index_present','active_files_present','superseded_files_present','broken_or_stale_files_present','do_not_use_present','cleanup_plan_present','archive_plan_present','deletion_gate_present']:
+            if hygiene_flags.get(key) is not True:
+                print('FAIL: self-test hygiene flag not true: ' + key)
+                raise SystemExit(1)
+        for needle in ['Workspace Hygiene','ARTIFACT_INDEX.md','ACTIVE_FILES.md','SUPERSEDED_FILES.md','BROKEN_OR_STALE_FILES.md','DO_NOT_USE.md','CLEANUP_PLAN.md','ARCHIVE_PLAN.md','DELETION_GATE.md','cleanup_executed: false','files_deleted: false','temporary self-test workspaces','No deletion candidate is approved']:
+            if needle not in hygiene_text:
+                print('FAIL: self-test hygiene text missing ' + needle)
+                raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
         if re.search(r'__LAUNCHROOM_RESOLVE__[A-Z0-9_]+', live_config):
@@ -530,7 +564,14 @@ def main() -> int:
         ('toolsets_enabled_without_gate=false','records no unauthorized toolset enablement'),
         ('skills_installed_without_gate=false','records no unauthorized skill install'),
         ('agents_spawned=false','records no agent spawning'),
-        ('next_stage: review_agent_readiness_or_prepare_stage11_hygiene','hands off to agent readiness or Stage 11 hygiene'),
+        ('hygiene/HYGIENE_REPORT.yaml','writes Stage 11 hygiene report'),
+        ('workspace_hygiene: artifact index -> active files -> superseded files -> broken/stale files -> do-not-use -> cleanup plan -> archive plan -> deletion gate','prints Stage 11 summary'),
+        ('stage11_status: $Stage11Status','prints Stage 11 status'),
+        ('cleanup_executed=false','records no cleanup execution'),
+        ('archive_executed=false','records no archive execution'),
+        ('deletion_executed=false','records no deletion execution'),
+        ('files_deleted=false','records no file deletion'),
+        ('next_stage: review_workspace_hygiene_or_prepare_stage12_skill_capture','hands off to hygiene review or Stage 12 skill capture'),
         ('dependencies_installed=false','records no dependency install'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),

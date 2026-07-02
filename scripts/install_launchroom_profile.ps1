@@ -3217,6 +3217,306 @@ $executionReadinessLines += @(
 )
 Write-Utf8NoBom (Join-Path $agentReadinessRoot 'EXECUTION_READINESS_REPORT.yaml') ($executionReadinessLines -join "`n")
 
+
+$hygieneRoot = Join-Path $WorkspaceFull '.hermes/hygiene'
+New-Item -ItemType Directory -Force -Path $hygieneRoot | Out-Null
+$Stage11Status = 'partial'
+$hygieneEvidenceFiles = @(
+  '.hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml',
+  '.hermes/project-audit/AUDIT_REPORT.yaml',
+  '.hermes/local-pilot/READINESS_REPORT.yaml',
+  '.hermes/first-slice/READINESS_REPORT.yaml',
+  '.hermes/operator-kit/readiness_report.yaml',
+  '.hermes/reports/starter-capability-pack.yaml',
+  '.hermes/reports/software-inventory-report.yaml',
+  '.hermes/reports/workspace-onboarding-report.yaml'
+)
+$missingHygieneEvidence = @($hygieneEvidenceFiles | Where-Object { -not (Test-Path (Join-Path $WorkspaceFull $_)) })
+if ($missingHygieneEvidence.Count -gt 0) { $Stage11Status = 'blocked_missing_evidence' }
+
+$activeArtifactFiles = @(
+  '.hermes/reports/workspace-onboarding-report.yaml',
+  '.hermes/reports/software-inventory-report.yaml',
+  '.hermes/reports/software-purpose-map.yaml',
+  '.hermes/reports/software-install-recommendation.yaml',
+  '.hermes/reports/capability-graph.yaml',
+  '.hermes/reports/starter-capability-pack.yaml',
+  '.hermes/reports/communication-channel-map.yaml',
+  '.hermes/reports/communication-user-guide.md',
+  '.hermes/operator-kit/START_HERE.md',
+  '.hermes/operator-kit/NEXT_DECISION.md',
+  '.hermes/operator-kit/readiness_report.yaml',
+  '.hermes/first-slice/START_HERE.md',
+  '.hermes/first-slice/READINESS_REPORT.yaml',
+  '.hermes/local-pilot/START_HERE.md',
+  '.hermes/local-pilot/READINESS_REPORT.yaml',
+  '.hermes/project-audit/START_HERE.md',
+  '.hermes/project-audit/AUDIT_REPORT.yaml',
+  '.hermes/agent-readiness/START_HERE.md',
+  '.hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml',
+  '.hermes/hygiene/START_HERE.md',
+  '.hermes/hygiene/HYGIENE_REPORT.yaml'
+)
+
+$hygieneStartLines = @(
+  '# Start Here — Workspace Hygiene, Cleanup, and Artifact Lifecycle',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'You are at Stage 11. Stage 10 mapped execution readiness. Stage 11 prevents future agent drift by classifying workspace artifacts before implementation begins.',
+  '',
+  'Stage 11 does not delete, move, rename, archive, implement, run project commands, read secrets, publish git, deploy, or mutate runtime/cloud/provider/gateway/n8n surfaces.',
+  '',
+  '## Read in this order',
+  '',
+  '1. ARTIFACT_INDEX.md — lifecycle classes for generated artifacts.',
+  '2. ACTIVE_FILES.md — current files future agents may use as working references.',
+  '3. SUPERSEDED_FILES.md — candidates that may be obsolete after owner review.',
+  '4. BROKEN_OR_STALE_FILES.md — files that need repair or confirmation before use.',
+  '5. DO_NOT_USE.md — explicit stale/broken/superseded surfaces future agents must avoid.',
+  '6. CLEANUP_PLAN.md — proposed cleanup only, no action taken.',
+  '7. ARCHIVE_PLAN.md — proposed archive only, no files moved.',
+  '8. DELETION_GATE.md — deletion requires explicit owner gate and listed path scope.',
+  '9. HYGIENE_REPORT.yaml — machine-readable status.',
+  '',
+  '## Rule',
+  '',
+  'If a file is listed as do-not-use, stale, broken, or superseded, do not treat it as planning authority. Use its listed replacement or ask for owner review.'
+)
+Write-Utf8NoBom (Join-Path $hygieneRoot 'START_HERE.md') ($hygieneStartLines -join "`n")
+
+$artifactIndexLines = @(
+  '# Artifact Index',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'This index classifies LaunchRoom workspace artifacts by lifecycle state. It is a planning surface, not a cleanup action.',
+  '',
+  '| Class | Meaning | Default action |',
+  '| --- | --- | --- |',
+  '| active | Current generated surface future agents may read for the next decision | read and cite with source path |',
+  '| supporting | Useful evidence or context, not the current control surface | read only when needed |',
+  '| draft | Incomplete or owner-editable scaffold | do not execute from it directly |',
+  '| superseded | Replaced by a newer generated surface | do not use as planning authority |',
+  '| broken_or_stale | Known or suspected mismatch, missing source, or outdated content | repair or owner review before use |',
+  '| temporary | Disposable self-test or scratch artifact | delete only after gate if still present |',
+  '| archive_candidate | Could be moved to archive after owner review | no move without archive gate |',
+  '| deletion_gated | Could be deleted only with explicit listed owner gate | no deletion by default |',
+  '',
+  '## Current active chain',
+  '',
+  'Stage 1 profile foundation -> Stage 2 workspace -> Stage 3 tool readiness -> Stage 4 capability pack -> Stage 5 communication map -> Stage 6 operator kit -> Stage 7 first slice -> Stage 8 local pilot -> Stage 9 audit -> Stage 10 readiness -> Stage 11 hygiene.'
+)
+Write-Utf8NoBom (Join-Path $hygieneRoot 'ARTIFACT_INDEX.md') ($artifactIndexLines -join "`n")
+
+$activeLines = @(
+  '# Active Files',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'These files are the current LaunchRoom working references for future agents. They are not AIRMIDA authority unless separately promoted.',
+  '',
+  '## Active generated surfaces'
+)
+foreach ($artifact in $activeArtifactFiles) { $activeLines += "- $artifact" }
+$activeLines += @('', '## Use rule', '', 'Use the newest stage-specific report for its own scope. Do not use older drafts or self-test outputs as authority over this active chain.')
+Write-Utf8NoBom (Join-Path $hygieneRoot 'ACTIVE_FILES.md') ($activeLines -join "`n")
+
+$supersededLines = @(
+  '# Superseded Files',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'No concrete superseded file is deleted or moved by Stage 11. This register exists so future agents can record replacements without guessing.',
+  '',
+  '| Candidate | Reason | Replacement | Action |',
+  '| --- | --- | --- | --- |',
+  '| none currently confirmed | Stage 11 scaffold has not detected a concrete duplicate in this generated workspace | active chain in ACTIVE_FILES.md | owner review before marking superseded |',
+  '',
+  'If a future agent finds `old`, `final_fixed`, duplicate draft, or copied output files, list them here with a replacement before using cleanup/archive gates.'
+)
+Write-Utf8NoBom (Join-Path $hygieneRoot 'SUPERSEDED_FILES.md') ($supersededLines -join "`n")
+
+$brokenLines = @(
+  '# Broken or Stale Files',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Stage 11 does not assert hidden breakage without evidence. Missing source evidence is recorded below if present.',
+  '',
+  '## Missing source evidence for hygiene'
+)
+if ($missingHygieneEvidence.Count -eq 0) {
+  $brokenLines += '- none'
+} else {
+  foreach ($missingEvidence in $missingHygieneEvidence) { $brokenLines += "- $missingEvidence" }
+}
+$brokenLines += @('', '## Use rule', '', 'Broken or stale files must be repaired or replaced before becoming planning input. Do not silently trust a stale file because it has the newest timestamp.')
+Write-Utf8NoBom (Join-Path $hygieneRoot 'BROKEN_OR_STALE_FILES.md') ($brokenLines -join "`n")
+
+$doNotUseLines = @(
+  '# Do Not Use',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'These entries prevent future agents from treating obsolete or unsafe artifacts as planning authority.',
+  '',
+  '| File or class | Reason | Replacement |',
+  '| --- | --- | --- |',
+  '| temporary self-test workspaces | disposable validation outputs, not project state | rerun installer self-test if needed |',
+  '| copied chat snippets without source path | chat is not authority and may be stale | active files listed in ACTIVE_FILES.md |',
+  '| old/final/final_fixed duplicate drafts if discovered | ambiguous lineage and drift risk | the matching current stage report in ACTIVE_FILES.md |',
+  '| superseded files listed in SUPERSEDED_FILES.md | replaced by a newer working surface | listed replacement |',
+  '| broken/stale files listed in BROKEN_OR_STALE_FILES.md | require repair or owner review | repaired file or active replacement |',
+  '',
+  'No concrete project file is marked for deletion by this Stage 11 scaffold. Future entries must include reason and replacement before cleanup.'
+)
+Write-Utf8NoBom (Join-Path $hygieneRoot 'DO_NOT_USE.md') ($doNotUseLines -join "`n")
+
+$cleanupLines = @(
+  '# Cleanup Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Stage 11 proposes cleanup only. It does not perform cleanup.',
+  '',
+  '## Proposed process',
+  '',
+  '1. Review DO_NOT_USE.md, SUPERSEDED_FILES.md, and BROKEN_OR_STALE_FILES.md.',
+  '2. Confirm each candidate has a replacement or no remaining value.',
+  '3. Choose cleanup action: keep, repair, mark superseded, archive, or deletion-gated.',
+  '4. Run cleanup only after explicit owner gate with exact path list.',
+  '5. Re-run validators and update HYGIENE_REPORT.yaml after action.',
+  '',
+  '## Current action state',
+  '',
+  'cleanup_executed: false',
+  'files_moved: false',
+  'files_renamed: false',
+  'files_deleted: false'
+)
+Write-Utf8NoBom (Join-Path $hygieneRoot 'CLEANUP_PLAN.md') ($cleanupLines -join "`n")
+
+$archiveLines = @(
+  '# Archive Plan',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Archive movement requires explicit owner gate and exact path list. Stage 11 creates no archive and moves no files.',
+  '',
+  '## Archive candidate classes',
+  '',
+  '- duplicate drafts with confirmed replacement',
+  '- outdated generated reports after a newer stage supersedes them',
+  '- temporary proof artifacts that must be retained for evidence but not read as active planning input',
+  '',
+  '## Current action state',
+  '',
+  'archive_executed: false',
+  'files_moved: false'
+)
+Write-Utf8NoBom (Join-Path $hygieneRoot 'ARCHIVE_PLAN.md') ($archiveLines -join "`n")
+
+$deletionLines = @(
+  '# Deletion Gate',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Deletion is destructive. Stage 11 deletes nothing.',
+  '',
+  '## Required deletion gate',
+  '',
+  '- exact path list',
+  '- reason per path',
+  '- replacement or no-value statement per path',
+  '- backup/archive decision',
+  '- owner approval in the current session',
+  '- post-delete validators and git status',
+  '',
+  '## Current action state',
+  '',
+  'deletion_executed: false',
+  'files_deleted: false',
+  '',
+  'No deletion candidate is approved by this file.'
+)
+Write-Utf8NoBom (Join-Path $hygieneRoot 'DELETION_GATE.md') ($deletionLines -join "`n")
+
+$hygieneReportLines = @(
+  'artifact_id: LAUNCHROOM_WORKSPACE_HYGIENE_v0_1',
+  'stage_id: stage_11_workspace_hygiene',
+  "hygiene_status: $Stage11Status",
+  'status_marker: Hermes working artifact / not AIRMIDA authority',
+  "hygiene_root: $(ConvertTo-YamlSingleQuotedScalar $hygieneRoot)",
+  'source_lineage:',
+  '  stage10_agent_readiness: .hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml',
+  '  stage9_audit: .hermes/project-audit/AUDIT_REPORT.yaml',
+  '  stage8_local_pilot: .hermes/local-pilot/READINESS_REPORT.yaml',
+  '  stage7_first_slice: .hermes/first-slice/READINESS_REPORT.yaml',
+  '  stage6_operator_kit: .hermes/operator-kit/readiness_report.yaml',
+  '  stage4_capability_pack: .hermes/reports/starter-capability-pack.yaml',
+  '  stage3_software_inventory: .hermes/reports/software-inventory-report.yaml',
+  'generated_files:',
+  '  - START_HERE.md',
+  '  - ARTIFACT_INDEX.md',
+  '  - ACTIVE_FILES.md',
+  '  - SUPERSEDED_FILES.md',
+  '  - BROKEN_OR_STALE_FILES.md',
+  '  - DO_NOT_USE.md',
+  '  - CLEANUP_PLAN.md',
+  '  - ARCHIVE_PLAN.md',
+  '  - DELETION_GATE.md',
+  '  - HYGIENE_REPORT.yaml',
+  'missing_source_evidence:'
+)
+if ($missingHygieneEvidence.Count -eq 0) {
+  $hygieneReportLines += '  - none'
+} else {
+  foreach ($missingEvidence in $missingHygieneEvidence) { $hygieneReportLines += "  - $(ConvertTo-YamlSingleQuotedScalar $missingEvidence)" }
+}
+$hygieneReportLines += @(
+  'lifecycle_classes:',
+  '  active: true',
+  '  supporting: true',
+  '  draft: true',
+  '  superseded: true',
+  '  broken_or_stale: true',
+  '  temporary: true',
+  '  archive_candidate: true',
+  '  deletion_gated: true',
+  'action_flags:',
+  '  cleanup_executed: false',
+  '  archive_executed: false',
+  '  deletion_executed: false',
+  '  files_deleted: false',
+  '  files_moved: false',
+  '  files_renamed: false',
+  '  implementation_executed: false',
+  '  commands_executed: false',
+  '  runtime_mutation: false',
+  '  cloud_mutation: false',
+  '  gateway_mutation: false',
+  '  n8n_mutation: false',
+  '  secrets_read_or_written: false',
+  '  git_publication_executed: false',
+  '  artifact_index_present: true',
+  '  active_files_present: true',
+  '  superseded_files_present: true',
+  '  broken_or_stale_files_present: true',
+  '  do_not_use_present: true',
+  '  cleanup_plan_present: true',
+  '  archive_plan_present: true',
+  '  deletion_gate_present: true',
+  'next_owner_decision:',
+  '  - approve cleanup plan',
+  '  - approve archive plan',
+  '  - approve deletion plan for listed candidates only',
+  '  - repair conflicting artifact status',
+  '  - proceed to Stage 12 skill capture after hygiene review',
+  '  - defer cleanup'
+)
+Write-Utf8NoBom (Join-Path $hygieneRoot 'HYGIENE_REPORT.yaml') ($hygieneReportLines -join "`n")
+
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
 $ToolsetPartialCount = @($toolsetResults | Where-Object { -not $_.ok }).Count
@@ -3302,6 +3602,16 @@ $verification = [ordered]@{
   agent_readiness_install_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/INSTALL_PLAN.md')
   agent_readiness_command_readiness_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/COMMAND_READINESS.md')
   agent_readiness_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml')
+  hygiene_start_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/START_HERE.md')
+  hygiene_artifact_index_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/ARTIFACT_INDEX.md')
+  hygiene_active_files_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/ACTIVE_FILES.md')
+  hygiene_superseded_files_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/SUPERSEDED_FILES.md')
+  hygiene_broken_or_stale_files_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/BROKEN_OR_STALE_FILES.md')
+  hygiene_do_not_use_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/DO_NOT_USE.md')
+  hygiene_cleanup_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/CLEANUP_PLAN.md')
+  hygiene_archive_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/ARCHIVE_PLAN.md')
+  hygiene_deletion_gate_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/DELETION_GATE.md')
+  hygiene_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/HYGIENE_REPORT.yaml')
   operator_kit_root_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit')
   stage3_status = $Stage3Status
   stage3_missing_required = ($missingRequired -join ',')
@@ -3313,6 +3623,7 @@ $verification = [ordered]@{
   stage8_status = $Stage8Status
   stage9_status = $Stage9Status
   stage10_status = $Stage10Status
+  stage11_status = $Stage11Status
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -3328,7 +3639,8 @@ $Stage7ReportsOk = $verification.first_slice_start_exists -and $verification.fir
 $Stage8ReportsOk = $verification.local_pilot_start_exists -and $verification.local_pilot_execution_packet_exists -and $verification.local_pilot_file_change_plan_exists -and $verification.local_pilot_command_plan_exists -and $verification.local_pilot_test_plan_exists -and $verification.local_pilot_evidence_log_exists -and $verification.local_pilot_review_checklist_exists -and $verification.local_pilot_handoff_summary_exists -and $verification.local_pilot_readiness_exists
 $Stage9ReportsOk = $verification.project_audit_start_exists -and $verification.project_audit_plan_integrity_exists -and $verification.project_audit_expected_result_exists -and $verification.project_audit_missing_fragments_exists -and $verification.project_audit_contradiction_scan_exists -and $verification.project_audit_stage_drift_scan_exists -and $verification.project_audit_assumption_register_exists -and $verification.project_audit_implementation_blockers_exists -and $verification.project_audit_repair_recommendations_exists -and $verification.project_audit_report_exists
 $Stage10ReportsOk = $verification.agent_readiness_start_exists -and $verification.agent_readiness_toolchain_requirements_exists -and $verification.agent_readiness_software_gap_exists -and $verification.agent_readiness_toolset_plan_exists -and $verification.agent_readiness_skill_load_plan_exists -and $verification.agent_readiness_agent_pipeline_plan_exists -and $verification.agent_readiness_install_plan_exists -and $verification.agent_readiness_command_readiness_exists -and $verification.agent_readiness_report_exists
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk -and $Stage10ReportsOk
+$Stage11ReportsOk = $verification.hygiene_start_exists -and $verification.hygiene_artifact_index_exists -and $verification.hygiene_active_files_exists -and $verification.hygiene_superseded_files_exists -and $verification.hygiene_broken_or_stale_files_exists -and $verification.hygiene_do_not_use_exists -and $verification.hygiene_cleanup_plan_exists -and $verification.hygiene_archive_plan_exists -and $verification.hygiene_deletion_gate_exists -and $verification.hygiene_report_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk -and $Stage10ReportsOk -and $Stage11ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -3337,9 +3649,9 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
@@ -3357,8 +3669,10 @@ Write-Host "project_plan_integrity_audit: expected result map -> missing fragmen
 Write-Host "stage9_status: $Stage9Status; execution_allowed=false; implementation_executed=false; commands_executed=false; tests_executed=false; runtime_mutation=false"
 Write-Host "agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness"
 Write-Host "stage10_status: $Stage10Status; execution_ready=false; execution_allowed=false; install_gate_required=true; toolsets_enabled_without_gate=false; skills_installed_without_gate=false; agents_spawned=false"
+Write-Host "workspace_hygiene: artifact index -> active files -> superseded files -> broken/stale files -> do-not-use -> cleanup plan -> archive plan -> deletion gate"
+Write-Host "stage11_status: $Stage11Status; cleanup_executed=false; archive_executed=false; deletion_executed=false; files_deleted=false; files_moved=false; files_renamed=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: review_agent_readiness_or_prepare_stage11_hygiene"
+Write-Host "next_stage: review_workspace_hygiene_or_prepare_stage12_skill_capture"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }

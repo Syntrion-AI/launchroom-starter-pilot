@@ -237,6 +237,21 @@ Pass requires:
 - command readiness separates read-only inspection, gated local commands, install commands, and forbidden runtime/secret/git/publication commands
 - execution_ready and execution_allowed remain false until Stage 9 issues are repaired, Stage 10 readiness is accepted, and a separate implementation gate is granted
 
+### stage_11 - Workspace hygiene, cleanup, and artifact lifecycle
+
+Purpose: Create a workspace hygiene and artifact lifecycle package after Stage 10 so future agents know which LaunchRoom workspace artifacts are active, draft, superseded, broken/stale, temporary, do-not-use, archive candidates, and deletion-gated candidates without deleting, moving, renaming, archiving, executing implementation, or mutating runtime/cloud/provider/gateway/n8n surfaces.
+
+Pass requires:
+- hygiene folder exists
+- START_HERE.md, ARTIFACT_INDEX.md, ACTIVE_FILES.md, SUPERSEDED_FILES.md, BROKEN_OR_STALE_FILES.md, DO_NOT_USE.md, CLEANUP_PLAN.md, ARCHIVE_PLAN.md, DELETION_GATE.md, and HYGIENE_REPORT.yaml exist
+- hygiene/HYGIENE_REPORT.yaml parses as YAML
+- Stage 10 agent readiness, Stage 9 audit, Stage 8 local pilot, Stage 7 first slice, Stage 6 operator kit, and Stage 3/4 reports are referenced
+- artifact index separates active, supporting, draft, superseded, broken/stale, temporary, archive candidate, and deletion-gated classes
+- active files identify the current canonical LaunchRoom generated surfaces for future agents
+- DO_NOT_USE explains that stale/broken/superseded files must not be used as planning authority and points to replacements when known
+- cleanup, archive, and deletion plans remain proposals only and require explicit owner gate
+- cleanup, archive, deletion, rename, move, implementation, runtime/cloud/gateway/n8n/git/secret actions remain false
+
 
 ## Inventory rule
 
