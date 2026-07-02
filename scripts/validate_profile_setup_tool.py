@@ -71,6 +71,14 @@ def run_self_test_if_available() -> None:
             if forbidden.lower() in output.lower():
                 print(f'FAIL: self-test output suggests live mutation: {forbidden}')
                 raise SystemExit(1)
+        if re.search(r'(?m)^status: BLOCKED$', output):
+            print('FAIL: installer self-test reported BLOCKED; expected PARTIAL/PASS for generated self-test output')
+            print(output)
+            raise SystemExit(1)
+        if not re.search(r'(?m)^status: PARTIAL$', output) and not re.search(r'(?m)^status: PASS$', output):
+            print('FAIL: installer self-test did not report final PARTIAL or PASS status')
+            print(output)
+            raise SystemExit(1)
         profile_root = tmp_path / 'profiles' / 'launchroom-selftest'
         workspace_root = tmp_path / 'workspace' / 'launchroom-selftest'
         required = [
