@@ -1,0 +1,150 @@
+artifact_id: LAUNCHROOM_STAGE_6_SAAS_OPERATOR_KIT_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_6_saas_operator_kit
+stage_name: SaaS Operator Kit
+language: en
+
+purpose:
+  summary: >-
+    Create the first local, non-authority SaaS operator kit after the profile,
+    workspace, software/capability map, starter capability pack, and communication
+    map are present. Stage 6 turns setup readiness into an actionable but gated
+    product operating packet: product brief, target user, first workflow, backlog,
+    local task packet, gates, and readiness report.
+  not_purpose:
+    - not product implementation
+    - not production deployment
+    - not provider/model/billing changes
+    - not Cloudflare, Hetzner, n8n, MCP, database, or gateway mutation
+    - not git push/public release without a separate publication gate
+    - not declaring product-market fit or SaaS readiness
+
+stage_boundary:
+  owns:
+    - local operator kit folder and packet templates
+    - beginner navigation entrypoint
+    - next-decision prompt for non-technical users
+    - user-facing verification checklist
+    - concrete pain-to-workflow example wardrobe
+    - agent-led guided session scaffold
+    - default workflow catalog for users without an idea
+    - blueprint-to-working-result implementation roadmap
+    - starter product brief scaffold
+    - target user and pain hypothesis scaffold
+    - first workflow packet scaffold
+    - starter backlog grouped by readiness tiers
+    - gates and forbidden actions document
+    - readiness report with evidence and next decisions
+  does_not_own:
+    - creating application code
+    - installing dependencies
+    - cloning private repositories
+    - reading/writing secrets
+    - connecting live SaaS runtime
+    - modifying cloud/provider/gateway/n8n surfaces
+
+operator_kit_layout:
+  root: .hermes/operator-kit/
+  required_files:
+    - START_HERE.md
+    - NEXT_DECISION.md
+    - CHECK_IT_WORKS.md
+    - PAIN_TO_WORKFLOW_EXAMPLES.md
+    - product_brief.md
+    - target_user.md
+    - first_workflow.md
+    - backlog.md
+    - local_task_packet.md
+    - gates.md
+    - readiness_report.yaml
+    - guided-session/SESSION_STATE.yaml
+    - guided-session/AGENT_GUIDE.md
+    - guided-session/USER_LESSON.md
+    - guided-session/IDEA_INTAKE.md
+    - guided-session/PROJECT_BLUEPRINT.md
+    - guided-session/FIRST_SLICE_PACKET.md
+    - guided-session/DEFAULT_WORKFLOW_CATALOG.md
+    - guided-session/IMPLEMENTATION_ROADMAP.md
+    - guided-session/COMPLETION_SUMMARY.md
+
+packet_model:
+  status_marker: Hermes working artifact / not AIRMIDA authority
+  task_flow: intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision
+  permission_tier: local_planning_and_packet_generation_only
+  required_fields:
+    - objective
+    - source_lineage
+    - allowed_actions
+    - forbidden_actions
+    - validation_required
+    - rollback_plan
+    - done_when
+
+outputs:
+  required:
+    - .hermes/operator-kit/START_HERE.md
+    - .hermes/operator-kit/NEXT_DECISION.md
+    - .hermes/operator-kit/CHECK_IT_WORKS.md
+    - .hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md
+    - .hermes/operator-kit/product_brief.md
+    - .hermes/operator-kit/target_user.md
+    - .hermes/operator-kit/first_workflow.md
+    - .hermes/operator-kit/backlog.md
+    - .hermes/operator-kit/local_task_packet.md
+    - .hermes/operator-kit/gates.md
+    - .hermes/operator-kit/readiness_report.yaml
+    - .hermes/operator-kit/guided-session/SESSION_STATE.yaml
+    - .hermes/operator-kit/guided-session/AGENT_GUIDE.md
+    - .hermes/operator-kit/guided-session/USER_LESSON.md
+    - .hermes/operator-kit/guided-session/IDEA_INTAKE.md
+    - .hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md
+    - .hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md
+    - .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md
+    - .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md
+    - .hermes/operator-kit/guided-session/COMPLETION_SUMMARY.md
+  required_markers:
+    - Hermes working artifact / not AIRMIDA authority
+    - runtime_mutation: false
+    - cloud_mutation: false
+    - n8n_mutation: false
+    - gateway_mutation: false
+    - git_publication_executed: false
+    - secrets_read_or_written: false
+    - implementation_executed: false
+    - beginner_next_decision_present: true
+    - pain_to_workflow_examples_present: true
+    - guided_session_present: true
+    - no_idea_default_workflow_catalog_present: true
+    - blueprint_to_solution_path_present: true
+
+acceptance_criteria:
+  - Operator kit directory exists under workspace `.hermes/operator-kit/`.
+  - All required markdown and YAML packet files exist.
+  - Readiness report parses as YAML.
+  - Kit references Stage 1-5 evidence reports when present.
+  - START_HERE.md tells the user what Stage 6 is, what to read first, and what decision is needed.
+  - NEXT_DECISION.md gives one safe next choice at a time.
+  - CHECK_IT_WORKS.md lets a beginner verify what was generated and what was not executed; beginner can verify the kit before trusting it.
+  - PAIN_TO_WORKFLOW_EXAMPLES.md maps concrete user pains to small workflows, outputs, and verification; pain-to-workflow examples are mandatory.
+  - Guided session files exist so the agent leads the user instead of leaving them alone with documents.
+  - DEFAULT_WORKFLOW_CATALOG.md provides common starter workflows when the user has no idea: messenger setup, channel management, email/calendar/notes, and personal assistant loops.
+  - IMPLEMENTATION_ROADMAP.md explains how blueprint becomes a gated working result: blueprint -> first slice packet -> implementation plan -> local pilot -> verification -> next gate.
+  - Product brief, target user, workflow, backlog, local task packet, and gates are concrete enough to guide a beginner's next step.
+  - All runtime/cloud/provider/gateway/n8n/git/secret actions remain false/gated.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: Local SaaS operator kit exists and next owner decision is clear.
+  partial:
+    meaning: Kit exists but some previous-stage evidence is deferred or missing.
+  blocked:
+    meaning: Kit cannot be generated safely.
+
+next_decision:
+  options:
+    - review and edit product brief
+    - choose first vertical slice
+    - approve implementation planning packet
+    - defer runtime/provider/cloud setup

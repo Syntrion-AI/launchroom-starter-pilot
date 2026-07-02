@@ -31,6 +31,7 @@ def main() -> int:
         ('Communication surfaces and channel managers','Stage 5 communication map'),
         ('communication-channel-map.yaml','Stage 5 communication report'),
         ('SaaS operator kit','Stage 6 operator kit'),
+        ('operator-kit/readiness_report.yaml','Stage 6 operator kit report'),
         ('failed_policy_violation','self-improvement hard fail'),
         ('invalid_bootstrap_report','contradiction guard'),
         ('language the user writes in','detect and mirror language'),

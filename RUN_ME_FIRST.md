@@ -158,11 +158,21 @@ Pass requires:
 
 ### stage_6 - SaaS operator kit
 
-Purpose: Create the first local SaaS project operating packet after profile/workspace/readiness are clear.
+Purpose: Run an agent-led SaaS operator kit stage: explain Stage 6, create structure, offer common default workflows when the user has no idea, transform idea/workflow into project blueprint, and show the gated path from blueprint to working result without runtime/cloud/provider/gateway/n8n mutation.
 
 Pass requires:
-- product brief collected
-- local operator kit created after confirmation or explicitly deferred
+- implementation roadmap explains blueprint to working result
+- default workflow catalog exists for users without an idea
+- guided-session scaffold exists
+- pain-to-workflow examples each include pain, workflow, output, verification, and next decision
+- beginner can verify what was generated and what was not executed
+- START_HERE.md, NEXT_DECISION.md, CHECK_IT_WORKS.md, and PAIN_TO_WORKFLOW_EXAMPLES.md exist
+- .hermes/operator-kit/readiness_report.yaml exists and parses as YAML
+- product_brief.md, target_user.md, first_workflow.md, backlog.md, local_task_packet.md, and gates.md exist
+- operator kit carries Hermes working artifact / not AIRMIDA authority marker
+- first workflow follows intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision
+- runtime/cloud/provider/gateway/n8n/git/secret actions remain false or gated
+- next owner decision is explicit
 
 
 ## Inventory rule
