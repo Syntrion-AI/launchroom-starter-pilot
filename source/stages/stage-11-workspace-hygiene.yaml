@@ -1,0 +1,151 @@
+artifact_id: LAUNCHROOM_STAGE_11_WORKSPACE_HYGIENE_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_11_workspace_hygiene
+stage_name: Workspace Hygiene, Cleanup, and Artifact Lifecycle
+language: en
+
+purpose:
+  summary: >-
+    Create a workspace hygiene and artifact lifecycle package after Stage 10 so
+    future agents know which LaunchRoom workspace artifacts are active, draft,
+    superseded, broken or stale, temporary, do-not-use, archive candidates, and
+    deletion-gated candidates before implementation begins.
+  not_purpose:
+    - not deleting files
+    - not archiving files
+    - not renaming or restructuring the workspace
+    - not product implementation
+    - not software installation
+    - not Hermes toolset activation
+    - not skill installation from network
+    - not agent spawning
+    - not live channel/provider/runtime/cloud/gateway/n8n/MCP/database mutation
+    - not git publication
+    - not secret readback or storage
+
+stage_boundary:
+  consumes:
+    - .hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml
+    - .hermes/project-audit/AUDIT_REPORT.yaml
+    - .hermes/local-pilot/READINESS_REPORT.yaml
+    - .hermes/first-slice/READINESS_REPORT.yaml
+    - .hermes/operator-kit/readiness_report.yaml
+    - .hermes/reports/starter-capability-pack.yaml
+    - .hermes/reports/software-inventory-report.yaml
+    - .hermes/reports/workspace-onboarding-report.yaml
+  owns:
+    - hygiene folder
+    - artifact index
+    - active file register
+    - superseded file register
+    - broken or stale file register
+    - do-not-use register
+    - cleanup plan
+    - archive plan
+    - deletion gate
+    - hygiene report
+  does_not_own:
+    - deleting files
+    - moving files into archives
+    - changing authority/canon/registry files
+    - executing implementation
+    - mutating runtime/cloud/provider/gateway/n8n surfaces
+
+hygiene_layout:
+  root: .hermes/hygiene/
+  required_files:
+    - START_HERE.md
+    - ARTIFACT_INDEX.md
+    - ACTIVE_FILES.md
+    - SUPERSEDED_FILES.md
+    - BROKEN_OR_STALE_FILES.md
+    - DO_NOT_USE.md
+    - CLEANUP_PLAN.md
+    - ARCHIVE_PLAN.md
+    - DELETION_GATE.md
+    - HYGIENE_REPORT.yaml
+
+packet_model:
+  status_marker: Hermes working artifact / not AIRMIDA authority
+  task_flow: agent readiness -> artifact lifecycle map -> do-not-use register -> cleanup/archive/deletion gates -> owner hygiene decision
+  permission_tier: hygiene_planning_only
+  required_checks:
+    - agent_readiness_consumed
+    - artifact_index_present
+    - active_files_present
+    - superseded_files_present
+    - broken_or_stale_files_present
+    - do_not_use_present
+    - cleanup_plan_present
+    - archive_plan_present
+    - deletion_gate_present
+    - no_cleanup_without_gate
+    - no_delete_without_gate
+
+outputs:
+  required:
+    - .hermes/hygiene/START_HERE.md
+    - .hermes/hygiene/ARTIFACT_INDEX.md
+    - .hermes/hygiene/ACTIVE_FILES.md
+    - .hermes/hygiene/SUPERSEDED_FILES.md
+    - .hermes/hygiene/BROKEN_OR_STALE_FILES.md
+    - .hermes/hygiene/DO_NOT_USE.md
+    - .hermes/hygiene/CLEANUP_PLAN.md
+    - .hermes/hygiene/ARCHIVE_PLAN.md
+    - .hermes/hygiene/DELETION_GATE.md
+    - .hermes/hygiene/HYGIENE_REPORT.yaml
+  required_markers:
+    - Hermes working artifact / not AIRMIDA authority
+    - hygiene_status: partial
+    - cleanup_executed: false
+    - archive_executed: false
+    - deletion_executed: false
+    - files_deleted: false
+    - files_moved: false
+    - files_renamed: false
+    - implementation_executed: false
+    - commands_executed: false
+    - runtime_mutation: false
+    - cloud_mutation: false
+    - gateway_mutation: false
+    - n8n_mutation: false
+    - secrets_read_or_written: false
+    - git_publication_executed: false
+    - artifact_index_present: true
+    - active_files_present: true
+    - superseded_files_present: true
+    - broken_or_stale_files_present: true
+    - do_not_use_present: true
+    - cleanup_plan_present: true
+    - archive_plan_present: true
+    - deletion_gate_present: true
+
+acceptance_criteria:
+  - Hygiene folder exists under workspace `.hermes/hygiene/`.
+  - All required markdown and YAML hygiene files exist.
+  - HYGIENE_REPORT.yaml parses as YAML.
+  - Stage 11 references Stage 10 agent readiness, Stage 9 audit, Stage 8 local pilot, Stage 7 first slice, Stage 6 operator kit, and Stage 3/4 reports.
+  - Artifact index separates active, supporting, draft, superseded, broken/stale, temporary, archive candidate, and deletion-gated classes.
+  - Active files identify the current canonical LaunchRoom generated surfaces for future agents.
+  - DO_NOT_USE explains that stale/broken/superseded files must not be used as planning authority and must point to replacements when known.
+  - Cleanup, archive, and deletion plans remain proposals only and require explicit owner gate before moving or deleting anything.
+  - Cleanup, archive, deletion, rename, move, implementation, runtime/cloud/gateway/n8n/git/secret actions remain false.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: Workspace artifact lifecycle is clear enough for future agents to avoid stale surfaces.
+  partial:
+    meaning: Hygiene package exists but concrete stale/superseded candidates need owner review before cleanup.
+  blocked:
+    meaning: Conflicting active artifacts or unsafe deletion/archive requests block implementation.
+
+next_decision:
+  options:
+    - approve cleanup plan
+    - approve archive plan
+    - approve deletion plan for listed candidates only
+    - repair conflicting artifact status
+    - proceed to Stage 12 skill capture after hygiene review
+    - defer cleanup

@@ -165,6 +165,22 @@
         "COMMAND_READINESS.md",
         "EXECUTION_READINESS_REPORT.yaml"
       ]
+    },
+    {
+      "id": "stage_11",
+      "name": "Workspace hygiene, cleanup, and artifact lifecycle",
+      "required_outputs": [
+        "START_HERE.md",
+        "ARTIFACT_INDEX.md",
+        "ACTIVE_FILES.md",
+        "SUPERSEDED_FILES.md",
+        "BROKEN_OR_STALE_FILES.md",
+        "DO_NOT_USE.md",
+        "CLEANUP_PLAN.md",
+        "ARCHIVE_PLAN.md",
+        "DELETION_GATE.md",
+        "HYGIENE_REPORT.yaml"
+      ]
     }
   ]
 }
