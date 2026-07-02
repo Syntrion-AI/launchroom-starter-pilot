@@ -273,7 +273,7 @@
   "primary_setup_tool": "scripts/install_launchroom_profile.ps1",
   "decision_ui_contract": {
     "interactive_buttons_required_when_available": true,
-    "fallback": "short A/B/C choices only when clarify/buttons are not available",
+    "fallback": "short A/B/C choices only when clarify tool/buttons are unavailable",
     "required_decision_points": [
       "profile strategy",
       "workspace strategy",
@@ -281,7 +281,21 @@
       "software install gate",
       "starter capability pack",
       "communication channel",
-      "stage transition"
-    ]
+      "stage transition",
+      "git publication gate",
+      "implementation gate",
+      "runtime/provider/secret/destructive-action gate"
+    ],
+    "clarify_tool_contract": {
+      "clarify_tool_required_when_available": true,
+      "choices_must_be_tool_choices_array": true,
+      "do_not_embed_options_in_question_text": true,
+      "plain_text_options_are_fallback_only": true,
+      "desktop_requires_pending_clarify_tool_call": true,
+      "telegram_native_buttons_are_adapter_specific": true,
+      "max_recommended_choices": 4,
+      "question_field_rule": "question contains only the question; selectable options live only in the choices array",
+      "fallback_rule": "use short A/B/C or numbered text only when clarify tool or native buttons are unavailable"
+    }
   }
 }
