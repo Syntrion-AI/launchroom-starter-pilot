@@ -1,0 +1,149 @@
+artifact_id: LAUNCHROOM_STAGE_12_SKILL_CAPTURE_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_12_skill_capture
+stage_name: Skill Capture and Stage Skill Integration Pack
+language: en
+
+purpose:
+  summary: >-
+    Create a stage skill matrix and skill-capture package after Stage 11 so
+    future LaunchRoom runs know which skills are required, optional, missing,
+    capture-worthy, and promotion-gated for each stage without installing,
+    patching, promoting, or loading skills automatically.
+  not_purpose:
+    - not creating runtime skills automatically
+    - not installing network skills
+    - not patching unrelated installed skills
+    - not writing persistent memory
+    - not promoting skill candidates
+    - not deleting, archiving, or moving files
+    - not product implementation
+    - not live channel/provider/runtime/cloud/gateway/n8n/MCP/database mutation
+    - not git publication
+    - not secret readback or storage
+
+stage_boundary:
+  consumes:
+    - .hermes/hygiene/HYGIENE_REPORT.yaml
+    - .hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml
+    - .hermes/reports/starter-capability-pack.yaml
+    - .hermes/reports/capability-graph.yaml
+    - .hermes/project-audit/AUDIT_REPORT.yaml
+  owns:
+    - skills folder
+    - stage skill matrix
+    - required skills register
+    - optional skills register
+    - missing skills register
+    - skill capture guide
+    - skill candidate template
+    - skill promotion gate
+    - skill integration report
+    - skills-candidates root placeholder
+  does_not_own:
+    - installing skills
+    - modifying existing skills
+    - promoting candidate skills
+    - writing memory
+    - executing implementation
+    - mutating runtime/cloud/provider/gateway/n8n surfaces
+
+skill_layout:
+  root: .hermes/skills/
+  candidate_root: .hermes/skills-candidates/
+  required_files:
+    - START_HERE.md
+    - STAGE_SKILL_MATRIX.md
+    - REQUIRED_SKILLS.md
+    - OPTIONAL_SKILLS.md
+    - MISSING_SKILLS.md
+    - SKILL_CAPTURE_GUIDE.md
+    - SKILL_CANDIDATE_TEMPLATE.md
+    - SKILL_PROMOTION_GATE.md
+    - SKILL_INTEGRATION_REPORT.yaml
+    - ../skills-candidates/README.md
+
+packet_model:
+  status_marker: Hermes working artifact / not AIRMIDA authority
+  task_flow: hygiene -> stage skill matrix -> required/optional/missing skills -> capture guide -> candidate template -> promotion gate -> owner skill decision
+  permission_tier: skill_capture_planning_only
+  required_checks:
+    - hygiene_report_consumed
+    - stage_skill_matrix_present
+    - required_skills_present
+    - optional_skills_present
+    - missing_skills_present
+    - skill_capture_guide_present
+    - skill_candidate_template_present
+    - skill_promotion_gate_present
+    - no_skill_install_without_gate
+    - no_skill_patch_without_gate
+    - no_memory_write_without_gate
+
+outputs:
+  required:
+    - .hermes/skills/START_HERE.md
+    - .hermes/skills/STAGE_SKILL_MATRIX.md
+    - .hermes/skills/REQUIRED_SKILLS.md
+    - .hermes/skills/OPTIONAL_SKILLS.md
+    - .hermes/skills/MISSING_SKILLS.md
+    - .hermes/skills/SKILL_CAPTURE_GUIDE.md
+    - .hermes/skills/SKILL_CANDIDATE_TEMPLATE.md
+    - .hermes/skills/SKILL_PROMOTION_GATE.md
+    - .hermes/skills/SKILL_INTEGRATION_REPORT.yaml
+    - .hermes/skills-candidates/README.md
+  required_markers:
+    - Hermes working artifact / not AIRMIDA authority
+    - skill_integration_status: partial
+    - skills_installed: false
+    - skills_patched: false
+    - skills_promoted: false
+    - persistent_memory_written: false
+    - skill_candidates_created: false
+    - implementation_executed: false
+    - commands_executed: false
+    - runtime_mutation: false
+    - cloud_mutation: false
+    - gateway_mutation: false
+    - n8n_mutation: false
+    - secrets_read_or_written: false
+    - git_publication_executed: false
+    - stage_skill_matrix_present: true
+    - required_skills_present: true
+    - optional_skills_present: true
+    - missing_skills_present: true
+    - skill_capture_guide_present: true
+    - skill_candidate_template_present: true
+    - skill_promotion_gate_present: true
+    - skills_candidates_root_present: true
+
+acceptance_criteria:
+  - Skills folder exists under workspace `.hermes/skills/` and candidate root exists under `.hermes/skills-candidates/`.
+  - All required markdown and YAML skill integration files exist.
+  - SKILL_INTEGRATION_REPORT.yaml parses as YAML.
+  - Stage 12 references Stage 11 hygiene, Stage 10 readiness, Stage 9 audit, Stage 4 capability pack, and Stage 3 capability graph.
+  - Stage skill matrix maps Stage 1 through Stage 12 to required skills, optional skills, and load timing.
+  - Required, optional, and missing skill registers distinguish available/recommended/gated candidates without claiming automatic installation.
+  - Skill capture guide explains when a proven workflow should become a skill candidate and what evidence is required.
+  - Candidate template includes SKILL.md, evidence, validation, and promotion gate sections.
+  - Promotion gate requires owner review, validation evidence, no secret content, no stale task progress, and explicit install/promote decision.
+  - Skill install, patch, promotion, memory write, implementation, runtime/cloud/gateway/n8n/git/secret actions remain false.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: Stage-to-skill routing and capture gates are clear enough for future LaunchRoom runs.
+  partial:
+    meaning: Skill integration package exists but missing or candidate skills require owner review.
+  blocked:
+    meaning: Required skill gaps or unsafe candidate content block skill promotion.
+
+next_decision:
+  options:
+    - approve required skill load plan for next implementation stage
+    - create a skill candidate from a proven workflow
+    - review missing skills
+    - promote a validated skill candidate
+    - proceed to Stage 13 local execution evidence binder after skill review
+    - defer skill capture

@@ -3517,6 +3517,315 @@ $hygieneReportLines += @(
 )
 Write-Utf8NoBom (Join-Path $hygieneRoot 'HYGIENE_REPORT.yaml') ($hygieneReportLines -join "`n")
 
+
+$skillPackRoot = Join-Path $WorkspaceFull '.hermes/skills'
+$skillCandidatesRoot = Join-Path $WorkspaceFull '.hermes/skills-candidates'
+New-Item -ItemType Directory -Force -Path $skillPackRoot | Out-Null
+New-Item -ItemType Directory -Force -Path $skillCandidatesRoot | Out-Null
+$Stage12Status = 'partial'
+$skillEvidenceFiles = @(
+  '.hermes/hygiene/HYGIENE_REPORT.yaml',
+  '.hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml',
+  '.hermes/reports/starter-capability-pack.yaml',
+  '.hermes/reports/capability-graph.yaml',
+  '.hermes/project-audit/AUDIT_REPORT.yaml'
+)
+$missingSkillEvidence = @($skillEvidenceFiles | Where-Object { -not (Test-Path (Join-Path $WorkspaceFull $_)) })
+if ($missingSkillEvidence.Count -gt 0) { $Stage12Status = 'blocked_missing_evidence' }
+
+$skillStartLines = @(
+  '# Start Here — Skill Capture and Stage Skill Integration Pack',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'You are at Stage 12. Stage 11 made the workspace easier to read safely. Stage 12 makes the LaunchRoom stage-to-skill routing explicit and creates a safe skill-capture path for proven workflows.',
+  '',
+  'Stage 12 does not install skills, patch skills, promote candidates, write persistent memory, execute implementation, read secrets, publish git, deploy, or mutate runtime/cloud/provider/gateway/n8n surfaces.',
+  '',
+  '## Read in this order',
+  '',
+  '1. STAGE_SKILL_MATRIX.md — which skills apply to each stage.',
+  '2. REQUIRED_SKILLS.md — skills that should be loaded for serious LaunchRoom work.',
+  '3. OPTIONAL_SKILLS.md — conditional skills for specific task classes.',
+  '4. MISSING_SKILLS.md — candidate gaps that need owner review before creation.',
+  '5. SKILL_CAPTURE_GUIDE.md — when to capture a workflow as a skill candidate.',
+  '6. SKILL_CANDIDATE_TEMPLATE.md — candidate structure and evidence fields.',
+  '7. SKILL_PROMOTION_GATE.md — validation and owner gate before promotion.',
+  '8. SKILL_INTEGRATION_REPORT.yaml — machine-readable status.',
+  '',
+  '## Rule',
+  '',
+  'Do not treat a skill candidate as an active skill. A candidate needs evidence, validation, no secrets, no stale task progress, and explicit owner promotion gate.'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'START_HERE.md') ($skillStartLines -join "`n")
+
+$matrixLines = @(
+  '# Stage Skill Matrix',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '| Stage | Required skills | Optional skills | Load timing |',
+  '| --- | --- | --- | --- |',
+  '| Stage 1 profile foundation | hermes-agent | windows-desktop-agent-setup | before profile setup |',
+  '| Stage 2 workspace onboarding | governed-workspace-integration, experience-grounded-work-preflight | governed-desktop-project-integration | before workspace mutation |',
+  '| Stage 3 tool readiness | airmida-governed-toolchain-onboarding, hermes-agent | windows-desktop-agent-setup | before tool probes |',
+  '| Stage 4 capability pack | governed-agent-engineering-standards | airmida-positive-result-capture | before capability mapping |',
+  '| Stage 5 communication map | governed-messaging-gateway-setup, hermes-agent | himalaya, google-workspace | before gateway planning |',
+  '| Stage 6 SaaS operator kit | governed-agent-engineering-standards, experience-grounded-work-preflight | plan | before blueprint generation |',
+  '| Stage 7 first-slice planning | governed-agent-engineering-standards, plan | test-driven-development | before implementation planning |',
+  '| Stage 8 local pilot execution packet | governed-agent-engineering-standards | requesting-code-review | before executor packet |',
+  '| Stage 9 project plan integrity audit | governed-agent-engineering-standards | systematic-debugging | before execution readiness |',
+  '| Stage 10 agent execution readiness | governed-agent-engineering-standards, airmida-external-agent-tool-readiness | codex, claude-code, github-pr-workflow | before implementation gate |',
+  '| Stage 11 workspace hygiene | governed-agent-engineering-standards | airmida-positive-result-capture | before cleanup/archive decisions |',
+  '| Stage 12 skill capture | hermes-agent-skill-authoring, governed-agent-engineering-standards | airmida-positive-result-capture | before candidate creation/promotion |',
+  '',
+  'Load skills deliberately by stage. Do not load every skill blindly when a narrow stage only needs a small subset.'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'STAGE_SKILL_MATRIX.md') ($matrixLines -join "`n")
+
+$requiredLines = @(
+  '# Required Skills',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'These are recommended required skills for serious LaunchRoom stage work. This file does not install or load them automatically.',
+  '',
+  '- experience-grounded-work-preflight — serious-work preflight, gates, evidence, next action.',
+  '- governed-agent-engineering-standards — packet/gate/verification discipline across LaunchRoom stages.',
+  '- hermes-agent — current Hermes commands, profiles, tools, skills, setup behavior.',
+  '- hermes-agent-skill-authoring — safe skill candidate shape and promotion checks.',
+  '',
+  '## Required rule',
+  '',
+  'If a required skill is missing in a future environment, record it in MISSING_SKILLS.md and ask for an owner install/create gate. Do not silently invent its behavior.'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'REQUIRED_SKILLS.md') ($requiredLines -join "`n")
+
+$optionalLines = @(
+  '# Optional Skills',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Optional skills are conditional. Load them when the task class requires them, not by default.',
+  '',
+  '| Skill | Use when | Gate |',
+  '| --- | --- | --- |',
+  '| github-pr-workflow | branch, PR, CI, merge after publication gate | publication gate |',
+  '| requesting-code-review | pre-commit or pre-PR quality review | code-review gate |',
+  '| test-driven-development | code implementation with tests | implementation gate |',
+  '| systematic-debugging | root-cause failure repair | repair gate |',
+  '| airmida-external-agent-tool-readiness | Codex/Claude/external agent handoff | external-agent gate |',
+  '| governed-messaging-gateway-setup | Telegram/Slack/email/gateway setup | gateway/runtime gate |',
+  '| airmida-positive-result-capture | successful repeatable workflow capture | capture gate |'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'OPTIONAL_SKILLS.md') ($optionalLines -join "`n")
+
+$missingLines = @(
+  '# Missing Skills',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'This register distinguishes actual missing skills from candidate ideas. Stage 12 does not create or install missing skills automatically.',
+  '',
+  '| Skill gap | Why it may matter | Current action |',
+  '| --- | --- | --- |',
+  '| launchroom-stage-skill-matrix | Could become a dedicated LaunchRoom skill after Stage 12 proves stable | candidate only, not promoted |',
+  '| launchroom-skill-capture-workflow | Could capture repeated candidate/promotion workflow | candidate only, not promoted |',
+  '',
+  'Do not mark a skill as missing just because it is not loaded in the current session. Verify with skills list or owner environment before acting.'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'MISSING_SKILLS.md') ($missingLines -join "`n")
+
+$captureGuideLines = @(
+  '# Skill Capture Guide',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Capture a workflow as a skill candidate only after it is proven, repeatable, and useful beyond one task.',
+  '',
+  '## Capture triggers',
+  '',
+  '- a complex workflow succeeded with real validators or CI',
+  '- a recurring error was solved with a non-obvious fix',
+  '- the owner corrected a reusable process and the correction should persist',
+  '- a stage pattern has been repeated and verified enough to guide future agents',
+  '',
+  '## Do not capture',
+  '',
+  '- temporary task progress',
+  '- PR numbers, issue numbers, commit SHAs, or stale outcomes',
+  '- secrets, tokens, credentials, paths to private credential files',
+  '- one-off narrative summaries',
+  '',
+  '## Required evidence',
+  '',
+  '- trigger condition',
+  '- exact reusable steps',
+  '- pitfalls and gates',
+  '- validation commands and real outputs',
+  '- when not to use the skill',
+  '- promotion decision owner'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'SKILL_CAPTURE_GUIDE.md') ($captureGuideLines -join "`n")
+
+$templateLines = @(
+  '# Skill Candidate Template',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Use this template under `.hermes/skills-candidates/<skill-name>/` after an owner capture gate. Do not treat a candidate as installed.',
+  '',
+  '```text',
+  '.hermes/skills-candidates/<skill-name>/',
+  '  SKILL.md',
+  '  evidence.md',
+  '  validation.md',
+  '  promotion_gate.md',
+  '```',
+  '',
+  '## SKILL.md minimum sections',
+  '',
+  '- frontmatter: name, description, version, author, tags/related skills when appropriate',
+  '- overview',
+  '- when to use',
+  '- procedure with checkable completion criteria',
+  '- pitfalls',
+  '- verification checklist',
+  '',
+  '## evidence.md',
+  '',
+  '- source task class',
+  '- proof that the workflow succeeded',
+  '- validator/test/CI outputs',
+  '- owner corrections incorporated',
+  '',
+  '## validation.md',
+  '',
+  '- syntax/frontmatter validation',
+  '- no-secret scan',
+  '- no stale task-progress scan',
+  '- peer-skill comparison',
+  '',
+  '## promotion_gate.md',
+  '',
+  '- owner approval',
+  '- target skill name/category',
+  '- whether to create, patch, or defer',
+  '- rollback/removal plan'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'SKILL_CANDIDATE_TEMPLATE.md') ($templateLines -join "`n")
+
+$promotionLines = @(
+  '# Skill Promotion Gate',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Promotion means a candidate becomes a real skill or patches an existing skill. Stage 12 does not promote anything automatically.',
+  '',
+  '## Required gate checklist',
+  '',
+  '- owner explicitly approves create/patch/promote/defer',
+  '- candidate has evidence and validation files',
+  '- candidate contains no secrets, tokens, credential values, or private key material',
+  '- candidate does not store stale task progress such as PR numbers, issue numbers, commit SHAs, or dated completion logs',
+  '- candidate has clear triggers and counter-triggers',
+  '- candidate has checkable steps and verification checklist',
+  '- existing skills were checked to avoid duplication',
+  '- rollback/remove path exists',
+  '',
+  '## Current action state',
+  '',
+  'skills_installed: false',
+  'skills_patched: false',
+  'skills_promoted: false',
+  'persistent_memory_written: false'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'SKILL_PROMOTION_GATE.md') ($promotionLines -join "`n")
+
+$candidateReadmeLines = @(
+  '# Skill Candidates',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'This folder is a placeholder for future owner-approved skill candidates. Stage 12 creates no candidate skill by default.',
+  '',
+  'Candidate folders should follow:',
+  '',
+  '```text',
+  '<skill-name>/SKILL.md',
+  '<skill-name>/evidence.md',
+  '<skill-name>/validation.md',
+  '<skill-name>/promotion_gate.md',
+  '```',
+  '',
+  'Do not install, load, or promote candidates without the promotion gate.'
+)
+Write-Utf8NoBom (Join-Path $skillCandidatesRoot 'README.md') ($candidateReadmeLines -join "`n")
+
+$skillReportLines = @(
+  'artifact_id: LAUNCHROOM_SKILL_INTEGRATION_v0_1',
+  'stage_id: stage_12_skill_capture',
+  "skill_integration_status: $Stage12Status",
+  'status_marker: Hermes working artifact / not AIRMIDA authority',
+  "skills_root: $(ConvertTo-YamlSingleQuotedScalar $skillPackRoot)",
+  "skill_candidates_root: $(ConvertTo-YamlSingleQuotedScalar $skillCandidatesRoot)",
+  'source_lineage:',
+  '  stage11_hygiene: .hermes/hygiene/HYGIENE_REPORT.yaml',
+  '  stage10_agent_readiness: .hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml',
+  '  stage9_audit: .hermes/project-audit/AUDIT_REPORT.yaml',
+  '  stage4_capability_pack: .hermes/reports/starter-capability-pack.yaml',
+  '  stage3_capability_graph: .hermes/reports/capability-graph.yaml',
+  'generated_files:',
+  '  - START_HERE.md',
+  '  - STAGE_SKILL_MATRIX.md',
+  '  - REQUIRED_SKILLS.md',
+  '  - OPTIONAL_SKILLS.md',
+  '  - MISSING_SKILLS.md',
+  '  - SKILL_CAPTURE_GUIDE.md',
+  '  - SKILL_CANDIDATE_TEMPLATE.md',
+  '  - SKILL_PROMOTION_GATE.md',
+  '  - SKILL_INTEGRATION_REPORT.yaml',
+  '  - ../skills-candidates/README.md',
+  'missing_source_evidence:'
+)
+if ($missingSkillEvidence.Count -eq 0) {
+  $skillReportLines += '  - none'
+} else {
+  foreach ($missingEvidence in $missingSkillEvidence) { $skillReportLines += "  - $(ConvertTo-YamlSingleQuotedScalar $missingEvidence)" }
+}
+$skillReportLines += @(
+  'action_flags:',
+  '  skills_installed: false',
+  '  skills_patched: false',
+  '  skills_promoted: false',
+  '  persistent_memory_written: false',
+  '  skill_candidates_created: false',
+  '  implementation_executed: false',
+  '  commands_executed: false',
+  '  runtime_mutation: false',
+  '  cloud_mutation: false',
+  '  gateway_mutation: false',
+  '  n8n_mutation: false',
+  '  secrets_read_or_written: false',
+  '  git_publication_executed: false',
+  '  stage_skill_matrix_present: true',
+  '  required_skills_present: true',
+  '  optional_skills_present: true',
+  '  missing_skills_present: true',
+  '  skill_capture_guide_present: true',
+  '  skill_candidate_template_present: true',
+  '  skill_promotion_gate_present: true',
+  '  skills_candidates_root_present: true',
+  'next_owner_decision:',
+  '  - approve required skill load plan for next implementation stage',
+  '  - create a skill candidate from a proven workflow',
+  '  - review missing skills',
+  '  - promote a validated skill candidate',
+  '  - proceed to Stage 13 local execution evidence binder after skill review',
+  '  - defer skill capture'
+)
+Write-Utf8NoBom (Join-Path $skillPackRoot 'SKILL_INTEGRATION_REPORT.yaml') ($skillReportLines -join "`n")
+
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
 $ToolsetPartialCount = @($toolsetResults | Where-Object { -not $_.ok }).Count
@@ -3612,6 +3921,16 @@ $verification = [ordered]@{
   hygiene_archive_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/ARCHIVE_PLAN.md')
   hygiene_deletion_gate_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/DELETION_GATE.md')
   hygiene_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/hygiene/HYGIENE_REPORT.yaml')
+  skill_start_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/START_HERE.md')
+  skill_stage_matrix_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/STAGE_SKILL_MATRIX.md')
+  skill_required_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/REQUIRED_SKILLS.md')
+  skill_optional_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/OPTIONAL_SKILLS.md')
+  skill_missing_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/MISSING_SKILLS.md')
+  skill_capture_guide_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/SKILL_CAPTURE_GUIDE.md')
+  skill_candidate_template_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/SKILL_CANDIDATE_TEMPLATE.md')
+  skill_promotion_gate_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/SKILL_PROMOTION_GATE.md')
+  skill_integration_report_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills/SKILL_INTEGRATION_REPORT.yaml')
+  skill_candidates_readme_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/skills-candidates/README.md')
   operator_kit_root_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit')
   stage3_status = $Stage3Status
   stage3_missing_required = ($missingRequired -join ',')
@@ -3624,6 +3943,7 @@ $verification = [ordered]@{
   stage9_status = $Stage9Status
   stage10_status = $Stage10Status
   stage11_status = $Stage11Status
+  stage12_status = $Stage12Status
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -3640,7 +3960,8 @@ $Stage8ReportsOk = $verification.local_pilot_start_exists -and $verification.loc
 $Stage9ReportsOk = $verification.project_audit_start_exists -and $verification.project_audit_plan_integrity_exists -and $verification.project_audit_expected_result_exists -and $verification.project_audit_missing_fragments_exists -and $verification.project_audit_contradiction_scan_exists -and $verification.project_audit_stage_drift_scan_exists -and $verification.project_audit_assumption_register_exists -and $verification.project_audit_implementation_blockers_exists -and $verification.project_audit_repair_recommendations_exists -and $verification.project_audit_report_exists
 $Stage10ReportsOk = $verification.agent_readiness_start_exists -and $verification.agent_readiness_toolchain_requirements_exists -and $verification.agent_readiness_software_gap_exists -and $verification.agent_readiness_toolset_plan_exists -and $verification.agent_readiness_skill_load_plan_exists -and $verification.agent_readiness_agent_pipeline_plan_exists -and $verification.agent_readiness_install_plan_exists -and $verification.agent_readiness_command_readiness_exists -and $verification.agent_readiness_report_exists
 $Stage11ReportsOk = $verification.hygiene_start_exists -and $verification.hygiene_artifact_index_exists -and $verification.hygiene_active_files_exists -and $verification.hygiene_superseded_files_exists -and $verification.hygiene_broken_or_stale_files_exists -and $verification.hygiene_do_not_use_exists -and $verification.hygiene_cleanup_plan_exists -and $verification.hygiene_archive_plan_exists -and $verification.hygiene_deletion_gate_exists -and $verification.hygiene_report_exists
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk -and $Stage10ReportsOk -and $Stage11ReportsOk
+$Stage12ReportsOk = $verification.skill_start_exists -and $verification.skill_stage_matrix_exists -and $verification.skill_required_exists -and $verification.skill_optional_exists -and $verification.skill_missing_exists -and $verification.skill_capture_guide_exists -and $verification.skill_candidate_template_exists -and $verification.skill_promotion_gate_exists -and $verification.skill_integration_report_exists -and $verification.skill_candidates_readme_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk -and $Stage10ReportsOk -and $Stage11ReportsOk -and $Stage12ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -3649,9 +3970,9 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, Stage 12 skill capture pack, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
@@ -3671,8 +3992,10 @@ Write-Host "agent_execution_readiness: toolchain requirements -> software gap an
 Write-Host "stage10_status: $Stage10Status; execution_ready=false; execution_allowed=false; install_gate_required=true; toolsets_enabled_without_gate=false; skills_installed_without_gate=false; agents_spawned=false"
 Write-Host "workspace_hygiene: artifact index -> active files -> superseded files -> broken/stale files -> do-not-use -> cleanup plan -> archive plan -> deletion gate"
 Write-Host "stage11_status: $Stage11Status; cleanup_executed=false; archive_executed=false; deletion_executed=false; files_deleted=false; files_moved=false; files_renamed=false"
+Write-Host "skill_capture: stage skill matrix -> required skills -> optional skills -> missing skills -> capture guide -> candidate template -> promotion gate"
+Write-Host "stage12_status: $Stage12Status; skills_installed=false; skills_patched=false; skills_promoted=false; persistent_memory_written=false; skill_candidates_created=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: review_workspace_hygiene_or_prepare_stage12_skill_capture"
+Write-Host "next_stage: review_skill_capture_or_prepare_stage13_evidence_binder"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }
