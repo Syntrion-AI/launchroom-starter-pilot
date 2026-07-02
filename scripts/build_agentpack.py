@@ -37,6 +37,46 @@ def render_wizard_rooms(source: dict) -> str:
     lines.append('Room transitions should use the Hermes `clarify` tool with `choices` when available; plain text choices are fallback only.')
     return '\n'.join(lines)
 
+def render_wizard_room_transitions(source: dict) -> str:
+    contract = source.get('wizard_room_transition_contract', {})
+    if not contract.get('enabled'):
+        return ''
+    actions = ', '.join(contract.get('required_transition_actions', []))
+    lines = [
+        '## Wizard Room Transition UX',
+        '',
+        'This is a room-level interaction layer over the Beginner Wizard Rooms. It is not Stage 14, does not replace machine stages, and does not authorize implementation, runtime, provider, gateway, n8n, git publication, or secret handling by itself.',
+        '',
+        f"Required transition actions: {actions}",
+        '',
+        '### Clarify prompt contract',
+        '',
+        'Room transition prompts must use the Hermes `clarify` tool with a non-empty `choices` array when available. The question text contains only the question; selectable options live only in `choices`. Plain A/B/C or numbered text is fallback only when `clarify` or native buttons are unavailable. Timeout or silence is not approval.',
+        '',
+        '### Prompt templates',
+        '',
+    ]
+    for template_id, template in contract.get('prompt_templates', {}).items():
+        choices = ', '.join(template.get('choices', []))
+        lines.extend([
+            f"#### {template_id}",
+            '',
+            f"Purpose: {template.get('question_purpose', '')}",
+            '',
+            f"Choices: {choices}",
+            '',
+        ])
+    lines.extend([
+        '### Room transition map',
+        '',
+    ])
+    for item in contract.get('room_transitions', []):
+        next_room = item.get('next_room_id') or 'final closeout / next gated decision'
+        lines.extend([
+            f"- {item.get('room_name', '')}: entry `{item.get('entry_prompt_template')}`, completion `{item.get('completion_prompt_template')}`, blocked `{item.get('blocked_prompt_template')}`, next `{next_room}`",
+        ])
+    return '\n'.join(lines)
+
 def render_runbook(source: dict) -> str:
     stages = []
     for stage in source['stages']:
@@ -79,7 +119,7 @@ When the repository is used through a raw GitHub link, ask the user to clone or 
 
 Use the Hermes `clarify` tool for interactive decisions whenever it is available. Real Desktop buttons require a pending `clarify` tool call with a non-empty `choices` array; Telegram native buttons are adapter-specific and also come from `clarify`, not from markdown. Put selectable options only in the `choices` array, not inside the question text. Required clarify decisions: profile strategy, workspace strategy, apply setup tool, software install gate, starter capability pack, communication channel, every stage transition, git publication gate, implementation gate, and runtime/provider/secret/destructive-action gates. Plain A/B/C or numbered text is fallback only when `clarify` or native buttons are unavailable.
 
-""" + render_wizard_rooms(source) + """
+""" + render_wizard_rooms(source) + "\n\n" + render_wizard_room_transitions(source) + """
 
 ## Language contract
 
