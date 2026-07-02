@@ -136,6 +136,115 @@ Choices: Complete room, Inspect evidence, Pause
 - Readiness & Drift Room: entry `room_entry`, completion `room_completion`, blocked `blocked_room`, next `room_5_control_and_evidence`
 - Control & Evidence Room: entry `room_entry`, completion `final_room_completion`, blocked `blocked_room`, next `final closeout / next gated decision`
 
+## First-run Demo / Self-test Scenario
+
+This scenario demonstrates LaunchRoom Starter as a beginner-safe onboarding wizard. It uses self-test mode only, is not a new stage, and must stop before installs, gateway pairing, provider/runtime changes, cloud/n8n mutation, git publication, secret handling, or implementation execution.
+
+### Self-test command
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom-selftest -TestOutputRoot "$env:TEMP\launchroom-selftest" -Yes -NoInventory -NoToolsets
+```
+
+### Demo path
+
+#### demo_1_prepare_repo
+
+Room/context: repo/self-test
+
+Action: prepare_repo
+
+User-visible text: Clone or open the LaunchRoom Starter repository and read RUN_ME_FIRST.md.
+
+Expected evidence: RUN_ME_FIRST.md exists; scripts/install_launchroom_profile.ps1 exists
+
+#### demo_2_run_self_test
+
+Room/context: repo/self-test
+
+Action: run_self_test
+
+User-visible text: Run the self-test command with -TestOutputRoot so generated files go to a disposable test tree.
+
+Expected evidence: validate_profile_setup_tool self-test generated files ok; no live Hermes profile/config/toolset mutation
+
+#### demo_3_enter_foundation_room
+
+Room/context: room_1_foundation
+
+Action: enter_room
+
+User-visible text: Enter Foundation Room and confirm what profile/workspace foundation means.
+
+Expected evidence: Foundation Room is visible; room_entry clarify choices are available or fallback is labeled
+
+#### demo_4_inspect_foundation_evidence
+
+Room/context: room_1_foundation
+
+Action: inspect_evidence
+
+User-visible text: Inspect generated foundation evidence before continuing.
+
+Expected evidence: profile SOUL.md or deferred marker; profile contract/report artifacts or deferred marker; workspace README/AGENTS/HERMES or deferred marker
+
+#### demo_5_continue_to_capability_room
+
+Room/context: room_2_capability
+
+Action: continue_to_next_room
+
+User-visible text: Continue to Capability Room without enabling tools, installing software, or connecting communication channels.
+
+Expected evidence: Capability Room is visible; software/toolset/channel steps remain recommendations or gated decisions
+
+#### demo_6_stop_at_gated_decision
+
+Room/context: room_2_capability
+
+Action: pause
+
+User-visible text: Stop at the first gated decision and report what was demonstrated versus what remains gated.
+
+Expected evidence: runtime/cloud/gateway/n8n/git/secret/implementation actions remain false or gated; next decision is explicit
+
+### Expected self-test outputs
+
+- simulated profile directory under TestOutputRoot
+- profile SOUL.md
+- profile PROFILE_INSTRUCTIONS.md
+- profile LAUNCHROOM_PROFILE_CONTRACT.yaml
+- profile .env.EXAMPLE with variable names only
+- profile reports/profile-foundation-report.yaml
+- profile reports/profile-apply-plan.yaml
+- profile reports/stage-1-selected-settings.yaml
+- workspace README.md
+- workspace AGENTS.md
+- workspace HERMES.md
+- workspace .hermes/reports/profile-setup-report.yaml
+- LaunchRoom starter skill pack in the simulated profile tree
+
+### What the user should see
+
+- User can see the 5 Wizard Rooms as the simple navigation layer.
+- User can see room transition choices for enter, inspect evidence, continue, retry/repair, and pause.
+- User can identify where self-test files were generated.
+- User can distinguish demonstrated self-test behavior from real profile/workspace mutation.
+- User can see that installs, gateway pairing, provider/runtime, n8n/cloud, git publication, secret handling, and implementation remain gated.
+- User receives a clear next decision after the demo stops.
+
+### Stop before gated actions
+
+- software_install
+- hermes_toolset_enablement
+- gateway_setup_or_pairing
+- provider_or_model_runtime_change
+- cloud_or_vps_mutation
+- n8n_mutation
+- git_publication_or_release
+- secret_readback_or_storage
+- implementation_execution
+
 ## Language contract
 
 - Repository documentation, source contracts, scripts, validators, and generated canonical artifacts are written in English.
