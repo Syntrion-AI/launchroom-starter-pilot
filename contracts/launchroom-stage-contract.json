@@ -227,5 +227,80 @@
         "EXECUTION_EVIDENCE_REPORT.yaml"
       ]
     }
-  ]
+  ],
+  "wizard_rooms_contract": {
+    "enabled": true,
+    "purpose": "Beginner-facing visual grouping over the existing machine stage contracts; rooms do not replace or collapse stages.",
+    "machine_stages_remain_authoritative": true,
+    "rooms_are_user_navigation_only": true,
+    "room_count": 5,
+    "rooms": [
+      {
+        "id": "room_1_foundation",
+        "name": "Foundation Room",
+        "label": "Foundation",
+        "stages": [
+          "bootstrap_0",
+          "stage_1",
+          "stage_2"
+        ],
+        "user_goal": "Make Hermes, the profile, and the project workspace understandable and safe before any larger setup.",
+        "plain_language_result": "You know where you are working, which profile is active, what local workspace is selected, and what is allowed next.",
+        "next_decision": "Continue to capability checks or pause after foundation setup."
+      },
+      {
+        "id": "room_2_capability",
+        "name": "Capability Room",
+        "label": "Capability",
+        "stages": [
+          "stage_3",
+          "stage_4",
+          "stage_5"
+        ],
+        "user_goal": "Understand local software, Hermes capabilities, starter skills, and communication surfaces without enabling gated integrations automatically.",
+        "plain_language_result": "You know what the operator can do locally, what is missing, and which communication channels are possible after separate gates.",
+        "next_decision": "Choose a product starter path or pause with a capability map."
+      },
+      {
+        "id": "room_3_product_starter",
+        "name": "Product Starter Room",
+        "label": "Product Starter",
+        "stages": [
+          "stage_6",
+          "stage_7",
+          "stage_8"
+        ],
+        "user_goal": "Turn an idea or pain point into a tiny SaaS/workflow slice, then prepare a bounded local execution packet.",
+        "plain_language_result": "You have a product/workflow brief, first-slice plan, acceptance tests, demo script, command plan, and next execution gate.",
+        "next_decision": "Audit the plan before any real implementation."
+      },
+      {
+        "id": "room_4_readiness_and_drift",
+        "name": "Readiness & Drift Room",
+        "label": "Readiness & Drift",
+        "stages": [
+          "stage_9",
+          "stage_10"
+        ],
+        "user_goal": "Check plan integrity, contradictions, missing fragments, drift risk, and real agent/toolchain readiness before implementation.",
+        "plain_language_result": "You know whether the plan is coherent, what blocks execution, which tools/skills/agents are needed, and what remains gated.",
+        "next_decision": "Repair blockers, accept readiness, or pause before control/evidence setup."
+      },
+      {
+        "id": "room_5_control_and_evidence",
+        "name": "Control & Evidence Room",
+        "label": "Control & Evidence",
+        "stages": [
+          "stage_11",
+          "stage_12",
+          "stage_13"
+        ],
+        "user_goal": "Prevent artifact drift, capture reusable skills, and prepare a real execution evidence binder before claiming work is complete.",
+        "plain_language_result": "You know which artifacts are active, which skills matter, and where real commands/files/tests/results must be recorded after execution.",
+        "next_decision": "Open a separate implementation gate or close the setup flow with evidence."
+      }
+    ],
+    "interaction_rule": "Each room transition should use clarify with choices when available; plain text choices are fallback only.",
+    "validation_rule": "Every source stage must appear in exactly one room and rooms must preserve stage order."
+  }
 }

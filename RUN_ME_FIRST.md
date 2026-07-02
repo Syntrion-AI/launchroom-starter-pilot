@@ -36,6 +36,62 @@ When the repository is used through a raw GitHub link, ask the user to clone or 
 
 Use the Hermes `clarify` tool for interactive decisions whenever it is available. Real Desktop buttons require a pending `clarify` tool call with a non-empty `choices` array; Telegram native buttons are adapter-specific and also come from `clarify`, not from markdown. Put selectable options only in the `choices` array, not inside the question text. Required clarify decisions: profile strategy, workspace strategy, apply setup tool, software install gate, starter capability pack, communication channel, every stage transition, git publication gate, implementation gate, and runtime/provider/secret/destructive-action gates. Plain A/B/C or numbered text is fallback only when `clarify` or native buttons are unavailable.
 
+## Beginner Wizard Rooms
+
+These rooms are a user-facing navigation layer over the machine stages. They do not replace or collapse the stage contracts; validators still check each stage separately.
+
+### Room 1: Foundation Room
+
+Stages: bootstrap_0, stage_1, stage_2
+
+User goal: Make Hermes, the profile, and the project workspace understandable and safe before any larger setup.
+
+Plain-language result: You know where you are working, which profile is active, what local workspace is selected, and what is allowed next.
+
+Next decision: Continue to capability checks or pause after foundation setup.
+
+### Room 2: Capability Room
+
+Stages: stage_3, stage_4, stage_5
+
+User goal: Understand local software, Hermes capabilities, starter skills, and communication surfaces without enabling gated integrations automatically.
+
+Plain-language result: You know what the operator can do locally, what is missing, and which communication channels are possible after separate gates.
+
+Next decision: Choose a product starter path or pause with a capability map.
+
+### Room 3: Product Starter Room
+
+Stages: stage_6, stage_7, stage_8
+
+User goal: Turn an idea or pain point into a tiny SaaS/workflow slice, then prepare a bounded local execution packet.
+
+Plain-language result: You have a product/workflow brief, first-slice plan, acceptance tests, demo script, command plan, and next execution gate.
+
+Next decision: Audit the plan before any real implementation.
+
+### Room 4: Readiness & Drift Room
+
+Stages: stage_9, stage_10
+
+User goal: Check plan integrity, contradictions, missing fragments, drift risk, and real agent/toolchain readiness before implementation.
+
+Plain-language result: You know whether the plan is coherent, what blocks execution, which tools/skills/agents are needed, and what remains gated.
+
+Next decision: Repair blockers, accept readiness, or pause before control/evidence setup.
+
+### Room 5: Control & Evidence Room
+
+Stages: stage_11, stage_12, stage_13
+
+User goal: Prevent artifact drift, capture reusable skills, and prepare a real execution evidence binder before claiming work is complete.
+
+Plain-language result: You know which artifacts are active, which skills matter, and where real commands/files/tests/results must be recorded after execution.
+
+Next decision: Open a separate implementation gate or close the setup flow with evidence.
+
+Room transitions should use the Hermes `clarify` tool with `choices` when available; plain text choices are fallback only.
+
 ## Language contract
 
 - Repository documentation, source contracts, scripts, validators, and generated canonical artifacts are written in English.

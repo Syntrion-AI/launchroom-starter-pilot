@@ -9,6 +9,34 @@ SOURCE = ROOT / 'source' / 'launchroom.starter.v0_5.json'
 def load_source() -> dict:
     return json.loads(SOURCE.read_text(encoding='utf-8'))
 
+def render_wizard_rooms(source: dict) -> str:
+    contract = source.get('wizard_rooms_contract', {})
+    rooms = contract.get('rooms', [])
+    if not rooms:
+        return ''
+    lines = [
+        '## Beginner Wizard Rooms',
+        '',
+        'These rooms are a user-facing navigation layer over the machine stages. They do not replace or collapse the stage contracts; validators still check each stage separately.',
+        '',
+    ]
+    for index, room in enumerate(rooms, start=1):
+        stages = ', '.join(room.get('stages', []))
+        lines.extend([
+            f"### Room {index}: {room.get('name', '')}",
+            '',
+            f"Stages: {stages}",
+            '',
+            f"User goal: {room.get('user_goal', '')}",
+            '',
+            f"Plain-language result: {room.get('plain_language_result', '')}",
+            '',
+            f"Next decision: {room.get('next_decision', '')}",
+            '',
+        ])
+    lines.append('Room transitions should use the Hermes `clarify` tool with `choices` when available; plain text choices are fallback only.')
+    return '\n'.join(lines)
+
 def render_runbook(source: dict) -> str:
     stages = []
     for stage in source['stages']:
@@ -50,6 +78,8 @@ When the repository is used through a raw GitHub link, ask the user to clone or 
 ## Decision UI contract
 
 Use the Hermes `clarify` tool for interactive decisions whenever it is available. Real Desktop buttons require a pending `clarify` tool call with a non-empty `choices` array; Telegram native buttons are adapter-specific and also come from `clarify`, not from markdown. Put selectable options only in the `choices` array, not inside the question text. Required clarify decisions: profile strategy, workspace strategy, apply setup tool, software install gate, starter capability pack, communication channel, every stage transition, git publication gate, implementation gate, and runtime/provider/secret/destructive-action gates. Plain A/B/C or numbered text is fallback only when `clarify` or native buttons are unavailable.
+
+""" + render_wizard_rooms(source) + """
 
 ## Language contract
 
