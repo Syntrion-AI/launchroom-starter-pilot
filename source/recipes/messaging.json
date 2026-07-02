@@ -1,21 +1,62 @@
 {
-  "recipe_id": "launchroom-messaging-v0_5",
-  "objective": "Prepare the first communication channel without secret values in chat.",
-  "choices": [
-    "defer channel",
-    "Telegram",
-    "Slack",
-    "Email/Gmail",
-    "Other"
+  "recipe_id": "launchroom-communication-channel-map-v0_6",
+  "objective": "Prepare a user-facing communication channel map and guide that explains Desktop, Telegram, Slack, Email, Discord, additional messaging adapters, and webhooks/API without connecting or mutating gateways automatically.",
+  "outputs": [
+    "communication-channel-map.yaml",
+    "communication-user-guide.md"
   ],
-  "allowed_without_secret": [
-    "explain setup path",
-    "run gateway status",
-    "open Hermes gateway setup after confirmation"
+  "required_surfaces": [
+    "desktop",
+    "telegram",
+    "slack",
+    "email",
+    "discord",
+    "teams_matrix_signal_whatsapp",
+    "webhooks_api"
   ],
-  "never": [
+  "required_fields_per_surface": [
+    "role",
+    "manager",
+    "best_for",
+    "real_options",
+    "official_sources",
+    "gates",
+    "verification"
+  ],
+  "channel_managers": [
+    "hermes_desktop",
+    "hermes_gateway_telegram",
+    "hermes_gateway_slack",
+    "hermes_gateway_email",
+    "hermes_gateway_discord",
+    "hermes_gateway_platform_adapter",
+    "hermes_webhook_or_api_server"
+  ],
+  "safe_without_gate": [
+    "explain channel options",
+    "write channel map",
+    "write user guide",
+    "run non-secret gateway status only after local check gate"
+  ],
+  "forbidden_without_gate": [
     "ask token in chat",
     "print token",
-    "store token in repo"
-  ]
+    "store token in repo or reports",
+    "run gateway setup",
+    "approve pairing",
+    "set home channel",
+    "install gateway autostart",
+    "send test message",
+    "mutate n8n/cloud/runtime/provider surfaces"
+  ],
+  "official_sources": [
+    "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/",
+    "https://hermes-agent.nousresearch.com/docs/reference/cli-commands",
+    "https://hermes-agent.nousresearch.com/docs/user-guide/features/webhooks",
+    "https://core.telegram.org/bots/api",
+    "https://api.slack.com/apis/connections/socket",
+    "https://api.slack.com/reference/manifests",
+    "https://discord.com/developers/docs/intro"
+  ],
+  "stage_5_contract": "source/stages/stage-5-communication-surfaces-and-channel-managers.yaml"
 }

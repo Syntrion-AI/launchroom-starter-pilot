@@ -1,0 +1,167 @@
+artifact_id: LAUNCHROOM_STAGE_5_COMMUNICATION_SURFACES_AND_CHANNEL_MANAGERS_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_5_communications
+stage_name: Communication Surfaces & Channel Managers
+language: en
+
+purpose:
+  summary: >-
+    Define the user-facing communication layer for LaunchRoom. Stage 5 maps
+    available communication surfaces to channel managers/adapters, real user
+    options, official documentation sources, safe setup guides, gates, and
+    verification. It helps a user choose how to work through Desktop, Telegram,
+    Slack, Email, Discord, webhooks/API, or later messaging adapters without
+    exposing secrets or mutating gateways automatically.
+  not_purpose:
+    - not automatic gateway setup
+    - not asking for tokens in chat
+    - not storing bot tokens, OAuth credentials, chat IDs, or connection strings in reports
+    - not pairing unknown users without explicit approval
+    - not setting home channel without user choice
+    - not enabling gateway autostart without separate gate
+    - not n8n, Cloudflare, Hetzner, provider, or production runtime mutation
+
+stage_boundary:
+  owns:
+    - communication surface inventory and explanation
+    - channel manager/adaptor capability map
+    - official-source references for each supported channel family
+    - beginner-safe user guide for choosing a channel
+    - safe secret-entry path descriptions
+    - setup and verification gates
+    - handoff to Stage 6 SaaS operator kit
+  does_not_own:
+    - entering or reading secrets
+    - running gateway setup without explicit gate
+    - approving pairing codes without explicit user signal
+    - sending test messages without channel test gate
+    - configuring external runtimes or cloud surfaces
+
+communication_surfaces:
+  desktop:
+    role: primary local workspace UI
+    manager: hermes_desktop
+    best_for: [long engineering sessions, file/artifact review, workspace setup, verification]
+    real_options: [native Desktop app, session list, file attachments, local workspace control, later handoff to gateway]
+    official_sources:
+      - https://hermes-agent.nousresearch.com/docs
+      - https://hermes-agent.nousresearch.com/docs/reference/cli-commands
+    gates: [local_profile_gate]
+  telegram:
+    role: mobile remote operator channel
+    manager: hermes_gateway_telegram
+    best_for: [quick commands, status updates, topic sessions, home-channel delivery, mobile follow-up]
+    real_options: [DM, pairing, /sethome, /topic, /commands, /status, Desktop/TUI handoff after gate]
+    official_sources:
+      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/
+      - https://core.telegram.org/bots/api
+    gates: [gateway_setup_gate, secret_gate, pairing_gate, home_channel_gate, handoff_gate]
+  slack:
+    role: team collaboration channel
+    manager: hermes_gateway_slack
+    best_for: [team DMs, project channels, threads, review/report delivery]
+    real_options: [Socket Mode, app manifest, bot token, app token, /sethome or !sethome, thread delivery]
+    official_sources:
+      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/
+      - https://api.slack.com/apis/connections/socket
+      - https://api.slack.com/reference/manifests
+    gates: [slack_app_gate, gateway_setup_gate, secret_gate, pairing_gate, home_channel_gate]
+  email:
+    role: asynchronous external communication channel
+    manager: hermes_gateway_email
+    best_for: [summaries, async requests, report delivery, mailbox-driven workflows]
+    real_options: [IMAP/SMTP or provider OAuth depending on setup, inbound messages, outbound summaries]
+    official_sources:
+      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/
+    gates: [mailbox_secret_gate, gateway_setup_gate, delivery_test_gate]
+  discord:
+    role: community/team chat channel
+    manager: hermes_gateway_discord
+    best_for: [community operations, project channels, bot interactions]
+    real_options: [bot token, channel messages, slash/adapter commands depending on manifest]
+    official_sources:
+      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/
+      - https://discord.com/developers/docs/intro
+    gates: [discord_bot_gate, gateway_setup_gate, secret_gate, pairing_gate]
+  teams_matrix_signal_whatsapp:
+    role: additional messaging adapters
+    manager: hermes_gateway_platform_adapter
+    best_for: [organization-specific channels, mobile/external contact surfaces]
+    real_options: [adapter-specific setup, pairing or account linking, gateway delivery]
+    official_sources:
+      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/
+    gates: [platform_specific_gate, secret_gate, pairing_gate]
+  webhooks_api:
+    role: integration/event surface
+    manager: hermes_webhook_or_api_server
+    best_for: [SaaS events, automation triggers, external system integration]
+    real_options: [webhook routes, API server adapter, Open WebUI/API integration]
+    official_sources:
+      - https://hermes-agent.nousresearch.com/docs/user-guide/features/webhooks
+      - https://hermes-agent.nousresearch.com/docs/user-guide/messaging/
+    gates: [api_runtime_gate, webhook_security_gate, deployment_gate]
+
+user_choice_flow:
+  rule: when the user picks a channel, provide that channel's full guide before setup
+  steps:
+    - explain what the channel is good for
+    - show real available options and limitations
+    - cite official sources
+    - explain required secrets without asking for them in chat
+    - present safe secret-entry path
+    - list gates and what will be verified
+    - ask for explicit setup/test gate before mutation
+
+commands_to_explain:
+  gateway_cli: [hermes gateway setup, hermes gateway run, hermes gateway install, hermes gateway status, hermes pairing approve]
+  gateway_slash: [/sethome, /topic, /handoff <platform>, /platforms, /status, /commands, /restart]
+  rule: explain commands in beginner language and avoid exposing tokens
+
+outputs:
+  required:
+    - .hermes/reports/communication-channel-map.yaml
+    - .hermes/reports/communication-user-guide.md
+  required_action_markers:
+    - gateway_setup: false
+    - pairing_approved: false
+    - home_channel_set: false
+    - gateway_autostart_installed: false
+    - test_message_sent: false
+    - secrets_read_or_written: false
+  required_report_fields:
+    communication_channel_map:
+      - communication_surfaces
+      - channel_managers
+      - official_sources
+      - gates
+      - forbidden_without_gate
+      - actions_executed
+    communication_user_guide:
+      - available_channels
+      - how_to_choose
+      - per_channel_guides
+      - safe_secret_entry
+      - verification_checklist
+      - official_sources
+
+acceptance_criteria:
+  - Communication channel map parses as YAML.
+  - User guide exists and explains Desktop, Telegram, Slack, Email, Discord, additional adapters, and webhooks/API.
+  - Every channel has role, manager, best_for, real_options, official_sources, gates, and verification.
+  - No tokens, chat IDs, OAuth values, or connection strings are written.
+  - Gateway setup/test/autostart/pairing/home-channel actions are not executed without explicit gates.
+  - Official Hermes docs are referenced for messaging/gateway and commands; platform docs are referenced where appropriate.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: User can choose a communication channel with a clear guide and safe gates.
+  partial:
+    meaning: Map and guide exist, but live gateway/channel status remains deferred.
+  blocked:
+    meaning: Reports cannot be generated safely.
+
+next_stage:
+  id: stage_6_saas_operator_kit
+  reason: After communication choices are mapped, LaunchRoom can create the first local SaaS operator kit.

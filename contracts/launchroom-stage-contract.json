@@ -76,11 +76,15 @@
     },
     {
       "id": "stage_5",
-      "name": "Communications",
-      "purpose": "Choose and prepare the first user communication channel without secrets in chat.",
+      "name": "Communication surfaces and channel managers",
+      "purpose": "Map Desktop, Telegram, Slack, Email, Discord, additional messaging adapters, and webhooks/API to real user options, official sources, safe guides, gates, and verification without exposing secrets or mutating gateways automatically.",
       "pass_requires": [
-        "channel selected or deferred",
-        "safe secret-entry path explained"
+        "communication-channel-map.yaml exists and parses as YAML",
+        "communication-user-guide.md exists and explains available channels in user language",
+        "Desktop, Telegram, Slack, Email, Discord, additional adapters, and webhooks/API are mapped to managers, real options, official sources, gates, and verification",
+        "safe secret-entry paths are explained without asking for tokens in chat",
+        "gateway setup, pairing, home-channel, autostart, and delivery tests remain gated",
+        "no provider/runtime/cloud/n8n mutation is executed"
       ]
     },
     {
