@@ -133,6 +133,16 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'local-pilot' / 'REVIEW_CHECKLIST.md',
             workspace_root / '.hermes' / 'local-pilot' / 'HANDOFF_SUMMARY.md',
             workspace_root / '.hermes' / 'local-pilot' / 'READINESS_REPORT.yaml',
+            workspace_root / '.hermes' / 'project-audit' / 'START_HERE.md',
+            workspace_root / '.hermes' / 'project-audit' / 'PLAN_INTEGRITY_REPORT.md',
+            workspace_root / '.hermes' / 'project-audit' / 'EXPECTED_RESULT_MAP.md',
+            workspace_root / '.hermes' / 'project-audit' / 'MISSING_FRAGMENTS.md',
+            workspace_root / '.hermes' / 'project-audit' / 'CONTRADICTION_SCAN.md',
+            workspace_root / '.hermes' / 'project-audit' / 'STAGE_DRIFT_SCAN.md',
+            workspace_root / '.hermes' / 'project-audit' / 'ASSUMPTION_REGISTER.md',
+            workspace_root / '.hermes' / 'project-audit' / 'IMPLEMENTATION_BLOCKERS.md',
+            workspace_root / '.hermes' / 'project-audit' / 'REPAIR_RECOMMENDATIONS.md',
+            workspace_root / '.hermes' / 'project-audit' / 'AUDIT_REPORT.yaml',
         ]
         missing = [str(p.relative_to(tmp_path)) for p in required if not p.exists()]
         if missing:
@@ -162,6 +172,8 @@ def run_self_test_if_available() -> None:
         first_slice_text = '\n'.join((workspace_root / '.hermes' / 'first-slice' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','USER_DEMO_SCRIPT.md','RISKS_AND_ROLLBACK.md','DECISION_GATE.md'])
         local_pilot_readiness = yaml.safe_load((workspace_root / '.hermes' / 'local-pilot' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
         local_pilot_text = '\n'.join((workspace_root / '.hermes' / 'local-pilot' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md'])
+        project_audit_report = yaml.safe_load((workspace_root / '.hermes' / 'project-audit' / 'AUDIT_REPORT.yaml').read_text(encoding='utf-8'))
+        project_audit_text = '\n'.join((workspace_root / '.hermes' / 'project-audit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md'])
         if inventory_report.get('stage_id') != 'stage_3_tool_readiness':
             print('FAIL: self-test software inventory has wrong stage_id')
             raise SystemExit(1)
@@ -320,6 +332,31 @@ def run_self_test_if_available() -> None:
             if needle not in local_pilot_text:
                 print('FAIL: self-test local pilot text missing ' + needle)
                 raise SystemExit(1)
+        if project_audit_report.get('artifact_id') != 'LAUNCHROOM_PROJECT_PLAN_INTEGRITY_AUDIT_v0_1':
+            print('FAIL: self-test project audit report has wrong artifact_id')
+            raise SystemExit(1)
+        if project_audit_report.get('stage_id') != 'stage_9_project_plan_integrity_audit':
+            print('FAIL: self-test project audit report has wrong stage_id')
+            raise SystemExit(1)
+        if project_audit_report.get('execution_allowed') is not False:
+            print('FAIL: self-test project audit execution_allowed is not false')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in project_audit_report.get('status_marker',''):
+            print('FAIL: self-test project audit missing non-authority marker')
+            raise SystemExit(1)
+        project_audit_flags = project_audit_report.get('action_flags', {})
+        for key in ['implementation_executed','file_changes_executed','commands_executed','tests_executed','dependencies_installed','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
+            if project_audit_flags.get(key) is not False:
+                print('FAIL: self-test project audit action flag not false: ' + key)
+                raise SystemExit(1)
+        for key in ['plan_integrity_report_present','expected_result_map_present','missing_fragments_report_present','contradiction_scan_present','stage_drift_scan_present','assumption_register_present','implementation_blockers_present','repair_recommendations_present']:
+            if project_audit_flags.get(key) is not True:
+                print('FAIL: self-test project audit readiness flag not true: ' + key)
+                raise SystemExit(1)
+        for needle in ['Project Plan Integrity','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md','execution_allowed: false','Stage 10 readiness analysis']:
+            if needle not in project_audit_text:
+                print('FAIL: self-test project audit text missing ' + needle)
+                raise SystemExit(1)
         all_text = '\n'.join(p.read_text(encoding='utf-8', errors='ignore') for p in profile_root.rglob('*') if p.is_file())
         live_config = (profile_root / 'config.yaml').read_text(encoding='utf-8')
         if re.search(r'__LAUNCHROOM_RESOLVE__[A-Z0-9_]+', live_config):
@@ -443,7 +480,11 @@ def main() -> int:
         ('file_changes_executed: false','records no file changes executed'),
         ('commands_executed: false','records no commands executed'),
         ('tests_executed: false','records no tests executed'),
-        ('next_stage: review_local_pilot_execution_gate','hands off to local pilot execution gate'),
+        ('project-audit/AUDIT_REPORT.yaml','writes Stage 9 project audit report'),
+        ('project_plan_integrity_audit: expected result map -> missing fragments -> contradiction scan -> stage drift scan -> repair recommendations','prints Stage 9 summary'),
+        ('stage9_status: $Stage9Status','prints Stage 9 status'),
+        ('execution_allowed=false','blocks execution by default'),
+        ('next_stage: review_project_audit_or_prepare_stage10_readiness','hands off to project audit or Stage 10 readiness'),
         ('dependencies_installed=false','records no dependency install'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),

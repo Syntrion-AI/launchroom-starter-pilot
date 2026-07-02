@@ -1,0 +1,150 @@
+artifact_id: LAUNCHROOM_STAGE_9_PROJECT_PLAN_INTEGRITY_AUDIT_v0_1
+artifact_type: launchroom_stage_wizard_contract
+status: draft_for_owner_review
+stage_id: stage_9_project_plan_integrity_audit
+stage_name: Project Plan Integrity and Drift Audit
+language: en
+
+purpose:
+  summary: >-
+    Audit the Stage 6 blueprint, Stage 7 first-slice plan, and Stage 8 local
+    execution packet before any real implementation. Stage 9 checks expected
+    result clarity, missing fragments, contradictions, incompatible assumptions,
+    stage-skipping, execution drift risk, and repair recommendations. It may
+    block execution when the plan is incomplete or inconsistent.
+  not_purpose:
+    - not product implementation
+    - not dependency installation
+    - not command execution beyond read-only audit generation
+    - not live channel/provider/runtime/cloud/gateway/n8n/MCP/database mutation
+    - not git publication
+    - not secret readback or storage
+
+stage_boundary:
+  consumes:
+    - .hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md
+    - .hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md
+    - .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md
+    - .hermes/first-slice/IMPLEMENTATION_BRIEF.md
+    - .hermes/first-slice/LOCAL_PILOT_PLAN.md
+    - .hermes/first-slice/ACCEPTANCE_TESTS.md
+    - .hermes/first-slice/USER_DEMO_SCRIPT.md
+    - .hermes/first-slice/RISKS_AND_ROLLBACK.md
+    - .hermes/first-slice/DECISION_GATE.md
+    - .hermes/local-pilot/EXECUTION_PACKET.md
+    - .hermes/local-pilot/FILE_CHANGE_PLAN.md
+    - .hermes/local-pilot/COMMAND_PLAN.md
+    - .hermes/local-pilot/TEST_PLAN.md
+    - .hermes/local-pilot/READINESS_REPORT.yaml
+  owns:
+    - project audit folder
+    - plan integrity report
+    - expected result map
+    - missing fragments report
+    - contradiction scan
+    - stage drift scan
+    - assumption register
+    - implementation blockers
+    - repair recommendations
+    - audit report with execution_allowed flag
+  does_not_own:
+    - repairing the plan automatically without owner gate
+    - executing local implementation
+    - installing software
+    - changing runtime/cloud/provider/gateway/n8n surfaces
+
+audit_layout:
+  root: .hermes/project-audit/
+  required_files:
+    - START_HERE.md
+    - PLAN_INTEGRITY_REPORT.md
+    - EXPECTED_RESULT_MAP.md
+    - MISSING_FRAGMENTS.md
+    - CONTRADICTION_SCAN.md
+    - STAGE_DRIFT_SCAN.md
+    - ASSUMPTION_REGISTER.md
+    - IMPLEMENTATION_BLOCKERS.md
+    - REPAIR_RECOMMENDATIONS.md
+    - AUDIT_REPORT.yaml
+
+packet_model:
+  status_marker: Hermes working artifact / not AIRMIDA authority
+  task_flow: blueprint -> first slice -> execution packet -> integrity audit -> repair or readiness gate
+  permission_tier: project_plan_audit_only
+  required_checks:
+    - blueprint_has_clear_goal
+    - expected_result_defined
+    - user_visible_success_defined
+    - first_slice_matches_blueprint
+    - execution_packet_matches_first_slice
+    - acceptance_tests_match_expected_result
+    - command_plan_matches_toolchain
+    - no_skipped_stage_detected
+    - no_runtime_gate_bypass_detected
+    - unresolved_assumptions_recorded
+    - repair_recommendations_present
+
+outputs:
+  required:
+    - .hermes/project-audit/START_HERE.md
+    - .hermes/project-audit/PLAN_INTEGRITY_REPORT.md
+    - .hermes/project-audit/EXPECTED_RESULT_MAP.md
+    - .hermes/project-audit/MISSING_FRAGMENTS.md
+    - .hermes/project-audit/CONTRADICTION_SCAN.md
+    - .hermes/project-audit/STAGE_DRIFT_SCAN.md
+    - .hermes/project-audit/ASSUMPTION_REGISTER.md
+    - .hermes/project-audit/IMPLEMENTATION_BLOCKERS.md
+    - .hermes/project-audit/REPAIR_RECOMMENDATIONS.md
+    - .hermes/project-audit/AUDIT_REPORT.yaml
+  required_markers:
+    - Hermes working artifact / not AIRMIDA authority
+    - audit_status: partial
+    - execution_allowed: false
+    - implementation_executed: false
+    - file_changes_executed: false
+    - commands_executed: false
+    - tests_executed: false
+    - dependencies_installed: false
+    - runtime_mutation: false
+    - cloud_mutation: false
+    - gateway_mutation: false
+    - n8n_mutation: false
+    - secrets_read_or_written: false
+    - git_publication_executed: false
+    - plan_integrity_report_present: true
+    - expected_result_map_present: true
+    - missing_fragments_report_present: true
+    - contradiction_scan_present: true
+    - stage_drift_scan_present: true
+    - assumption_register_present: true
+    - implementation_blockers_present: true
+    - repair_recommendations_present: true
+
+acceptance_criteria:
+  - Project audit folder exists under workspace `.hermes/project-audit/`.
+  - All required markdown and YAML audit files exist.
+  - AUDIT_REPORT.yaml parses as YAML.
+  - Stage 9 references Stage 6 blueprint, Stage 7 first-slice plan, and Stage 8 local execution packet.
+  - Expected result map separates planned result, user-visible result, acceptance signal, and non-goals.
+  - Missing fragments and assumptions are explicitly recorded instead of hidden.
+  - Contradiction scan checks plan vs first slice vs execution packet vs gates.
+  - Stage drift scan checks skipped stages, premature implementation, runtime bypass, and evidence gaps.
+  - Audit report contains execution_allowed false by default until owner resolves blockers or explicitly accepts partial audit.
+  - Implementation, file changes, commands, tests, dependencies, runtime/cloud/gateway/n8n/git/secret actions remain false.
+  - Validators and CI pass.
+
+result_states:
+  pass:
+    meaning: Plan is coherent enough to proceed to Stage 10 agent/toolchain readiness.
+  partial:
+    meaning: Audit exists but placeholders or assumptions require owner review before execution.
+  blocked:
+    meaning: Contradictions, missing fragments, or stage drift block execution.
+
+next_decision:
+  options:
+    - repair missing fragments
+    - resolve contradictions
+    - approve partial audit for Stage 10 readiness only
+    - revise blueprint or first slice
+    - defer execution

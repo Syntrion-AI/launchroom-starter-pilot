@@ -134,6 +134,22 @@
         "HANDOFF_SUMMARY.md",
         "READINESS_REPORT.yaml"
       ]
+    },
+    {
+      "id": "stage_9",
+      "name": "Project plan integrity and drift audit",
+      "required_outputs": [
+        "START_HERE.md",
+        "PLAN_INTEGRITY_REPORT.md",
+        "EXPECTED_RESULT_MAP.md",
+        "MISSING_FRAGMENTS.md",
+        "CONTRADICTION_SCAN.md",
+        "STAGE_DRIFT_SCAN.md",
+        "ASSUMPTION_REGISTER.md",
+        "IMPLEMENTATION_BLOCKERS.md",
+        "REPAIR_RECOMMENDATIONS.md",
+        "AUDIT_REPORT.yaml"
+      ]
     }
   ]
 }
