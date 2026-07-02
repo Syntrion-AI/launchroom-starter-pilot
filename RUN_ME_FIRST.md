@@ -187,6 +187,22 @@ Pass requires:
 - implementation, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated
 - next implementation gate is explicit
 
+### stage_8 - Local pilot execution packet
+
+Purpose: Convert the Stage 7 first-slice planning packet into a bounded local-only execution packet with file-change scope, command plan, test plan, evidence log, review checklist, handoff summary, and explicit next gate without executing implementation or mutating runtime/cloud/provider/gateway/n8n surfaces.
+
+Pass requires:
+- local pilot execution folder exists
+- EXECUTION_PACKET.md, FILE_CHANGE_PLAN.md, COMMAND_PLAN.md, TEST_PLAN.md, EVIDENCE_LOG.md, REVIEW_CHECKLIST.md, HANDOFF_SUMMARY.md, and READINESS_REPORT.yaml exist
+- local-pilot/READINESS_REPORT.yaml parses as YAML
+- Stage 7 implementation brief, local pilot plan, acceptance tests, user demo script, risks/rollback, decision gate, and readiness report are referenced
+- file change plan separates allowed, forbidden, and approval-required paths
+- command plan separates read-only commands, gated local commands, and forbidden commands
+- test plan maps checks to expected evidence and acceptance criteria
+- evidence log is scaffolded and does not fabricate execution results
+- implementation, file changes, commands, tests, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated
+- next execution gate is explicit
+
 
 ## Inventory rule
 
