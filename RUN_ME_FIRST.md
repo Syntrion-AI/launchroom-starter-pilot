@@ -132,15 +132,17 @@ Pass requires:
 - WSL treated as optional unless selected
 - Docker not started or mutated by Stage 3
 
-### stage_4 - Tools, skills, memory, starter capability pack
+### stage_4 - Starter capability pack
 
-Purpose: Turn available Hermes capabilities into a starter operating profile.
+Purpose: Map the Stage 3 capability graph to Hermes starter toolsets, skills, memory policy, and workflow playbooks without enabling gated capabilities automatically.
 
 Pass requires:
-- tools/skills/memory status checked
-- LaunchRoom starter skills installed or explicitly deferred
-- capability pack report present
-- unauthorized self-patch absent
+- Stage 3 capability graph consumed or explicitly deferred
+- starter-capability-pack.yaml exists and parses as YAML
+- task classes mapped to starter toolsets, skills, memory policy, workflows, gates, and verification
+- toolset enablement recommendations recorded without unauthorized enablement
+- persistent memory writes require explicit user approval and are not automatic
+- network skill installs and unrelated self-patches are absent
 
 ### stage_5 - Communications
 

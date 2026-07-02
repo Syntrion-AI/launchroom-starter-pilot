@@ -836,6 +836,134 @@ if (-not $NoInventory) {
   Write-Utf8NoBom $capabilityPath ($capabilityLines -join "`n")
 }
 
+$stage4CapabilityGraphPath = Join-Path $WorkspaceFull '.hermes/reports/capability-graph.yaml'
+$stage4PackPath = Join-Path $WorkspaceFull '.hermes/reports/starter-capability-pack.yaml'
+$Stage4Status = if (Test-Path $stage4CapabilityGraphPath) { 'pass' } else { 'partial_deferred_stage3_graph_missing' }
+$stage4Lines = @(
+  'artifact_id: LAUNCHROOM_STARTER_CAPABILITY_PACK_v0_1',
+  'stage_id: stage_4_starter_capability_pack',
+  "status: $Stage4Status",
+  'source_reports:',
+  "  capability_graph: $(ConvertTo-YamlSingleQuotedScalar $stage4CapabilityGraphPath)",
+  "  software_purpose_map: $(ConvertTo-YamlSingleQuotedScalar (Join-Path $WorkspaceFull '.hermes/reports/software-purpose-map.yaml'))",
+  "  software_install_recommendation: $(ConvertTo-YamlSingleQuotedScalar (Join-Path $WorkspaceFull '.hermes/reports/software-install-recommendation.yaml'))",
+  'selection_rule: select task class first, then load its workflow/toolset/skill/memory/gate profile',
+  'actions_executed:',
+  '  toolsets_enabled: false',
+  '  persistent_memory_written: false',
+  '  network_skills_installed: false',
+  '  provider_runtime_gateway_mutation: false',
+  'toolset_policy:',
+  '  recommended_core:',
+  '    - terminal',
+  '    - file',
+  '    - skills',
+  '    - clarify',
+  '    - todo',
+  '    - session_search',
+  '  recommended_development:',
+  '    - code_execution',
+  '  gated_by_context:',
+  '    - web',
+  '    - browser',
+  '    - computer_use',
+  '    - vision',
+  '    - delegation',
+  '    - cronjob',
+  '    - memory',
+  '  deferred_high_risk_or_runtime:',
+  '    - messaging',
+  '    - kanban',
+  '    - discord_admin',
+  '    - homeassistant',
+  'memory_policy:',
+  '  default: no automatic persistent memory writes',
+  '  allowed_after_user_approval:',
+  '    - stable profile/workspace conventions',
+  '    - stable user preferences',
+  '    - durable non-secret environment facts',
+  '  forbidden:',
+  '    - secrets/tokens/passwords/connection strings',
+  '    - transient commits/issues/PRs/run ids',
+  '    - raw evidence dumps',
+  '    - temporary task progress',
+  'task_classes:',
+  '  profile_and_workspace_setup:',
+  '    starter_toolsets: [terminal, file, skills, clarify, todo]',
+  '    starter_skills: [hermes-agent, launchroom-profile-operator, launchroom-hermes-settings-guide]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'remember stable profile/workspace conventions only after user approval')",
+  '    workflow_playbook: [confirm_profile, inspect_config_paths, apply_setup_tool, verify_reports]',
+  '    gates: [profile_mutation_gate, memory_write_gate]',
+  '    verification: [profile_reports_parse, workspace_boundary_present, no_secret_readback]',
+  '  code_change_delivery:',
+  '    starter_toolsets: [terminal, file, code_execution, skills, todo, session_search]',
+  '    starter_skills: [github-pr-workflow, test-driven-development, requesting-code-review]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'do not store commits/issues/PRs; store stable repo conventions only after approval')",
+  '    workflow_playbook: [inspect_repo, patch_files, run_validators, inspect_diff, commit_after_gate, pr_after_gate]',
+  '    gates: [commit_gate, push_pr_gate, merge_gate]',
+  '    verification: [tests_or_validators_pass, diff_reviewed, ci_green]',
+  '  research_and_evidence:',
+  '    starter_toolsets: [web, file, terminal, session_search, skills, todo]',
+  '    starter_skills: [experience-grounded-work-preflight, governed-agent-knowledge-extraction]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'reports hold evidence; memory stores only durable conventions after approval')",
+  '    workflow_playbook: [route_question, inspect_sources, capture_evidence, separate_facts_from_assumptions, propose_decision]',
+  '    gates: [authority_mutation_gate, memory_write_gate]',
+  '    verification: [source_paths_recorded, no_secret_values, conclusions_cited]',
+  '  external_agent_handoff:',
+  '    starter_toolsets: [terminal, file, skills, delegation, todo]',
+  '    starter_skills: [airmida-external-agent-tool-readiness, codex, claude-code, github-pr-workflow]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'do not store credentials or transient run ids; store stable handoff conventions only after approval')",
+  '    workflow_playbook: [verify_cli_presence, smoke_check_without_secret_readback, create_handoff_packet, assign_after_gate]',
+  '    gates: [external_agent_gate, credential_flow_gate]',
+  '    verification: [smoke_pass_or_blocked, handoff_packet_scoped, no_credentials_printed]',
+  '  web_browser_qa:',
+  '    starter_toolsets: [browser, computer_use, vision, web, terminal, file, skills]',
+  '    starter_skills: [dogfood, computer-use]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'do not store screenshots/session ids; store stable QA conventions only after approval')",
+  '    workflow_playbook: [target_surface_after_gate, inspect_ui, capture_evidence, report_repro, verify_fix]',
+  '    gates: [browser_runtime_gate, local_server_gate]',
+  '    verification: [screenshot_or_log_evidence, repro_steps, private_surface_gate_checked]',
+  '  cloud_runtime_readiness:',
+  '    starter_toolsets: [terminal, file, web, skills, todo]',
+  '    starter_skills: [airmida-cloudflare-readonly-inventory, airmida-hetzner-readonly-inventory, airmida-n8n-governed-workflow-ops]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'never store secrets/tokens; store only non-secret runtime routing facts after approval')",
+  '    workflow_playbook: [readonly_inventory, identify_cli_gap, propose_install_or_auth_gate, stop_before_mutation]',
+  '    gates: [runtime_provider_gate, secret_gate, deployment_gate]',
+  '    verification: [readonly_only, no_credentials_printed, no_deploy_or_service_mutation]',
+  '  communication_gateway_readiness:',
+  '    starter_toolsets: [terminal, file, skills, clarify]',
+  '    starter_skills: [governed-messaging-gateway-setup, hermes-agent]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'no tokens/channel secrets; stable delivery preferences only after approval')",
+  '    workflow_playbook: [gateway_status_check, channel_map, safe_secret_entry_path, test_after_gate]',
+  '    gates: [gateway_setup_gate, pairing_gate, secret_gate]',
+  '    verification: [gateway_status_recorded, no_tokens_in_reports, delivery_test_after_gate]',
+  '  observability_and_reports:',
+  '    starter_toolsets: [terminal, file, code_execution, skills, todo]',
+  '    starter_skills: [governed-agent-engineering-standards]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'reports first; memory only for stable conventions after approval')",
+  '    workflow_playbook: [write_report, parse_yaml, scan_markers, capture_outputs, keep_status_clean]',
+  '    gates: [publication_gate]',
+  '    verification: [reports_parse, marker_scan_pass, local_or_ci_checks_pass]',
+  '  security_and_secret_safety:',
+  '    starter_toolsets: [terminal, file, skills, session_search]',
+  '    starter_skills: [governed-agent-engineering-standards, hermes-agent]',
+  "    memory_policy: $(ConvertTo-YamlSingleQuotedScalar 'never store secrets or hashes of secrets; store safety conventions only after approval')",
+  '    workflow_playbook: [avoid_secret_paths, redact_outputs, scan_changed_files, block_unsafe_actions]',
+  '    gates: [secret_gate, production_mutation_gate]',
+  '    verification: [secret_scan_zero, blocked_actions_recorded, no_env_auth_state_readback]',
+  'enablement_recommendations:',
+  '  safe_default_next_action: review starter-capability-pack.yaml and approve selected toolset/skill activation gates only when needed',
+  '  reset_required_after_toolset_change: true',
+  '  install_gate_required: true',
+  'boundaries:',
+  '  secrets_read: false',
+  '  toolsets_enabled_without_gate: false',
+  '  memory_written_without_gate: false',
+  '  network_skills_installed_without_gate: false',
+  '  runtime_mutation: false'
+)
+Write-Utf8NoBom $stage4PackPath ($stage4Lines -join "`n")
+
 $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
 $ToolsetPartialCount = @($toolsetResults | Where-Object { -not $_.ok }).Count
@@ -868,9 +996,11 @@ $verification = [ordered]@{
   software_purpose_map_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-purpose-map.yaml')
   software_install_recommendation_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/software-install-recommendation.yaml')
   capability_graph_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/capability-graph.yaml')
+  starter_capability_pack_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/reports/starter-capability-pack.yaml')
   stage3_status = $Stage3Status
   stage3_missing_required = ($missingRequired -join ',')
   stage3_missing_recommended = ($missingRecommended -join ',')
+  stage4_status = $Stage4Status
   toolset_partial_count = $ToolsetPartialCount
   self_test_mode = $IsSelfTest
   test_output_root = $TestOutputFull
@@ -879,7 +1009,8 @@ $verification = [ordered]@{
 
 if ($IsSelfTest -and $LiveConfigHasPlaceholder) { throw 'Self-test failed: simulated live config.yaml contains unresolved __LAUNCHROOM_RESOLVE__ placeholder.' }
 $Stage3ReportsOk = if ($NoInventory) { $true } else { $verification.inventory_report_exists -and $verification.software_purpose_map_exists -and $verification.software_install_recommendation_exists -and $verification.capability_graph_exists }
-$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk
+$Stage4ReportsOk = $verification.starter_capability_pack_exists
+$RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
 
@@ -888,14 +1019,16 @@ $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Val
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
-Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, workspace instructions, required reports, and local LaunchRoom skills."
+Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
+Write-Host "starter_capability_pack: task_class -> Hermes toolsets -> skills -> memory policy -> workflows -> gates"
+Write-Host "stage4_status: $Stage4Status; toolsets_enabled_without_gate=false; memory_written_without_gate=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: stage_4_starter_capability_pack"
+Write-Host "next_stage: stage_5_communications"
 if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
   Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
 }
