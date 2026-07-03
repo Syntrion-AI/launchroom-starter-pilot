@@ -23,14 +23,14 @@ Cloud, provider, n8n, billing, production deployment, and public publication req
 
 After confirmation, create local project artifacts such as:
 
-- `saas-operator-kit/product-brief.md`
-- `saas-operator-kit/target-user.md`
-- `saas-operator-kit/problem-solution.md`
-- `saas-operator-kit/first-workflow.md`
-- `saas-operator-kit/backlog.md`
-- `saas-operator-kit/gates.md`
-- `saas-operator-kit/verification-plan.md`
-- `.hermes/reports/saas-readiness-report.yaml`
+- `.hermes/operator-kit/product_brief.md`
+- `.hermes/operator-kit/target_user.md`
+- `.hermes/operator-kit/product_brief.md`
+- `.hermes/operator-kit/first_workflow.md`
+- `.hermes/operator-kit/backlog.md`
+- `.hermes/operator-kit/gates.md`
+- `.hermes/operator-kit/readiness_report.yaml`
+- `.hermes/operator-kit/readiness_report.yaml`
 
 ## SaaS foundation questions
 

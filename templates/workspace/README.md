@@ -10,6 +10,8 @@ Recommended first files:
 
 - `.hermes/reports/profile-setup-report.yaml`
 - `.hermes/reports/software-inventory-report.yaml`
-- `saas-operator-kit/product-brief.md`
-- `saas-operator-kit/first-workflow.md`
-- `saas-operator-kit/local-task-packet.md`
+- `.hermes/operator-kit/START_HERE.md`
+- `.hermes/operator-kit/NEXT_DECISION.md`
+- `.hermes/operator-kit/product_brief.md`
+- `.hermes/operator-kit/first_workflow.md`
+- `.hermes/operator-kit/local_task_packet.md`

@@ -1,7 +1,8 @@
 artifact_id: LAUNCHROOM_PROFILE_FOUNDATION_REPORT_TEMPLATE_v0_1
 artifact_type: profile_foundation_report_template
-status: template
+status: template_internal_fallback
 stage: stage_1_profile_foundation
+# This source file is a template only. The installer overwrites reports/profile-foundation-report.yaml with a live generated report.
 
 profile:
   name: __LAUNCHROOM_RESOLVE__PROFILE_NAME
@@ -16,7 +17,7 @@ result:
     - pass
     - partial
     - blocked
-  reason: template_not_live_report
+  reason: source_template_only_installer_overwrites_live_report
 
 source_artifacts:
   research_ledger: LAUNCHROOM_SETTINGS_RESEARCH_LEDGER_v0_1
