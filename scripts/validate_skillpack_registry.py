@@ -26,6 +26,7 @@ SANITIZED_SOURCE_LINEAGE = {
 }
 README = ROOT / 'README.md'
 DOCTOR = ROOT / 'scripts' / 'doctor.py'
+INSTALLER = ROOT / 'scripts' / 'install_launchroom_profile.ps1'
 CI = ROOT / '.github' / 'workflows' / 'validate.yml'
 
 REQUIRED_VISIBILITY = {'runtime_enabled_now', 'environment_or_platform_candidate', 'excluded_or_lab_only', 'sanitized_launchroom_abstraction'}
@@ -84,6 +85,7 @@ SECRET_PATTERNS = [
     re.compile(r'xox[baprs]-[A-Za-z0-9-]{20,}'),
     re.compile(r'-----BEGIN [A-Z ]*PRIVATE KEY-----'),
 ]
+INSTALLER_FORBIDDEN_INTERNAL_SKILL_RE = re.compile(r'airmida-[a-z0-9-]+')
 
 
 def fail(message: str) -> None:
@@ -136,6 +138,7 @@ def main() -> int:
     sanitized_texts = {name: validate_sanitized_skill(name, path) for name, path in SANITIZED_SKILLS.items()}
     readme_text = require_file(README)
     doctor_text = require_file(DOCTOR)
+    installer_text = require_file(INSTALLER)
     ci_text = require_file(CI)
 
     data = yaml.safe_load(registry_text)
@@ -147,6 +150,13 @@ def main() -> int:
         fail('missing public/not-authority status marker')
     if data.get('language') != 'en':
         fail('canonical registry language must be English')
+
+    installer_internal_refs = sorted(set(INSTALLER_FORBIDDEN_INTERNAL_SKILL_RE.findall(installer_text)))
+    if installer_internal_refs:
+        fail(f'installer-generated public stage reports must not reference AIRMIDA internal skills: {installer_internal_refs}')
+    for marker in ['launchroom-tool-readiness-smoke', 'launchroom-positive-result-capture', 'hermes-agent', 'experience-grounded-work-preflight']:
+        if marker not in installer_text:
+            fail(f'installer sanitation marker missing: {marker}')
 
     counts = data.get('inventory_counts', {})
     expected_counts = {
