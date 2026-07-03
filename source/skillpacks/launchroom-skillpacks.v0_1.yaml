@@ -1,0 +1,788 @@
+artifact_id: LAUNCHROOM_SKILLPACK_REGISTRY_v0_1
+artifact_type: launchroom_skillpack_registry
+status: draft_for_owner_review
+status_marker: public LaunchRoom test package / not AIRMIDA authority
+language: en
+purpose:
+  summary: Expose high-value Hermes skills as staged LaunchRoom skillpacks instead of dumping every installed skill into the
+    beginner default profile.
+  principle: small default bundle, explicit user choice, platform/environment awareness, gates before side effects
+  not_purpose:
+  - not installing skills automatically
+  - not enabling Hermes toolsets automatically
+  - not promoting local skills into the public package automatically
+  - not mutating provider/runtime/cloud/gateway/n8n surfaces
+  - not reading or storing secrets
+  - not git publication or release execution
+  - not patching or generalizing AIRMIDA internal skills into public LaunchRoom skills
+  - not mixing source-lineage skills with sanitized LaunchRoom abstraction skills
+source_lineage:
+  runtime_enabled_audit: local audit LAUNCHROOM_SKILL_INTEGRATION_AUDIT_20260702_2155 (97 runtime-enabled skills)
+  hidden_advanced_audit: local audit LAUNCHROOM_EXTRA_14_FILESYSTEM_SKILLS_DEEP_STUDY_20260702_2225 (14 platform/environment/advanced
+    candidates)
+  runtime_inventory_source: hermes skills list --enabled-only + skills_list tool
+  source_status: evidence for registry design only; not AIRMIDA authority
+  incremental_runtime_delta: 'Read-only check found one new runtime-enabled AIRMIDA internal skill: airmida-memory-stack-operator.'
+  sanitized_abstraction_source_boundary: AIRMIDA internal skills are source-lineage/pattern evidence only; LaunchRoom abstractions
+    must be new launchroom-* skills.
+  boundary_doc: source/skillpacks/SANITIZED_ABSTRACTION_BOUNDARY.md
+inventory_counts:
+  runtime_enabled_skills_input: 98
+  filesystem_skillmd_seen_input: 112
+  hidden_or_advanced_candidates_input: 14
+  existing_launchroom_bundled_skills: 3
+  public_beginner_default_hidden_candidates: 0
+  sanitized_abstraction_skills_input: 3
+visibility_classes:
+  runtime_enabled_now: Skill is visible in the current runtime-enabled profile/platform inventory and can be recommended or
+    loaded after normal LaunchRoom choice gates.
+  environment_or_platform_candidate: Skill exists and is valuable, but is hidden by OS, environment, tool, dependency, or
+    runtime condition; offer only when that condition is true and the relevant gate is accepted.
+  excluded_or_lab_only: Skill is valuable only in explicitly gated internal/lab contexts and must not appear in public beginner
+    flows.
+  sanitized_launchroom_abstraction: New customer-safe LaunchRoom skill created from sanitized AIRMIDA operating patterns;
+    source internal skills are lineage only and must not be patched, renamed, or exposed as public defaults by this registry.
+default_install_policy:
+  default_bundle_is_small: true
+  do_not_install_all_runtime_skills: true
+  do_not_install_hidden_candidates_by_default: true
+  bundled_profile_skills:
+  - launchroom-profile-operator
+  - launchroom-hermes-settings-guide
+  - launchroom-saas-operator
+  marketplace_model: offer curated packs by stage, project type, host platform, and accepted gate
+  sanitized_abstractions_are_separate_from_airmida_internal_skills: true
+  do_not_patch_airmida_internal_skills_for_launchroom: true
+  sanitized_abstraction_boundary_doc_required: true
+actions_executed_by_registry:
+  skills_installed: false
+  skills_enabled: false
+  skills_promoted: false
+  dependencies_installed: false
+  toolsets_enabled_without_gate: false
+  memory_written: false
+  agents_spawned: false
+  implementation_executed: false
+  runtime_mutation: false
+  cloud_mutation: false
+  gateway_mutation: false
+  n8n_mutation: false
+  git_publication_executed: false
+  secrets_read_or_written: false
+curated_packs:
+- pack_id: launchroom_minimal_bundle
+  display_name: LaunchRoom Minimal Bundle
+  room_or_stage:
+  - Foundation Room
+  - Capability Room
+  offer_model: bundled_profile_payload
+  default_install: true
+  visibility_class: runtime_enabled_now
+  why_valuable: The smallest LaunchRoom-specific layer that explains the profile, settings, and SaaS operator flow without
+    flooding beginners with unrelated skills.
+  runtime_skills:
+  - launchroom-profile-operator
+  - launchroom-hermes-settings-guide
+  - launchroom-saas-operator
+  hidden_candidates: []
+  gates:
+  - profile/workspace setup choice
+  - no secret copy
+  - no runtime mutation
+  blocked_without_gate:
+  - install unrelated skills
+  - enable network tools
+  - gateway setup
+  - provider/cloud/n8n mutation
+  verification:
+  - profile distribution validator
+  - profile setup self-test
+  - doctor validator
+- pack_id: foundation_operator_pack
+  display_name: Foundation Operator Pack
+  room_or_stage:
+  - Bootstrap 0
+  - Stage 1
+  - Stage 2
+  - Stage 4
+  offer_model: recommended_after_choice
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: 'Gives LaunchRoom a disciplined operator baseline: Hermes setup knowledge, governed preflight, workspace integration,
+    planning, debugging, and verification habits.'
+  runtime_skills:
+  - hermes-agent
+  - windows-desktop-agent-setup
+  - experience-grounded-work-preflight
+  - governed-agent-engineering-standards
+  - governed-workspace-integration
+  - governed-desktop-project-integration
+  - plan
+  - systematic-debugging
+  - test-driven-development
+  - requesting-code-review
+  - hermes-agent-skill-authoring
+  hidden_candidates: []
+  gates:
+  - read-only first
+  - workspace write gate
+  - memory/skill promotion gate
+  blocked_without_gate:
+  - persistent memory write
+  - skill patch/promotion
+  - git publication
+  - runtime/provider/cloud/gateway/n8n mutation
+  verification:
+  - stage validators
+  - readback
+  - marker scan
+  - git status
+  product_notes:
+  - positive-result behavior offered through launchroom_sanitized_abstractions_pack after optional review gate
+- pack_id: developer_builder_pack
+  display_name: Developer Builder Pack
+  room_or_stage:
+  - Stage 7
+  - Stage 8
+  - Stage 9
+  - Stage 10
+  offer_model: project_type_optional
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: 'Supports real local implementation work after the implementation gate: codebase inspection, GitHub workflow,
+    TDD, debugging, and review.'
+  runtime_skills:
+  - codebase-inspection
+  - github-auth
+  - github-repo-management
+  - github-issues
+  - github-pr-workflow
+  - github-code-review
+  - node-inspect-debugger
+  - systematic-debugging
+  - test-driven-development
+  - requesting-code-review
+  hidden_candidates:
+  - python-debugpy
+  gates:
+  - implementation gate
+  - git gate for add/commit/push
+  - Windows port gate for python-debugpy
+  blocked_without_gate:
+  - git add/commit/push
+  - dependency install
+  - interactive debugger in CI/non-TTY
+  - committed breakpoints
+  verification:
+  - tests or validators relevant to project
+  - breakpoint cleanup scan
+  - git status
+- pack_id: creative_product_pack
+  display_name: Creative Product Pack
+  room_or_stage:
+  - Stage 6
+  - Product Starter Room
+  offer_model: project_type_optional
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: Helps users turn vague product ideas into visual prototypes, diagrams, design artifacts, and creative media
+    concepts.
+  runtime_skills:
+  - architecture-diagram
+  - excalidraw
+  - sketch
+  - claude-design
+  - design-md
+  - popular-web-designs
+  - humanizer
+  - p5js
+  - baoyu-infographic
+  - pretext
+  - powerpoint
+  hidden_candidates:
+  - audiocraft-audio-generation
+  gates:
+  - project-type choice
+  - media rights/disclosure gate
+  - install/runtime gate for heavy media tools
+  blocked_without_gate:
+  - audio/video generation runtime install
+  - publication of generated media
+  - provider/runtime mutation
+  verification:
+  - generated artifact readback
+  - source/rights caveat where media is used
+- pack_id: research_knowledge_pack
+  display_name: Research and Knowledge Pack
+  room_or_stage:
+  - Capability Room
+  - Product Starter Room
+  - Control & Evidence Room
+  offer_model: project_type_optional
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: Supports evidence-first research, document extraction, literature review, knowledge extraction, and citation-safe
+    publication workflows.
+  runtime_skills:
+  - arxiv
+  - youtube-content
+  - ocr-and-documents
+  - llm-wiki
+  - blogwatcher
+  - governed-agent-knowledge-extraction
+  - governed-readonly-corpus-study
+  - maps
+  hidden_candidates:
+  - research-paper-writing
+  gates:
+  - source verification required
+  - citation verification required
+  - research-paper-writing refactor gate
+  blocked_without_gate:
+  - claiming unverified citations
+  - promoting oversized skill into runtime prompt
+  - publishing research output
+  verification:
+  - source URLs or file evidence
+  - citation verification workflow
+  - artifact readback
+- pack_id: productivity_documents_pack
+  display_name: Productivity and Documents Pack
+  room_or_stage:
+  - Stage 5
+  - Capability Room
+  - Product Starter Room
+  offer_model: user_choice_optional
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: 'Connects LaunchRoom to practical work artifacts: email, docs, sheets, presentations, notes, PDFs, OCR, and
+    structured records.'
+  runtime_skills:
+  - himalaya
+  - google-workspace
+  - notion
+  - airtable
+  - obsidian
+  - powerpoint
+  - nano-pdf
+  - ocr-and-documents
+  - teams-meeting-pipeline
+  hidden_candidates:
+  - apple-notes
+  - apple-reminders
+  gates:
+  - OAuth/user-run auth gate
+  - document write gate
+  - macOS Apple app permission gate
+  blocked_without_gate:
+  - send email
+  - edit cloud document
+  - create reminder
+  - read private notes without consent
+  - secret readback
+  verification:
+  - read-only first
+  - target record/doc confirmation
+  - post-write readback when a write is gated
+- pack_id: messaging_social_pack
+  display_name: Messaging and Social Publishing Pack
+  room_or_stage:
+  - Stage 5
+  - Capability Room
+  offer_model: communication_surface_optional
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: Maps communication and social channels as user-facing control surfaces while keeping public messages and OAuth
+    gated.
+  runtime_skills:
+  - governed-messaging-gateway-setup
+  - himalaya
+  - google-workspace
+  - teams-meeting-pipeline
+  - blogwatcher
+  hidden_candidates:
+  - imessage
+  - xurl
+  gates:
+  - gateway setup gate
+  - OAuth/user-run auth gate
+  - explicit send/post approval
+  - read-only first
+  blocked_without_gate:
+  - send message
+  - send DM
+  - post to social network
+  - set home channel
+  - approve gateway pairing
+  - secret readback
+  verification:
+  - channel map
+  - recipient/account confirmation
+  - draft-before-send
+- pack_id: apple_personal_operator_pack
+  display_name: Apple Personal Operator Pack
+  room_or_stage:
+  - Foundation Room
+  - Capability Room
+  - Stage 5
+  offer_model: platform_conditional_macos_only
+  default_install: false
+  visibility_class: environment_or_platform_candidate
+  why_valuable: 'High-value personal operator features for macOS users: Notes, Reminders, Find My, iMessage/SMS, and macOS
+    background computer-use rules.'
+  runtime_skills: []
+  hidden_candidates:
+  - apple-notes
+  - apple-reminders
+  - findmy
+  - imessage
+  - macos-computer-use
+  gates:
+  - host_os == macos
+  - local app permissions
+  - privacy explanation
+  - explicit write/send/location confirmation
+  blocked_without_gate:
+  - location lookup
+  - send iMessage/SMS
+  - create reminders
+  - read private notes
+  - UI automation permission prompts
+  verification:
+  - OS detection
+  - tool availability check
+  - dry-run/read-only first where possible
+- pack_id: agentops_executor_pack
+  display_name: AgentOps Executor Pack
+  room_or_stage:
+  - Stage 10
+  - Readiness & Drift Room
+  - AgentOps later
+  offer_model: advanced_gated
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: Prepares durable multi-agent execution through external coding agents, workspaces, packets, verification arbiters,
+    and later Kanban boards.
+  runtime_skills:
+  - claude-code
+  - codex
+  - opencode
+  - autonomous-ai-agents
+  - governed-agent-team-configuration
+  - governed-agent-team-operator-setup
+  - governed-agent-executor-loop
+  - governed-executor-workspace
+  - governed-packet-workflow-pilots
+  hidden_candidates:
+  - kanban-orchestrator
+  - kanban-worker
+  gates:
+  - external agent tool readiness
+  - workspace isolation
+  - board/profile/dispatcher readiness for Kanban
+  - owner implementation gate
+  blocked_without_gate:
+  - spawn autonomous agents
+  - create Kanban tasks for real work
+  - mutate external agent credentials/config
+  - git publication
+  verification:
+  - tool readiness report
+  - packet validation
+  - worker workspace boundary check
+- pack_id: cloudroom_modelops_pack
+  display_name: CloudRoom and ModelOps Pack
+  room_or_stage:
+  - CloudRoom later
+  - Stage 10 advanced readiness
+  offer_model: advanced_gated
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: 'Supports future model/runtime operations: read-only cloud inventory, n8n productization, observability, model
+    evaluation, and local/server LLM serving planning.'
+  runtime_skills:
+  - airmida-cloudflare-readonly-inventory
+  - airmida-hetzner-readonly-inventory
+  - airmida-n8n-full-mcp-connection
+  - airmida-n8n-governed-workflow-ops
+  - airmida-n8n-productization-package
+  - airmida-n8n-runtime-maintenance
+  - langfuse
+  - huggingface-hub
+  - llama-cpp
+  - weights-and-biases
+  hidden_candidates:
+  - evaluating-llms-harness
+  - serving-llms-vllm
+  gates:
+  - read-only first
+  - runtime mutation gate
+  - GPU/dependency/cost gate
+  - model/license policy
+  blocked_without_gate:
+  - start public server
+  - open network ports
+  - download large models
+  - run paid benchmarks
+  - Cloudflare/Hetzner/n8n mutation
+  verification:
+  - read-only inventory report
+  - cost/risk note
+  - health/readiness command before runtime
+- pack_id: launchroom_sanitized_abstractions_pack
+  display_name: LaunchRoom Sanitized Abstractions Pack
+  room_or_stage:
+  - Control & Evidence Room
+  - AgentOps later
+  offer_model: advanced_optional_sanitized
+  default_install: false
+  visibility_class: sanitized_launchroom_abstraction
+  why_valuable: Creates customer-safe LaunchRoom skills from proven internal operating patterns without mutating or exposing
+    AIRMIDA internal operator skills.
+  runtime_skills: []
+  sanitized_abstraction_skills: &id001
+  - launchroom-memory-governance
+  - launchroom-positive-result-capture
+  - launchroom-tool-readiness-smoke
+  source_lineage_skills:
+  - airmida-memory-stack-operator
+  - governed-agent-memory-substrate
+  - airmida-positive-result-capture
+  - governed-agent-engineering-standards
+  - airmida-external-agent-tool-readiness
+  hidden_candidates: []
+  gates:
+  - sanitization review gate
+  - no AIRMIDA internal skill mutation
+  - no private path/profile assumption leakage
+  - owner approval before promotion into bundled profile
+  blocked_without_gate:
+  - patch airmida-* internal skills for public LaunchRoom use
+  - copy AIRMIDA paths/profile/runtime assumptions into LaunchRoom public skills
+  - install sanitized abstraction skills into beginner default
+  - treat AIRMIDA internal skill as customer-facing authority
+  verification:
+  - boundary document present
+  - new launchroom-* skill paths present
+  - source skill mutation marker false
+  - no private path leakage in sanitized skill
+  - registry validator
+  product_positioning:
+    user_facing_name: Safe Practice Pack
+    plain_language_summary: Three optional skills that help a LaunchRoom user decide what to remember, how to turn a win into
+      reusable practice, and how to check tools safely before using them.
+    recommended_sequence:
+    - launchroom-memory-governance
+    - launchroom-positive-result-capture
+    - launchroom-tool-readiness-smoke
+    offer_when:
+    - the user starts doing repeated LaunchRoom work
+    - the workspace has enough evidence artifacts that memory/skill/result routing matters
+    - the user asks why the agent will not immediately install, login, publish, or remember everything
+    do_not_offer_when:
+    - first-run beginner setup only needs the minimal bundle
+    - the user has not accepted optional skillpack review
+    - the task needs a concrete implementation toolpack instead of governance habits
+    current_product_decision: keep_optional_only
+    promotion_requires:
+    - owner approval
+    - beginner comprehension check
+    - no private/internal naming in customer-facing skill bodies
+    - validator pass and leak scan
+- pack_id: airmida_internal_operator_pack
+  display_name: AIRMIDA Internal Operator Pack
+  room_or_stage:
+  - AIRMIDA workspace only
+  - Control & Evidence Room
+  offer_model: workspace_conditional_internal_only
+  default_install: false
+  visibility_class: runtime_enabled_now
+  why_valuable: Keeps AIRMIDA-specific governance, memory-stack, equipment catalog, n8n, Cloudflare/Hetzner, and positive-result
+    workflows available to the AIRMIDA operator profile without exposing them as generic public defaults.
+  runtime_skills:
+  - airmida-governed-toolchain-onboarding
+  - airmida-external-agent-tool-readiness
+  - airmida-positive-result-capture
+  - airmida-equipment-catalog-evidence
+  - airmida-equipment-site-local-dev-drift-gate
+  - airmida-n8n-lineage-surface-mapping
+  - airmida-n8n-governed-workflow-ops
+  - airmida-cloudflare-readonly-inventory
+  - airmida-hetzner-readonly-inventory
+  - airmida-memory-stack-operator
+  hidden_candidates: []
+  gates:
+  - AIRMIDA workspace detected
+  - owner/Architect gate for authority/runtime
+  - read-only first for external surfaces
+  blocked_without_gate:
+  - edit authority/canon/registry
+  - mutate production runtime
+  - git add/commit/push
+  - read secrets
+  verification:
+  - AIRMIDA routing summary
+  - readback
+  - validators/tests
+  - scoped git status
+- pack_id: lab_restricted_pack
+  display_name: Lab Restricted Pack
+  room_or_stage:
+  - internal lab only
+  offer_model: not_public_beginner_flow
+  default_install: false
+  visibility_class: excluded_or_lab_only
+  why_valuable: Preserves powerful but high-risk capabilities for explicitly governed internal red-team or model-research
+    sessions without advertising them to beginners.
+  runtime_skills:
+  - godmode
+  hidden_candidates:
+  - obliteratus
+  gates:
+  - owner lab gate
+  - legal/ethics/model-license gate
+  - no public beginner offer
+  blocked_without_gate:
+  - jailbreak/red-team execution
+  - model refusal-removal workflow
+  - model upload/publish
+  - unsafe public guidance
+  verification:
+  - explicit lab context
+  - safety/legal caveat
+  - no publication by default
+hidden_or_advanced_candidates:
+- skill: apple-notes
+  pack_id: apple_personal_operator_pack
+  visibility_class: environment_or_platform_candidate
+  condition: macos
+  why_valuable: 'High-value personal operator features for macOS users: Notes, Reminders, Find My, iMessage/SMS, and macOS
+    background computer-use rules.'
+  risk: local app automation + personal note privacy
+  offer_when: host_os == macos and user chooses Apple Notes integration
+  priority: medium
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: apple-reminders
+  pack_id: apple_personal_operator_pack
+  visibility_class: environment_or_platform_candidate
+  condition: macos
+  why_valuable: 'High-value personal operator features for macOS users: Notes, Reminders, Find My, iMessage/SMS, and macOS
+    background computer-use rules.'
+  risk: real reminder creation + date ambiguity
+  offer_when: host_os == macos and user confirms reminder writes
+  priority: high_for_macos
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: findmy
+  pack_id: apple_personal_operator_pack
+  visibility_class: environment_or_platform_candidate
+  condition: macos
+  why_valuable: 'High-value personal operator features for macOS users: Notes, Reminders, Find My, iMessage/SMS, and macOS
+    background computer-use rules.'
+  risk: location privacy + UI automation permissions
+  offer_when: host_os == macos and user explicitly requests device/item location
+  priority: medium_for_macos
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: imessage
+  pack_id: messaging_social_pack
+  visibility_class: environment_or_platform_candidate
+  condition: macos
+  why_valuable: Maps communication and social channels as user-facing control surfaces while keeping public messages and OAuth
+    gated.
+  risk: real message/SMS side effects + contact privacy
+  offer_when: host_os == macos and user confirms recipient/message
+  priority: high_for_macos_but_high_gate
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: macos-computer-use
+  pack_id: apple_personal_operator_pack
+  visibility_class: environment_or_platform_candidate
+  condition: macos
+  why_valuable: 'High-value personal operator features for macOS users: Notes, Reminders, Find My, iMessage/SMS, and macOS
+    background computer-use rules.'
+  risk: UI automation permissions + platform-specific actions
+  offer_when: host_os == macos and computer-use permissions are ready
+  priority: high_for_cross_platform_launchroom
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: kanban-orchestrator
+  pack_id: agentops_executor_pack
+  visibility_class: environment_or_platform_candidate
+  condition: kanban environment
+  why_valuable: Prepares durable multi-agent execution through external coding agents, workspaces, packets, verification arbiters,
+    and later Kanban boards.
+  risk: durable multi-agent task graph can outlive chat and spawn workers
+  offer_when: Kanban board/profile/dispatcher/workspace readiness accepted
+  priority: very_high_for_agentops
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: kanban-worker
+  pack_id: agentops_executor_pack
+  visibility_class: environment_or_platform_candidate
+  condition: kanban environment
+  why_valuable: Prepares durable multi-agent execution through external coding agents, workspaces, packets, verification arbiters,
+    and later Kanban boards.
+  risk: headless worker lifecycle; no live clarify; workspace boundary required
+  offer_when: Kanban dispatched worker context only
+  priority: very_high_for_agentops
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: evaluating-llms-harness
+  pack_id: cloudroom_modelops_pack
+  visibility_class: environment_or_platform_candidate
+  condition: linux/macos + ML deps/GPU/API budget
+  why_valuable: 'Supports future model/runtime operations: read-only cloud inventory, n8n productization, observability, model
+    evaluation, and local/server LLM serving planning.'
+  risk: compute/API cost + benchmark misuse risk
+  offer_when: ModelOps evaluation gate with cost controls
+  priority: high_for_modelops
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: serving-llms-vllm
+  pack_id: cloudroom_modelops_pack
+  visibility_class: environment_or_platform_candidate
+  condition: linux/macos + GPU/server deps
+  why_valuable: 'Supports future model/runtime operations: read-only cloud inventory, n8n productization, observability, model
+    evaluation, and local/server LLM serving planning.'
+  risk: open ports + model license/runtime exposure
+  offer_when: Model serving runtime gate with local/server boundary
+  priority: high_for_cloudroom_model_runtime
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: audiocraft-audio-generation
+  pack_id: creative_product_pack
+  visibility_class: environment_or_platform_candidate
+  condition: linux/macos + audio deps/GPU
+  why_valuable: Helps users turn vague product ideas into visual prototypes, diagrams, design artifacts, and creative media
+    concepts.
+  risk: media rights + heavy dependencies
+  offer_when: creative media project choice + rights/runtime gate
+  priority: medium_high_for_creative_saas
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: research-paper-writing
+  pack_id: research_knowledge_pack
+  visibility_class: environment_or_platform_candidate
+  condition: linux/macos + refactor needed
+  why_valuable: Supports evidence-first research, document extraction, literature review, knowledge extraction, and citation-safe
+    publication workflows.
+  risk: oversized SKILL.md + citation correctness
+  offer_when: slim skill refactor + citation verification gate
+  priority: very_high_after_refactor
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: xurl
+  pack_id: messaging_social_pack
+  visibility_class: environment_or_platform_candidate
+  condition: linux/macos + X OAuth/CLI
+  why_valuable: Maps communication and social channels as user-facing control surfaces while keeping public messages and OAuth
+    gated.
+  risk: public posting/DM/OAuth risk
+  offer_when: user-run OAuth outside chat + read-only first + post approval
+  priority: high_for_social_launchroom
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: python-debugpy
+  pack_id: developer_builder_pack
+  visibility_class: environment_or_platform_candidate
+  condition: linux/macos now; Windows port needed
+  why_valuable: 'Supports real local implementation work after the implementation gate: codebase inspection, GitHub workflow,
+    TDD, debugging, and review.'
+  risk: interactive debugger can hang; breakpoint cleanup required
+  offer_when: Windows port/verification + implementation gate
+  priority: very_high_after_windows_port
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+- skill: obliteratus
+  pack_id: lab_restricted_pack
+  visibility_class: excluded_or_lab_only
+  condition: linux/macos + internal lab only
+  why_valuable: Preserves powerful but high-risk capabilities for explicitly governed internal red-team or model-research
+    sessions without advertising them to beginners.
+  risk: dual-use model refusal-removal/model-surgery risk
+  offer_when: owner legal/ethics/model-license lab gate only
+  priority: low_public_high_internal_research
+  public_starter_default: false
+  skill_enabled_by_registry: false
+  dependency_installed_by_registry: false
+  runtime_mutation_by_registry: false
+selection_rules:
+- Show the minimal LaunchRoom bundle first; show optional packs only after the user selects a project direction, host platform,
+  or advanced room.
+- Do not present macOS-only skills on Windows except as future/cross-platform information.
+- Do not present lab-restricted skills in public beginner flows.
+- Do not treat environment_or_platform_candidate as ready; first close its OS/tool/dependency/runtime condition.
+- Every pack with external side effects must run read-only first where possible and require explicit user approval before
+  write/send/post/runtime actions.
+- Skillpack registry recommendations are not skill installation, skill promotion, toolset enablement, implementation, or publication.
+required_validator_markers:
+- runtime_enabled_now
+- environment_or_platform_candidate
+- excluded_or_lab_only
+- 'public_beginner_default_hidden_candidates: 0'
+- 'skills_installed: false'
+- 'skills_enabled: false'
+- 'runtime_mutation: false'
+- 'secrets_read_or_written: false'
+- 'git_publication_executed: false'
+- sanitized_launchroom_abstraction
+- 'source_airmida_skill_mutation_allowed: false'
+- 'airmida_internal_skills_are_public_launchroom_skills: false'
+- 'sanitized_skills_require_new_launchroom_names: true'
+- launchroom-positive-result-capture
+- launchroom-tool-readiness-smoke
+- 'sanitized_abstraction_skills_count: 3'
+sanitized_abstraction_policy:
+  status: active_boundary_for_launchroom_skillpack_design
+  principle: LaunchRoom sanitized abstraction skills are new customer-safe launchroom-* skills derived from AIRMIDA operating
+    patterns; they are not edits, renames, or public exports of AIRMIDA internal skills.
+  source_internal_skills_are: reference_lineage_only
+  target_surface: source/skills/launchroom-sanitized-abstractions/
+  boundary_doc: source/skillpacks/SANITIZED_ABSTRACTION_BOUNDARY.md
+  first_sanitized_skill: launchroom-memory-governance
+  source_airmida_skill_mutation_allowed_by_registry: false
+  public_beginner_default: false
+  required_agent_rule: Do not patch or generalize airmida-* internal skills when productizing LaunchRoom; create sanitized
+    launchroom-* skills instead.
+  prohibited_confusions:
+  - AIRMIDA internal skills are not LaunchRoom public starter skills
+  - .hermes working artifacts are not AIRMIDA authority unless promoted
+  - LaunchRoom sanitized skills may cite source lineage but must not inherit private paths/profile assumptions
+  - Skillpack recommendations are not skill install, skill promotion, runtime mutation, or git publication
+  required_markers:
+    source_airmida_skill_mutation_allowed: false
+    airmida_internal_skills_are_public_launchroom_skills: false
+    sanitized_skills_require_new_launchroom_names: true
+    sanitized_skills_default_install: false
+    sanitized_abstraction_skills_count: 3
+  sanitized_abstraction_skills: *id001
+  second_sanitized_skill: launchroom-positive-result-capture
+  third_sanitized_skill: launchroom-tool-readiness-smoke

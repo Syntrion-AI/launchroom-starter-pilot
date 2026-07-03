@@ -60,10 +60,17 @@ The script creates or selects the Hermes profile, applies non-secret config, wri
 | `RUN_ME_FIRST.md` | Canonical guided runbook |
 | `generated/RUN_ME_FIRST.md` | Generated runbook mirror |
 | `source/launchroom.starter.v0_5.json` | Source behavior/stage/UX/distribution contract |
+| `source/skillpacks/launchroom-skillpacks.v0_1.yaml` | Curated staged skillpack registry, including hidden/advanced candidates and sanitized abstraction pack boundaries |
+| `source/skillpacks/SANITIZED_ABSTRACTION_BOUNDARY.md` | Boundary that forbids mutating AIRMIDA internal skills when creating LaunchRoom sanitized abstractions |
+| `source/skills/launchroom-sanitized-abstractions/launchroom-memory-governance/SKILL.md` | First customer-safe LaunchRoom memory governance abstraction skill |
+| `source/skills/launchroom-sanitized-abstractions/launchroom-positive-result-capture/SKILL.md` | Second customer-safe LaunchRoom positive-result capture abstraction skill |
+| `source/skills/launchroom-sanitized-abstractions/launchroom-tool-readiness-smoke/SKILL.md` | Third customer-safe LaunchRoom tool-readiness smoke abstraction skill |
+| `generated/SKILLPACKS.md` | Human-readable generated skillpack guide |
 | `contracts/launchroom-stage-contract.json` | Generated contract artifact |
 | `scripts/install_launchroom_profile.ps1` | Primary setup and self-test tool |
 | `scripts/build_agentpack.py` | Generated artifact builder |
 | `scripts/validate_behavior_contract.py` | Behavior/UX/distribution validator |
+| `scripts/validate_skillpack_registry.py` | Skillpack registry validator |
 | `scripts/validate_profile_setup_tool.py` | Installer self-test validator |
 | `profile-distribution/launchroom-saas` | Profile distribution payload |
 
@@ -116,6 +123,7 @@ python scripts/validate_project_plan_integrity_audit.py
 python scripts/validate_agent_execution_readiness.py
 python scripts/validate_workspace_hygiene.py
 python scripts/validate_skill_capture.py
+python scripts/validate_skillpack_registry.py
 python scripts/validate_execution_evidence_binder.py
 python scripts/validate_profile_distribution.py
 python scripts/validate_profile_setup_tool.py

@@ -35,5 +35,7 @@ jobs:
         run: python scripts/validate_profile_setup_tool.py
       - name: Pilot seed
         run: python scripts/validate_pilot_seed.py
+      - name: Skillpack registry
+        run: python scripts/validate_skillpack_registry.py
       - name: Compile scripts
         run: python -m py_compile scripts/*.py
