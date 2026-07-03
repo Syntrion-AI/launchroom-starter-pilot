@@ -1,0 +1,44 @@
+# Bootstrap with Hermes
+
+> Public LaunchRoom test package / not AIRMIDA authority.
+
+If a Hermes agent receives this repository or release URL, do this first.
+
+## Link-to-Operator Bootstrap protocol
+
+1. Treat this as a setup package, not a passive article.
+2. Prefer the latest stable GitHub Release or the release tag from the URL. Use mutable `main` only when the user explicitly asks for the development branch.
+3. Read `RUN_ME_FIRST.md` before other files.
+4. Explain what will and will not be touched in the user's language.
+5. Ask whether the user has an existing project.
+6. Offer four setup modes: self-test only, new blank SaaS workspace, existing project workspace, or advanced/custom.
+7. Run `-TestOutputRoot` self-test before real setup.
+8. Request explicit approval before real profile/workspace mutation.
+9. Never ask for secrets in chat.
+10. Stop before runtime/provider/cloud/n8n/gateway/secret actions unless separately gated.
+11. Do not create tags, releases, public publication, broadcasts, or provider/runtime changes from this bootstrap flow.
+
+## First question for the user
+
+Ask this in the user's language:
+
+```text
+Do you want to run a disposable self-test first, create a new blank SaaS workspace, connect an existing project workspace, or use an advanced/custom setup path?
+```
+
+When Hermes `clarify` is available, provide these choices as actual tool choices:
+
+- Self-test only
+- New blank SaaS workspace
+- Existing project workspace
+- Advanced/custom
+
+## Required safe order
+
+```text
+link -> bootstrap -> RUN_ME_FIRST -> explain boundary -> ask project state -> self-test -> explicit setup gate -> real setup -> verify -> PASS/PARTIAL/BLOCKED summary
+```
+
+## Hard stops
+
+Stop and report `failed_policy_violation` if the agent asks for secrets in chat, copies `.env`, `auth.json`, `state.db`, OAuth/session files, mutates provider/cloud/runtime/n8n/gateway surfaces without a separate gate, or creates a release/tag without a separate release gate.

@@ -1,0 +1,52 @@
+{
+  "artifact_id": "launchroom-link-bootstrap-contract-v0-1",
+  "artifact_type": "link_bootstrap_contract",
+  "status": "active",
+  "scope": "default Hermes agent receives a LaunchRoom repository, release, or raw runbook link",
+  "required_entrypoints": [
+    "BOOTSTRAP_WITH_HERMES.md",
+    "RUN_ME_FIRST.md",
+    "scripts/install_launchroom_profile.ps1"
+  ],
+  "required_agent_actions": [
+    "identify_setup_package",
+    "prefer_release_tag",
+    "read_bootstrap_before_runbook",
+    "ask_project_state",
+    "offer_self_test_first",
+    "run_self_test_before_real_setup",
+    "request_gate_before_mutation",
+    "verify_outputs",
+    "report_pass_partial_blocked"
+  ],
+  "required_setup_modes": [
+    "self_test_only",
+    "new_blank_saas_workspace",
+    "existing_project_workspace",
+    "advanced_custom"
+  ],
+  "forbidden_actions": [
+    "ask_secret_in_chat",
+    "copy_auth_json",
+    "copy_env_values",
+    "mutate_provider_without_gate",
+    "mutate_cloud_runtime_without_gate",
+    "enable_gateway_without_gate",
+    "create_release_or_tag_without_gate"
+  ],
+  "acceptance_status_values": [
+    "PASS",
+    "PARTIAL",
+    "BLOCKED"
+  ],
+  "secrets_policy": {
+    "chat_secret_values_allowed": false,
+    "credential_file_copy_allowed": false,
+    "env_value_copy_allowed": false
+  },
+  "release_policy": {
+    "prefer_release_tag": true,
+    "main_branch_is_development_surface": true,
+    "tag_or_release_creation_requires_separate_gate": true
+  }
+}

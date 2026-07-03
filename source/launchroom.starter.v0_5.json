@@ -256,6 +256,7 @@
     "unrelated skill self-improvement patching"
   ],
   "recipes": [
+    "source/recipes/link-bootstrap.json",
     "source/recipes/profile-setup.json",
     "source/recipes/workspace-setup.json",
     "source/recipes/inventory.json",
@@ -746,5 +747,27 @@
       "secret_collection_readback_or_storage"
     ],
     "validation_rule": "Release/distribution readiness must provide a front-page quickstart, artifact manifest, validation list, and explicit release gate while performing no tag, release, deploy, runtime, gateway, n8n, cloud, or secret mutation."
+  },
+  "link_bootstrap_contract": {
+    "enabled": true,
+    "contract": "contracts/launchroom-link-bootstrap-contract.json",
+    "recipe": "source/recipes/link-bootstrap.json",
+    "entrypoint": "BOOTSTRAP_WITH_HERMES.md",
+    "canonical_runbook": "RUN_ME_FIRST.md",
+    "release_tag_preferred": true,
+    "self_test_before_real_setup": true,
+    "setup_modes": [
+      "self_test_only",
+      "new_blank_saas_workspace",
+      "existing_project_workspace",
+      "advanced_custom"
+    ],
+    "first_question": "Ask whether the user wants self-test only, a new blank SaaS workspace, an existing project workspace, or advanced/custom setup.",
+    "hard_stops": [
+      "secret_values_in_chat",
+      "credential_file_copy",
+      "runtime_provider_cloud_n8n_gateway_mutation_without_gate",
+      "release_or_tag_creation_without_gate"
+    ]
   }
 }

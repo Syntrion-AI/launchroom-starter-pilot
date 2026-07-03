@@ -6,7 +6,13 @@ It is not AIRMIDA authority. It is a productization pilot for onboarding, profil
 
 ## Start here
 
-Use the canonical English entrypoint:
+For a default Hermes agent that receives only this GitHub repository or release link, start with the Link-to-Operator Bootstrap:
+
+```text
+BOOTSTRAP_WITH_HERMES.md
+```
+
+Then use the canonical English runbook:
 
 ```text
 https://raw.githubusercontent.com/Syntrion-AI/launchroom-starter-pilot/main/RUN_ME_FIRST.md
@@ -57,6 +63,7 @@ The script creates or selects the Hermes profile, applies non-secret config, wri
 | Artifact | Role |
 | --- | --- |
 | `README.md` | Repository front page and quickstart |
+| `BOOTSTRAP_WITH_HERMES.md` | Link-to-Operator Bootstrap for default Hermes agents receiving only a repo/release link |
 | `RUN_ME_FIRST.md` | Canonical guided runbook |
 | `generated/RUN_ME_FIRST.md` | Generated runbook mirror |
 | `source/launchroom.starter.v0_5.json` | Source behavior/stage/UX/distribution contract |
@@ -110,6 +117,7 @@ Release/distribution readiness is not release execution. This repository can pre
 python scripts/build_agentpack.py --check
 python scripts/doctor.py
 python scripts/validate_behavior_contract.py
+python scripts/validate_link_bootstrap.py
 python scripts/validate_language_policy.py
 python scripts/validate_archive_policy.py
 python scripts/validate_profile_recipe.py

@@ -1,0 +1,30 @@
+{
+  "artifact_id": "launchroom-link-bootstrap-recipe-v0-1",
+  "artifact_type": "link_bootstrap_recipe",
+  "status": "active",
+  "contract": "contracts/launchroom-link-bootstrap-contract.json",
+  "entrypoint": "BOOTSTRAP_WITH_HERMES.md",
+  "canonical_runbook": "RUN_ME_FIRST.md",
+  "setup_modes": [
+    "self_test_only",
+    "new_blank_saas_workspace",
+    "existing_project_workspace",
+    "advanced_custom"
+  ],
+  "safe_order": [
+    "read_bootstrap",
+    "read_runbook",
+    "explain_boundary",
+    "ask_project_state",
+    "run_self_test",
+    "request_real_setup_gate",
+    "apply_real_setup_if_approved",
+    "verify_outputs",
+    "report_pass_partial_blocked"
+  ],
+  "release_tag_preferred": true,
+  "self_test_before_real_setup": true,
+  "secrets_in_chat_forbidden": true,
+  "runtime_mutation_without_gate_forbidden": true,
+  "release_or_tag_without_gate_forbidden": true
+}

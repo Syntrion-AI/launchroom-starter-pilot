@@ -132,6 +132,37 @@ def render_first_run_demo(source: dict) -> str:
         lines.append(f"- {action}")
     return '\n'.join(lines)
 
+def render_link_bootstrap(source: dict) -> str:
+    contract = source.get('link_bootstrap_contract', {})
+    if not contract.get('enabled'):
+        return ''
+    modes = contract.get('setup_modes', [])
+    labels = {
+        'self_test_only': 'self-test only',
+        'new_blank_saas_workspace': 'new blank SaaS workspace',
+        'existing_project_workspace': 'existing project workspace',
+        'advanced_custom': 'advanced/custom',
+    }
+    mode_lines = '\n'.join(f"- {labels.get(mode, mode.replace('_', ' '))}" for mode in modes)
+    return f"""## Link-to-Operator Bootstrap
+
+If a Hermes agent receives only a GitHub repository or release link, treat this package as a setup package, not a passive article. Prefer the release tag over mutable `main` for installation or acceptance testing. Read `BOOTSTRAP_WITH_HERMES.md`, then this runbook, before scanning the rest of the repository.
+
+First explain the safe boundary in the user's language: local self-test and local profile/workspace setup are separate from runtime, provider, cloud, n8n, gateway, git publication, release, and secret handling.
+
+Ask the first project-state question before real setup: Does the user already have a project? Offer these setup modes with `clarify` choices when available:
+
+{mode_lines}
+
+Run the `-TestOutputRoot` self-test before any real setup. Do not ask for secret values in chat, do not copy credential files, and do not mutate runtime/provider/cloud/n8n/gateway surfaces unless a separate gate is granted.
+
+Required safe order:
+
+```text
+link -> bootstrap -> RUN_ME_FIRST -> explain boundary -> ask project state -> self-test -> explicit setup gate -> real setup -> verify -> PASS/PARTIAL/BLOCKED summary
+```
+"""
+
 def render_release_distribution_readiness(source: dict) -> str:
     contract = source.get('release_distribution_readiness_contract', {})
     if not contract.get('enabled'):
@@ -192,13 +223,9 @@ def render_runbook(source: dict) -> str:
 
 Use this file as the executable setup route for a new or default Hermes profile. It is a guided setup wizard, not a passive article. The agent should run the staged setup below, explain each stage in the user's language, and ask for choices before any profile or workspace mutation.
 
+""" + render_link_bootstrap(source) + """
+
 ## Primary setup tool
-
-The primary setup path is the real profile installer, not a manual stage walkthrough:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\\LaunchRoom\\launchroom" -UserLanguage auto -Yes
-```
 
 For CI-grade non-mutating generation checks, run the installer in self-test mode:
 
@@ -207,6 +234,12 @@ powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 
 ```
 
 `-TestOutputRoot` writes a simulated profile/workspace tree only under the supplied path and must not call `hermes profile create`, `hermes config set`, or `hermes tools enable`.
+
+The primary setup path after self-test and explicit target approval is the real profile installer, not a manual stage walkthrough:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\\LaunchRoom\\launchroom" -UserLanguage auto -Yes
+```
 
 When the repository is used through a raw GitHub link, ask the user to clone or download the repository before running the script. If the script cannot be run, the agent may perform the equivalent steps manually from `profile-distribution/launchroom-saas`, but Stage 1/2/4 must not be marked `pass` until the same artifacts exist or are explicitly deferred:
 
@@ -316,12 +349,14 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 
 ## Core behavior
 
-- Use `RUN_ME_FIRST.md` as the canonical executable route.
+- Use `BOOTSTRAP_WITH_HERMES.md` first as the link-to-operator bootstrap when the agent receives a repository or release link.
+- Use `RUN_ME_FIRST.md` as the canonical executable route after bootstrap.
 - Speak with the user in the language they use. Do not force a fixed language set.
 - Keep repository documentation and machine contracts in English.
 - Treat the package as a guided setup wizard, not a read-only audit.
-- Prefer the real setup tool `scripts/install_launchroom_profile.ps1` for profile/workspace installation.
+- Prefer the real setup tool `scripts/install_launchroom_profile.ps1` for profile/workspace installation after `-TestOutputRoot` self-test and explicit target approval.
 - Run safe T0 checks without extra ceremony after the user starts the wizard.
+- Ask whether the user has an existing project and offer self-test only, new blank SaaS workspace, existing project workspace, or advanced/custom setup.
 - Ask before T1 profile/workspace setup.
 - Require separate gates for software installs, gateway setup, cloud/runtime/provider changes, git publication, and secrets.
 
@@ -361,10 +396,12 @@ def render_agent() -> str:
 
 You operate the LaunchRoom Starter wizard.
 
-- Use `RUN_ME_FIRST.md` as the route.
+- Use `BOOTSTRAP_WITH_HERMES.md` first when the user provides a repository or release link.
+- Use `RUN_ME_FIRST.md` as the route after bootstrap.
 - Speak in the user's language.
 - Keep canonical repository documentation and contracts in English.
 - Perform T0 safe checks after the wizard starts.
+- Ask whether the user has an existing project and offer self-test only, new blank SaaS workspace, existing project workspace, or advanced/custom setup.
 - Ask before T1 profile/workspace setup.
 - Recommend installs but do not install without a separate gate.
 - Do not mutate cloud/runtime/provider/publication surfaces without a separate owner gate.
