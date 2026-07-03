@@ -196,7 +196,28 @@ def run_self_test_if_available() -> None:
             raise SystemExit(1)
         yaml.safe_load((profile_root / 'config.yaml').read_text(encoding='utf-8'))
         yaml.safe_load((profile_root / 'LAUNCHROOM_PROFILE_CONTRACT.yaml').read_text(encoding='utf-8'))
-        yaml.safe_load((profile_root / 'reports' / 'profile-foundation-report.yaml').read_text(encoding='utf-8'))
+        foundation_report = yaml.safe_load((profile_root / 'reports' / 'profile-foundation-report.yaml').read_text(encoding='utf-8'))
+        if foundation_report.get('artifact_type') != 'profile_foundation_report' or foundation_report.get('status') == 'template':
+            print('FAIL: self-test foundation report is still a template, not a live generated report')
+            raise SystemExit(1)
+        created_files = foundation_report.get('created_or_required_files', {})
+        for key in ['config_yaml','SOUL_md','PROFILE_INSTRUCTIONS_md','LAUNCHROOM_PROFILE_CONTRACT_yaml','env_example','selected_settings_yaml']:
+            if created_files.get(key) is not True:
+                print('FAIL: self-test foundation report did not mark created file as true: ' + key)
+                raise SystemExit(1)
+        if foundation_report.get('verification_evidence', {}).get('self_test_mode') is not True:
+            print('FAIL: self-test foundation report does not record self_test_mode=true')
+            raise SystemExit(1)
+        workspace_readme_text = (workspace_root / 'README.md').read_text(encoding='utf-8')
+        if 'saas-operator-kit/' in workspace_readme_text:
+            print('FAIL: workspace README still points to stale root saas-operator-kit paths')
+            raise SystemExit(1)
+        if '.hermes/operator-kit/' not in workspace_readme_text:
+            print('FAIL: workspace README does not point to actual .hermes/operator-kit paths')
+            raise SystemExit(1)
+        if (workspace_root / 'saas-operator-kit').exists():
+            print('FAIL: self-test created stale root saas-operator-kit directory')
+            raise SystemExit(1)
         workspace_report = yaml.safe_load((workspace_root / '.hermes' / 'reports' / 'workspace-onboarding-report.yaml').read_text(encoding='utf-8'))
         if workspace_report.get('stage_id') != 'stage_2_workspace_project_onboarding':
             print('FAIL: self-test workspace onboarding report has wrong stage_id')
@@ -533,6 +554,9 @@ def main() -> int:
         ('Selected choices:','selected choices summary'),
         ('Beginner-safe result to expect:','beginner status contract'),
         ('status: $InstallStatus','final beginner-safe status'),
+        ('.hermes/operator-kit/START_HERE.md','prints Stage 6 beginner entrypoint with actual path'),
+        ('next_command: inspect $TestOutputFull or rerun installer without -TestOutputRoot after explicit setup choice','self-test next command does not point to non-created live profile'),
+        ('self_test_generated_report_no_live_profile_mutation','foundation report distinguishes self-test from live profile setup'),
         ('visible_files_to_check','visible files summary'),
         ('what_was_not_touched','safety boundary summary'),
         ('remaining_safe_step','deferred next step summary'),
@@ -602,11 +626,11 @@ def main() -> int:
         ('gateway_autostart_installed: false','records no autostart install'),
         ('test_message_sent: false','records no delivery test'),
         ('communication_channel_map: Desktop, Telegram, Slack, Email, Discord, adapters, webhooks/API -> managers -> guides -> gates -> verification','final Stage 5 summary'),
-        ('operator-kit/START_HERE.md','writes Stage 6 beginner entrypoint'),
-        ('operator-kit/NEXT_DECISION.md','writes Stage 6 next decision guide'),
-        ('operator-kit/CHECK_IT_WORKS.md','writes Stage 6 user verification guide'),
-        ('operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md','writes Stage 6 pain-to-workflow examples'),
-        ('operator-kit/readiness_report.yaml','writes Stage 6 operator kit readiness report'),
+        ('.hermes/operator-kit/START_HERE.md','writes Stage 6 beginner entrypoint'),
+        ('.hermes/operator-kit/NEXT_DECISION.md','writes Stage 6 next decision guide'),
+        ('.hermes/operator-kit/CHECK_IT_WORKS.md','writes Stage 6 user verification guide'),
+        ('.hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md','writes Stage 6 pain-to-workflow examples'),
+        ('.hermes/operator-kit/readiness_report.yaml','writes Stage 6 operator kit readiness report'),
         ('guided-session/DEFAULT_WORKFLOW_CATALOG.md','writes no-idea default workflow catalog'),
         ('guided-session/IMPLEMENTATION_ROADMAP.md','writes blueprint-to-working-result roadmap'),
         ('LAUNCHROOM_SAAS_OPERATOR_KIT_READINESS_v0_1','operator kit readiness artifact id'),

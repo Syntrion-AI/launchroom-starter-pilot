@@ -11,7 +11,7 @@
     "create selected directory",
     "create .hermes/reports",
     "create .hermes/instructions",
-    "create saas-operator-kit directory",
+    "create .hermes/operator-kit directory for Stage 6 operator kit",
     "write workspace README.md",
     "write workspace AGENTS.md",
     "write workspace HERMES.md",

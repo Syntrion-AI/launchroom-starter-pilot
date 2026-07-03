@@ -334,7 +334,7 @@ $WorkspaceExistedBefore = Test-Path $WorkspaceFull
 New-Item -ItemType Directory -Force -Path $WorkspaceFull | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $WorkspaceFull '.hermes/reports') | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $WorkspaceFull '.hermes/instructions') | Out-Null
-New-Item -ItemType Directory -Force -Path (Join-Path $WorkspaceFull 'saas-operator-kit') | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $WorkspaceFull '.hermes/operator-kit') | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $profileRoot 'reports') | Out-Null
 
 $tokens = @{
@@ -952,7 +952,7 @@ $stage4Lines = @(
   '    gates: [secret_gate, production_mutation_gate]',
   '    verification: [secret_scan_zero, blocked_actions_recorded, no_env_auth_state_readback]',
   'enablement_recommendations:',
-  '  safe_default_next_action: review starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml and approve selected toolset/skill activation gates only when needed',
+  '  safe_default_next_action: review starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, .hermes/operator-kit/START_HERE.md, .hermes/operator-kit/NEXT_DECISION.md, .hermes/operator-kit/CHECK_IT_WORKS.md, .hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, .hermes/operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml and approve selected toolset/skill activation gates only when needed',
   '  reset_required_after_toolset_change: true',
   '  install_gate_required: true',
   'boundaries:',
@@ -4036,6 +4036,71 @@ $LiveConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder $configPath
 $DraftConfigHasPlaceholder = Has-UnresolvedLaunchRoomPlaceholder (Join-Path $profileRoot 'reports/config.yaml.draft')
 $ToolsetPartialCount = @($toolsetResults | Where-Object { -not $_.ok }).Count
 $ModelStatus = if ($HasModelProvider -and $HasModelDefault) { 'configured_or_written_non_secret_names' } else { 'partial_deferred_provider_or_model' }
+$ProfileFoundationStatus = if ($ModelStatus -eq 'configured_or_written_non_secret_names' -and (-not $IsSelfTest) -and (-not $NoToolsets) -and ($ToolsetPartialCount -eq 0)) { 'pass' } else { 'partial' }
+$ProfileFoundationReason = if ($IsSelfTest) { 'self_test_generated_report_no_live_profile_mutation' } elseif ($ModelStatus -ne 'configured_or_written_non_secret_names') { 'model_provider_or_default_model_deferred' } elseif ($NoToolsets) { 'toolset_enablement_deferred_by_flag' } elseif ($ToolsetPartialCount -gt 0) { 'one_or_more_toolsets_partial' } else { 'profile_foundation_generated' }
+$StarterSkillsStatus = if ($NoLocalSkills) { 'deferred_by_flag' } else { 'present' }
+$ToolsetActionStatus = if ($IsSelfTest) { 'skipped_self_test' } elseif ($NoToolsets) { 'deferred_by_flag' } elseif ($ToolsetPartialCount -eq 0) { 'attempted_no_partial_results' } else { 'partial' }
+$ProfileFoundationNextAction = if ($IsSelfTest) { 'Inspect the disposable TestOutputRoot tree or rerun the installer without -TestOutputRoot after choosing a real profile/workspace.' } else { 'Start Hermes with this profile, inspect .hermes/operator-kit/START_HERE.md, and keep model/provider/runtime/cloud/gateway/n8n/secrets behind separate gates.' }
+$foundationReportLines = @(
+  'artifact_id: LAUNCHROOM_PROFILE_FOUNDATION_REPORT_v0_1',
+  'artifact_type: profile_foundation_report',
+  "status: $ProfileFoundationStatus",
+  'stage: stage_1_profile_foundation',
+  'generated_by: scripts/install_launchroom_profile.ps1',
+  "generated_at: $(ConvertTo-YamlSingleQuotedScalar (Get-Date).ToString('s'))",
+  'profile:',
+  "  name: $(ConvertTo-YamlSingleQuotedScalar $ProfileName)",
+  "  profile_path: $(ConvertTo-YamlSingleQuotedScalar $profileRoot)",
+  "  language: $(ConvertTo-YamlSingleQuotedScalar $UserLanguage)",
+  "  project_name: $(ConvertTo-YamlSingleQuotedScalar $ProjectName)",
+  "  project_path: $(ConvertTo-YamlSingleQuotedScalar $WorkspaceFull)",
+  'result:',
+  "  status: $ProfileFoundationStatus",
+  "  reason: $(ConvertTo-YamlSingleQuotedScalar $ProfileFoundationReason)",
+  'created_or_required_files:',
+  "  config_yaml: $(ConvertTo-LaunchRoomYesNo (Test-Path $configPath))",
+  "  SOUL_md: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot 'SOUL.md')))",
+  "  PROFILE_INSTRUCTIONS_md: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot 'PROFILE_INSTRUCTIONS.md')))",
+  "  LAUNCHROOM_PROFILE_CONTRACT_yaml: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot 'LAUNCHROOM_PROFILE_CONTRACT.yaml')))",
+  "  env_example: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot '.env.EXAMPLE')))",
+  "  selected_settings_yaml: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot 'reports/stage-1-selected-settings.yaml')))",
+  "  starter_skills: $(ConvertTo-YamlSingleQuotedScalar $StarterSkillsStatus)",
+  'settings_summary:',
+  "  model_provider: $(ConvertTo-YamlSingleQuotedScalar $ModelProviderToken)",
+  "  model_default: $(ConvertTo-YamlSingleQuotedScalar $ModelDefaultToken)",
+  "  terminal_cwd: $(ConvertTo-YamlSingleQuotedScalar $WorkspaceFull)",
+  "  toolsets: $(ConvertTo-YamlSingleQuotedScalar $ToolsetActionStatus)",
+  'model_readiness:',
+  "  status: $(ConvertTo-YamlSingleQuotedScalar $ModelStatus)",
+  "  provider: $(ConvertTo-YamlSingleQuotedScalar $ModelProviderToken)",
+  "  model: $(ConvertTo-YamlSingleQuotedScalar $ModelDefaultToken)",
+  '  smoke_test: deferred',
+  '  secret_values_seen: false',
+  'secrets_policy:',
+  '  copied_env: false',
+  '  copied_auth_json: false',
+  '  copied_state_db: false',
+  '  copied_oauth_tokens: false',
+  '  copied_sessions_or_memories: false',
+  '  printed_secret_values: false',
+  'verification_evidence:',
+  "  yaml_written_by_installer: true",
+  "  live_config_has_launchroom_placeholders: $(ConvertTo-LaunchRoomYesNo $LiveConfigHasPlaceholder)",
+  "  draft_config_has_launchroom_placeholders: $(ConvertTo-LaunchRoomYesNo $DraftConfigHasPlaceholder)",
+  "  self_test_mode: $(ConvertTo-LaunchRoomYesNo $IsSelfTest)",
+  'what_works_now:',
+  '  - profile foundation files are generated',
+  '  - workspace boundary is selected and recorded',
+  '  - secret-copy surfaces are explicitly blocked',
+  'what_remains_gated:',
+  '  - model/provider setup if not configured',
+  '  - runtime/provider/cloud/gateway/n8n mutation',
+  '  - secret readback or storage',
+  '  - public publication beyond the explicit release metadata gate',
+  "next_stage: stage_2_workspace",
+  "next_action: $(ConvertTo-YamlSingleQuotedScalar $ProfileFoundationNextAction)"
+)
+Write-Utf8NoBom (Join-Path $profileRoot 'reports/profile-foundation-report.yaml') ($foundationReportLines -join "`n")
 
 $verification = [ordered]@{
   profile = $ProfileName
@@ -4189,7 +4254,7 @@ Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
 Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, Stage 12 skill capture pack, Stage 13 execution evidence binder, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, operator-kit/START_HERE.md, operator-kit/NEXT_DECISION.md, operator-kit/CHECK_IT_WORKS.md, operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml, execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, .hermes/operator-kit/START_HERE.md, .hermes/operator-kit/NEXT_DECISION.md, .hermes/operator-kit/CHECK_IT_WORKS.md, .hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, .hermes/operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml, execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
@@ -4215,11 +4280,19 @@ Write-Host "execution_evidence_binder: executed commands -> changed files -> tes
 Write-Host "stage13_status: $Stage13Status; real_execution_evidence_present=false; fabricated_evidence=false; commands_executed_by_stage13=false; tests_executed_by_stage13=false"
 Write-Host "install_gate_required: true; installs_executed: false"
 Write-Host "next_stage: grant_implementation_gate_or_review_execution_evidence_scaffold"
-if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
-  Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
+if ($IsSelfTest) {
+  Write-Host "remaining_safe_step: self-test generated disposable files only; inspect TestOutputRoot or rerun the installer without -TestOutputRoot after choosing a real profile/workspace."
+  if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
+    Write-Host "remaining_safe_step: model/provider setup remains deferred for a real profile; run Hermes model/setup only after real profile setup."
+  }
+  Write-Host "next_command: inspect $TestOutputFull or rerun installer without -TestOutputRoot after explicit setup choice"
+} else {
+  if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
+    Write-Host "remaining_safe_step: model/provider setup is deferred; run 'hermes -p $ProfileName setup' or 'hermes -p $ProfileName model' later."
+  }
+  if ($ToolsetPartialCount -gt 0) {
+    Write-Host "remaining_safe_step: some optional toolsets were partial; run 'hermes -p $ProfileName tools list' later."
+  }
+  Write-Host "next_command: hermes -p $ProfileName"
 }
-if ($ToolsetPartialCount -gt 0) {
-  Write-Host "remaining_safe_step: some optional toolsets were partial; run 'hermes -p $ProfileName tools list' later."
-}
-Write-Host "next_command: hermes -p $ProfileName"
 Write-Host "restart_required: $(ConvertTo-LaunchRoomYesNo (-not $IsSelfTest))"
