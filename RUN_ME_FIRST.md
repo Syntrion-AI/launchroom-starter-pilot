@@ -4,13 +4,29 @@
 
 Use this file as the executable setup route for a new or default Hermes profile. It is a guided setup wizard, not a passive article. The agent should run the staged setup below, explain each stage in the user's language, and ask for choices before any profile or workspace mutation.
 
-## Primary setup tool
+## Link-to-Operator Bootstrap
 
-The primary setup path is the real profile installer, not a manual stage walkthrough:
+If a Hermes agent receives only a GitHub repository or release link, treat this package as a setup package, not a passive article. Prefer the release tag over mutable `main` for installation or acceptance testing. Read `BOOTSTRAP_WITH_HERMES.md`, then this runbook, before scanning the rest of the repository.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\LaunchRoom\launchroom" -UserLanguage auto -Yes
+First explain the safe boundary in the user's language: local self-test and local profile/workspace setup are separate from runtime, provider, cloud, n8n, gateway, git publication, release, and secret handling.
+
+Ask the first project-state question before real setup: Does the user already have a project? Offer these setup modes with `clarify` choices when available:
+
+- self-test only
+- new blank SaaS workspace
+- existing project workspace
+- advanced/custom
+
+Run the `-TestOutputRoot` self-test before any real setup. Do not ask for secret values in chat, do not copy credential files, and do not mutate runtime/provider/cloud/n8n/gateway surfaces unless a separate gate is granted.
+
+Required safe order:
+
+```text
+link -> bootstrap -> RUN_ME_FIRST -> explain boundary -> ask project state -> self-test -> explicit setup gate -> real setup -> verify -> PASS/PARTIAL/BLOCKED summary
 ```
+
+
+## Primary setup tool
 
 For CI-grade non-mutating generation checks, run the installer in self-test mode:
 
@@ -19,6 +35,12 @@ powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 
 ```
 
 `-TestOutputRoot` writes a simulated profile/workspace tree only under the supplied path and must not call `hermes profile create`, `hermes config set`, or `hermes tools enable`.
+
+The primary setup path after self-test and explicit target approval is the real profile installer, not a manual stage walkthrough:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom -WorkspacePath "$env:USERPROFILE\LaunchRoom\launchroom" -UserLanguage auto -Yes
+```
 
 When the repository is used through a raw GitHub link, ask the user to clone or download the repository before running the script. If the script cannot be run, the agent may perform the equivalent steps manually from `profile-distribution/launchroom-saas`, but Stage 1/2/4 must not be marked `pass` until the same artifacts exist or are explicitly deferred:
 

@@ -4,6 +4,7 @@ import subprocess, sys
 checks = [
     ['scripts/doctor.py'],
     ['scripts/validate_behavior_contract.py'],
+    ['scripts/validate_link_bootstrap.py'],
     ['scripts/validate_language_policy.py'],
     ['scripts/validate_archive_policy.py'],
     ['scripts/validate_profile_recipe.py'],

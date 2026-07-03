@@ -21,6 +21,8 @@ jobs:
         run: python scripts/doctor.py
       - name: Behavior contract
         run: python scripts/validate_behavior_contract.py
+      - name: Link bootstrap
+        run: python scripts/validate_link_bootstrap.py
       - name: Language policy
         run: python scripts/validate_language_policy.py
       - name: Archive policy
