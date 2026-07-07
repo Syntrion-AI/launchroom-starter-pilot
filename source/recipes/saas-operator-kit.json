@@ -22,7 +22,10 @@
     "guided-session/FIRST_SLICE_PACKET.md",
     "guided-session/DEFAULT_WORKFLOW_CATALOG.md",
     "guided-session/IMPLEMENTATION_ROADMAP.md",
-    "guided-session/COMPLETION_SUMMARY.md"
+    "guided-session/COMPLETION_SUMMARY.md",
+    "guided-session/PROJECT_INTAKE.md",
+    "guided-session/SURFACE_ROUTING.md",
+    "guided-session/TEMPLATE_ORIGIN_SAFETY.md"
   ],
   "status_marker": "Hermes working artifact / not AIRMIDA authority",
   "packet_flow": "intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision",
@@ -38,7 +41,12 @@
     "pain_to_workflow_examples_present: true",
     "guided_session_present: true",
     "no_idea_default_workflow_catalog_present: true",
-    "blueprint_to_solution_path_present: true"
+    "blueprint_to_solution_path_present: true",
+    "project_intake_present: true",
+    "active_deferred_surfaces_present: true",
+    "website_webapp_routing_present: true",
+    "mobile_deferred_or_explicitly_active: true",
+    "template_origin_safety_present: true"
   ],
   "blocked_without_gate": [
     "Cloudflare mutation",
@@ -81,5 +89,40 @@
     "personal_daily_briefing",
     "idea_to_project_blueprint"
   ],
-  "blueprint_to_solution_path_required": true
+  "blueprint_to_solution_path_required": true,
+  "project_intake_required": true,
+  "active_deferred_surfaces_required": true,
+  "template_origin_safety_required": true,
+  "project_intake_fields": [
+    "project_name_or_slug",
+    "product_goal",
+    "first_user_journey",
+    "active_surfaces",
+    "deferred_surfaces",
+    "needs_auth",
+    "needs_persistence",
+    "needs_uploads_or_media",
+    "needs_payments",
+    "needs_admin_tools",
+    "needs_external_integrations",
+    "needs_realtime_or_collaboration",
+    "deployment_needed_now",
+    "validation_scope"
+  ],
+  "surface_routing": {
+    "website_public_seo": "public SEO, landing, docs, catalog/listing/product pages, and rich link previews",
+    "webapp_authenticated_csr": "behind-login dashboards, account flows, admin panels, settings, and tools that do not need SEO",
+    "mobile_policy": "deferred/gated unless explicitly activated"
+  },
+  "template_origin_safety": {
+    "inspect_git_remote_before_branch_commit_push_pr": true,
+    "work_modes": [
+      "improving_template",
+      "creating_user_project_from_template",
+      "existing_project_work"
+    ],
+    "no_pr_to_template_without_explicit_template_contribution_gate": true,
+    "no_push_without_publication_gate": true,
+    "release_or_deploy_requires_clean_synced_source": true
+  }
 }

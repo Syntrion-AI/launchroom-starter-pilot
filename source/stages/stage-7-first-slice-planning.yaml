@@ -24,6 +24,9 @@ purpose:
 
 stage_boundary:
   consumes:
+    - .hermes/operator-kit/guided-session/PROJECT_INTAKE.md
+    - .hermes/operator-kit/guided-session/SURFACE_ROUTING.md
+    - .hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md
     - .hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md
     - .hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md
     - .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md
@@ -101,7 +104,7 @@ acceptance_criteria:
   - First-slice folder exists under workspace `.hermes/first-slice/`.
   - All required markdown and YAML planning files exist.
   - READINESS_REPORT.yaml parses as YAML.
-  - Stage 7 references Stage 6 blueprint, first slice packet, roadmap, and default workflow catalog.
+  - Stage 7 references Stage 6 project intake, surface routing, template-origin safety, blueprint, first slice packet, roadmap, and default workflow catalog.
   - Implementation brief states one output target and one user-visible success check.
   - Local pilot plan describes how to verify the first slice without live runtime/cloud/provider/gateway/n8n mutation.
   - Acceptance tests are human-readable and executor-ready after an implementation gate.
@@ -125,3 +128,23 @@ next_decision:
     - run a local-only pilot after gate
     - prepare communication channel setup gate
     - defer implementation
+
+acceptance_contract:
+  required_for_non_trivial_packets: true
+  primary_signal_required: true
+  pass_criteria_minimum: 3
+  pass_criteria_maximum_recommended: 5
+  secondary_signals_required: true
+  evidence_required_section_required: true
+  cannot_claim_done_if_required: true
+  required_report_markers:
+    - acceptance_contract_present: true
+    - primary_signal_present: true
+    - pass_criteria_present: true
+    - secondary_signals_present: true
+    - evidence_required_present: true
+    - cannot_claim_done_if_present: true
+  cannot_claim_done_if:
+    - only a plan or stub was written for a requested working result
+    - validators or smoke tests were skipped without an explicit partial/blocker explanation
+    - acceptance evidence is fabricated or copied from a previous run

@@ -144,3 +144,18 @@ next_decision:
     - gather missing project evidence
     - prepare communication/runtime gate separately
     - defer implementation
+
+local_pilot_isolation:
+  test_data_only: true
+  forbid_prod_or_dev_database_in_tests: true
+  require_test_suffix_when_database_url_present: true
+  prefer_repo_derived_ports_for_parallel_checkouts: true
+  stop_not_repair_if_data_target_is_ambiguous: true
+  do_not_start_or_kill_shared_services_to_free_ports: true
+  required_report_markers:
+    - local_pilot_isolation_present: true
+    - test_data_only: true
+    - prod_or_dev_database_forbidden: true
+    - test_database_suffix_required_when_database_url_present: true
+    - repo_derived_or_isolated_ports_preferred: true
+    - ambiguous_data_target_blocks_execution: true

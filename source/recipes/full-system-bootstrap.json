@@ -13,5 +13,10 @@
   "hard_stage_transition_contract_required": true,
   "skills_software_inventory_required_before_profile_factory": true,
   "default_profile_promotion_requires_reviewed_gate": true,
-  "recommended_profile_factory_profile": "launchroom"
+  "recommended_profile_factory_profile": "launchroom",
+  "project_intake_required_before_project_profile_or_first_slice": true,
+  "active_deferred_surfaces_required_before_first_slice": true,
+  "template_origin_safety_required_before_git_publication": true,
+  "acceptance_contract_required_for_non_trivial_packets": true,
+  "local_pilot_isolation_required_for_data_backed_tests": true
 }

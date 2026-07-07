@@ -197,11 +197,15 @@ def validate_source_contracts() -> None:
         fail("contract must require engineering_saas_profile_factory default role")
     if contract.get("model_provider_rule") != "active_conversation_is_current_session_evidence_target_profiles_smoke_later":
         fail("contract must encode corrected model/provider rule")
-    for key in ["product_mode_lock_required", "stage_result_chat_contract_required", "hard_stage_transition_contract_required", "skills_software_inventory_required_before_profile_factory", "default_profile_promotion_requires_reviewed_gate"]:
+    for key in ["product_mode_lock_required", "stage_result_chat_contract_required", "hard_stage_transition_contract_required", "skills_software_inventory_required_before_profile_factory", "default_profile_promotion_requires_reviewed_gate", "project_intake_required_before_project_profile_or_first_slice", "active_deferred_surfaces_required_before_first_slice", "template_origin_safety_required_before_git_publication", "acceptance_contract_required_for_non_trivial_packets", "local_pilot_isolation_required_for_data_backed_tests"]:
         if contract.get(key) is not True:
             fail(f"full-system contract missing {key}=true")
 
-    for marker in ["product_mode_lock:", "stage_result_chat_contract:", "hard_stage_transition_contract:", "skills_software_inventory_contract:", "default_profile_policy:"]:
+    for field in ["project_name_or_slug", "product_goal", "first_user_journey", "active_surfaces", "deferred_surfaces", "validation_scope"]:
+        if field not in contract.get("project_intake_required_fields", []):
+            fail("full-system contract project intake field missing: " + field)
+
+    for marker in ["product_mode_lock:", "stage_result_chat_contract:", "hard_stage_transition_contract:", "skills_software_inventory_contract:", "default_profile_policy:", "project_intake_contract:", "active_deferred_surfaces_contract:", "template_origin_safety_contract:", "acceptance_contract:", "local_pilot_isolation_contract:"]:
         require_contains(FULL_SYSTEM_DIR / "launchroom-v0.7-stage-map.yaml", marker, marker)
 
     source = json.loads(read(SOURCE))
@@ -210,7 +214,7 @@ def validate_source_contracts() -> None:
         fail("source launchroom.starter must enable full_system_bootstrap_contract")
     if full.get("contract") != "contracts/launchroom-full-system-bootstrap-contract.yaml":
         fail("source full_system_bootstrap_contract must point to contract")
-    for section in ["product_mode_lock_contract", "stage_result_chat_contract", "hard_stage_transition_contract", "skills_software_inventory_contract", "default_profile_policy"]:
+    for section in ["product_mode_lock_contract", "stage_result_chat_contract", "hard_stage_transition_contract", "skills_software_inventory_contract", "default_profile_policy", "project_intake_contract", "active_deferred_surfaces_contract", "template_origin_safety_contract", "acceptance_contract", "local_pilot_isolation_contract"]:
         if not source.get(section, {}).get("enabled", section == "default_profile_policy"):
             fail(f"source missing enabled section: {section}")
     for recipe in ["source/recipes/full-system-bootstrap.json"]:
@@ -228,7 +232,14 @@ def validate_docs_and_generated() -> None:
         require_contains(path, "active conversation proves the current model path is usable", "corrected model/provider rule")
         require_contains(path, "full software and capability matrix", "full software matrix rule")
         require_contains(path, "Stage 1 pass is impossible without smoke tests", "smoke test pass rule")
+        require_contains(path, "Project Intake, Surface Routing, and Template Safety", "v0.7.2 project intake/template safety section")
+        require_contains(path, "Website/public SEO rule", "website routing rule")
+        require_contains(path, "Webapp/authenticated CSR rule", "webapp routing rule")
+        require_contains(path, "Template-origin and git publication safety", "template-origin safety rule")
+        require_contains(path, "Local pilot isolation", "local pilot isolation rule")
     require_contains(BOOTSTRAP, "Do not ask the user for the SaaS/project brief before Stage 5", "no early project onboarding")
+    require_contains(BOOTSTRAP, "collect project intake before project-profile or first-slice work", "bootstrap project intake rule")
+    require_contains(BOOTSTRAP, "Inspect template-origin git safety before branch, commit, push, PR, release, or deploy work", "bootstrap template-origin safety rule")
 
 
 def validate_installer_self_test() -> None:
@@ -294,6 +305,29 @@ def validate_installer_self_test() -> None:
         purpose = load_yaml(workspace_report)
         if "full_system_categories" not in purpose:
             fail("workspace software purpose map must record full_system_categories")
+        required_v072_files = [
+            workspace_root / ".hermes" / "operator-kit" / "guided-session" / "PROJECT_INTAKE.md",
+            workspace_root / ".hermes" / "operator-kit" / "guided-session" / "SURFACE_ROUTING.md",
+            workspace_root / ".hermes" / "operator-kit" / "guided-session" / "TEMPLATE_ORIGIN_SAFETY.md",
+        ]
+        for path in required_v072_files:
+            if not path.exists():
+                fail("installer self-test missing v0.7.2 project-intake/template-safety file: " + path.relative_to(workspace_root).as_posix())
+        operator_readiness = load_yaml(workspace_root / ".hermes" / "operator-kit" / "readiness_report.yaml")
+        operator_flags = operator_readiness.get("action_flags", {})
+        for key in ["project_intake_present", "active_deferred_surfaces_present", "website_webapp_routing_present", "mobile_deferred_or_explicitly_active", "template_origin_safety_present"]:
+            if operator_flags.get(key) is not True:
+                fail("installer self-test missing Stage 6 v0.7.2 flag: " + key)
+        first_slice = load_yaml(workspace_root / ".hermes" / "first-slice" / "READINESS_REPORT.yaml")
+        first_flags = first_slice.get("action_flags", {})
+        for key in ["acceptance_contract_present", "primary_signal_present", "pass_criteria_present", "secondary_signals_present", "evidence_required_present", "cannot_claim_done_if_present"]:
+            if first_flags.get(key) is not True:
+                fail("installer self-test missing Stage 7 acceptance flag: " + key)
+        local_pilot = load_yaml(workspace_root / ".hermes" / "local-pilot" / "READINESS_REPORT.yaml")
+        local_flags = local_pilot.get("action_flags", {})
+        for key in ["local_pilot_isolation_present", "test_data_only", "prod_or_dev_database_forbidden", "test_database_suffix_required_when_database_url_present", "repo_derived_or_isolated_ports_preferred", "ambiguous_data_target_blocks_execution"]:
+            if local_flags.get(key) is not True:
+                fail("installer self-test missing Stage 8 local-pilot-isolation flag: " + key)
 
 
 def main() -> int:

@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_FILES = ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md','READINESS_REPORT.yaml']
-REQUIRED_FLAGS = ['implementation_executed: false','file_changes_executed: false','commands_executed: false','tests_executed: false','dependencies_installed: false','runtime_mutation: false','cloud_mutation: false','gateway_mutation: false','n8n_mutation: false','secrets_read_or_written: false','git_publication_executed: false','execution_packet_present: true','file_change_plan_present: true','command_plan_present: true','test_plan_present: true','evidence_log_present: true','review_checklist_present: true','handoff_summary_present: true','next_execution_gate_present: true']
+REQUIRED_FLAGS = ['implementation_executed: false','file_changes_executed: false','commands_executed: false','tests_executed: false','dependencies_installed: false','runtime_mutation: false','cloud_mutation: false','gateway_mutation: false','n8n_mutation: false','secrets_read_or_written: false','git_publication_executed: false','execution_packet_present: true','file_change_plan_present: true','command_plan_present: true','test_plan_present: true','evidence_log_present: true','review_checklist_present: true','handoff_summary_present: true','next_execution_gate_present: true','local_pilot_isolation_present: true','test_data_only: true','prod_or_dev_database_forbidden: true','test_database_suffix_required_when_database_url_present: true','repo_derived_or_isolated_ports_preferred: true','ambiguous_data_target_blocks_execution: true']
 REQUIRED_CONSUMES = ['.hermes/first-slice/IMPLEMENTATION_BRIEF.md','.hermes/first-slice/LOCAL_PILOT_PLAN.md','.hermes/first-slice/ACCEPTANCE_TESTS.md','.hermes/first-slice/USER_DEMO_SCRIPT.md','.hermes/first-slice/RISKS_AND_ROLLBACK.md','.hermes/first-slice/DECISION_GATE.md','.hermes/first-slice/READINESS_REPORT.yaml']
 
 def main() -> int:
@@ -59,9 +59,23 @@ def main() -> int:
         'review_checklist_present: true',
         'handoff_summary_present: true',
         'next_execution_gate_present: true',
+        'local_pilot_isolation:',
+        'test_data_only: true',
+        'forbid_prod_or_dev_database_in_tests: true',
+        'require_test_suffix_when_database_url_present: true',
+        'prefer_repo_derived_ports_for_parallel_checkouts: true',
+        'stop_not_repair_if_data_target_is_ambiguous: true',
+        'local_pilot_isolation_present: true',
+        'test_database_suffix_required_when_database_url_present: true',
+        'ambiguous_data_target_blocks_execution: true',
     ]:
         if marker not in contract:
             print('FAIL: Stage 8 contract marker missing: ' + marker)
+            return 1
+    isolation = recipe.get('local_pilot_isolation', {})
+    for key in ['test_data_only','forbid_prod_or_dev_database_in_tests','require_test_suffix_when_database_url_present','prefer_repo_derived_ports_for_parallel_checkouts','stop_not_repair_if_data_target_is_ambiguous']:
+        if isolation.get(key) is not True:
+            print(f'FAIL: recipe local pilot isolation missing {key}=true')
             return 1
     for item in ['write product code','modify project files','run write/build/deploy commands','install dependencies','connect live messenger/email/calendar/notes','gateway setup/autostart/pairing','Cloudflare mutation','Hetzner mutation','n8n mutation','MCP/runtime mutation','provider/model/billing mutation','database mutation','production deploy','public git push','secret readback or storage']:
         if item not in recipe.get('blocked_without_gate', []):

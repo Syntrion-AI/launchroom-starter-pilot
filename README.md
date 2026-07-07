@@ -23,6 +23,18 @@ Key corrections:
 - Missing required builder software creates a repair/install plan instead of being ignored as optional noise.
 - Machine/profile instructions and skill bodies are written in English.
 
+## v0.7.2 project-intake and template-safety hardening
+
+LaunchRoom now strengthens the handoff from profile setup into the first real project:
+
+- collect a product-focused intake before project-profile or first-slice work;
+- classify active and deferred surfaces before implementation planning;
+- route public SEO/link-preview pages to a website/public surface and behind-login dashboards/tools to an authenticated webapp surface;
+- keep mobile deferred/gated unless explicitly activated;
+- inspect template-origin git safety before branch, commit, push, PR, release, or deploy work;
+- require acceptance contracts for non-trivial implementation packets;
+- require local-pilot isolation rules before data-backed tests.
+
 
 ## Product-mode lock
 
