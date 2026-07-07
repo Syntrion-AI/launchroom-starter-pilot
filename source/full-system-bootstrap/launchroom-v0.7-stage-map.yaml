@@ -10,26 +10,108 @@ gateway_mutation: false
 n8n_mutation: false
 secret_readback_or_storage: false
 
+product_mode_lock:
+  enabled: true
+  rule: When a user provides this repository or release link, LaunchRoom setup becomes the temporary product authority. Ambient profile memory, existing projects, and prior handoffs are evidence only until the Default/Profile Factory baseline is complete, the user stops, or a blocked report is delivered.
+  required_user_visible_statement: During LaunchRoom setup I ignore unrelated current projects and follow this LaunchRoom package until the Default/Profile Factory baseline is complete or you stop the flow.
+  authority_order_during_lock:
+    - current user message and selected choices
+    - tag-pinned LaunchRoom release files or explicitly selected local repo files
+    - BOOTSTRAP_WITH_HERMES.md
+    - RUN_ME_FIRST.md
+    - contracts/launchroom-full-system-bootstrap-contract.yaml
+    - source/full-system-bootstrap/launchroom-v0.7-stage-map.yaml
+    - live system evidence gathered by the setup flow
+    - ambient profile memory/current projects as evidence only
+
+stage_result_chat_contract:
+  enabled: true
+  required_after_each_stage: true
+  user_must_not_open_file_to_understand_result: true
+  required_fields:
+    - stage_name
+    - status
+    - what_i_checked
+    - what_i_changed
+    - what_i_did_not_touch
+    - skills_and_software
+    - machine_report_path
+    - next_required_decision
+  allowed_statuses:
+    - PASS
+    - SAFE_SELF_TEST_PASS
+    - PARTIAL_NEXT_GATE_REQUIRED
+    - BLOCKED
+    - NEEDS_CHOICE
+    - INVALID_CONFLICTING_EVIDENCE
+  partial_label_rule: Do not end with bare PARTIAL. Explain the safe completed result and the exact next gate.
+
+hard_stage_transition_contract:
+  enabled: true
+  no_transition_without:
+    - required steps completed or blocked
+    - stage status declared
+    - chat summary delivered
+    - machine-readable report written when required
+    - next decision or contract-defined auto transition is explicit
+  self_test_only_is_not_stage_1_pass: true
+  stage_3_may_start_only_if:
+    - stage_1_full_foundation_ready
+    - stage_1_smoke_tests_passed_or_blocked_reported
+    - stage_2_profile_classification_complete
+    - target_profile_policy_resolved
+    - plain_summary_shown_to_user
+  invalid_if:
+    - example settings treated as live user choice
+    - contradictory evidence reported as pass
+    - stage transition happens before user-visible result
+
+skills_software_inventory_contract:
+  enabled: true
+  required_before_profile_factory_or_project_profile_decision: true
+  chat_inventory_required: true
+  machine_report_required: true
+  separate_lists:
+    - launchroom_setup_skills_and_software
+    - profile_factory_skills_and_software
+    - project_profile_skills_and_software
+    - later_saas_runtime_skills_and_software
+  missing_items_policy: Propose install/load only with explicit local/profile/admin gate; never auto-install from inventory.
+
+default_profile_policy:
+  protected_profile_names:
+    - default
+    - airmida
+    - main
+  recommended_target_profile: launchroom
+  default_profile_promotion_requires_reviewed_gate: true
+  plain_language_rule: LaunchRoom creates or uses an isolated profile-factory profile by default; promoting the real default profile is a separate reviewed decision.
+
 core_sequence:
   - stage_0_greeting_and_full_diagnostic_announcement
   - stage_1_full_system_diagnostic_repair_setup_smoke
   - stage_2_profile_inventory_and_state_classification
-  - stage_3_default_engineering_saas_profile_factory
+  - stage_3_profile_factory_baseline
   - stage_4_user_project_profile_creation
   - stage_5_project_saas_onboarding
 
 stages:
   - id: stage_0
-    name: Greeting and full diagnostic announcement
+    name: Greeting, language, product-mode lock, and diagnostic announcement
     agent_actions:
       - detect_and_mirror_user_language
+      - enter_launchroom_product_mode_lock
+      - show_product_mode_lock_statement
       - explain_that_launchroom_will_run_full_system_diagnostic_first
       - explain_no_secret_readback_and_no_external_runtime_mutation_without_gate
       - start_system_diagnostic
     pass_requires:
       - user_language_recorded
+      - product_mode_lock_statement_shown
       - diagnostic_scope_explained
       - project_questions_not_started
+    chat_result_required: true
+    machine_report_required: false
 
   - id: stage_1
     name: Full system diagnostic, repair/setup, and smoke tests
@@ -49,12 +131,18 @@ stages:
       - perform_allowed_local_non_secret_setup_after_setup_start
       - request_gate_for_admin_installs_oauth_gateway_or_external_runtime_actions
       - run_smoke_tests_after_setup
+      - show_stage_result_in_chat
+      - write_machine_report
     pass_requires:
       - diagnostic_report_created
       - setup_plan_created
       - required_local_setup_completed_or_gated_blocker_recorded
       - smoke_tests_passed
       - profile_work_allowed_true
+      - user_visible_stage_result_delivered
+    partial_allowed_if:
+      - disposable_self_test_completed_but_live_profile_not_requested
+      - optional_toolsets_or_model_provider_deferred_with_next_gate
     blocked_if:
       - terminal_backend_unavailable_without_repair_path
       - session_db_corruption_without_repair_path
@@ -64,6 +152,9 @@ stages:
   - id: stage_2
     name: Profile inventory and profile-state classification
     depends_on: stage_1
+    entry_conditions:
+      - stage_1_status_is_pass_or_partial_with_safe_next_gate
+      - product_mode_lock_active
     agent_actions:
       - list_profiles
       - identify_active_and_sticky_profile
@@ -73,16 +164,27 @@ stages:
       - detect_terminal_cwd_profile_workspace_drift
       - detect_profile_memory_tool_skill_mismatch
       - create_profile_inventory_report
+      - resolve_target_profile_policy
+      - show_stage_result_in_chat
     pass_requires:
       - profiles_classified
       - drift_recorded_or_absent
+      - target_profile_policy_resolved
       - no_profile_overwrite_without_reviewed_choice
+      - user_visible_stage_result_delivered
 
   - id: stage_3
-    name: Configure default as Engineering SaaS Profile / Profile Factory
+    name: Create/validate LaunchRoom Profile Factory baseline
     depends_on: stage_2
+    entry_conditions:
+      - stage_1_full_foundation_ready
+      - stage_1_smoke_tests_passed_or_blocked_reported
+      - stage_2_profile_classification_complete
+      - target_profile_policy_resolved
+      - skills_software_inventory_shown_to_user
+      - plain_summary_shown_to_user
     agent_actions:
-      - configure_default_profile_identity_as_engineering_saas_operator
+      - configure_target_profile_identity_as_profile_factory
       - write_english_SOUL_md
       - write_english_PROFILE_INSTRUCTIONS_md
       - write_english_LAUNCHROOM_PROFILE_CONTRACT_yaml
@@ -94,35 +196,43 @@ stages:
       - configure_messaging_strategy
       - configure_mcp_advanced_strategy
       - record_hermes_runtime_profile_project_boundary_knowledge
-      - run_default_profile_smoke_tests
+      - run_profile_factory_smoke_tests
+      - show_stage_result_in_chat
     pass_requires:
       - default_profile_role_engineering_saas_profile_factory
+      - profile_factory_baseline_created_or_verified
       - technical_instructions_written_in_english
       - full_skillpack_available_or_gate_blocker_recorded
-      - default_profile_smoke_tests_passed
+      - profile_factory_smoke_tests_passed
       - can_create_project_profiles_true
+      - user_visible_stage_result_delivered
     blocked_if:
-      - default_profile_remains_weak_or_generic
+      - profile_factory_remains_weak_or_generic
       - instructions_are_only_prohibitions_without_positive_permissions
       - secrets_or_state_files_copied_between_profiles
 
   - id: stage_4
     name: Create user/project profile
     depends_on: stage_3
+    entry_conditions:
+      - profile_factory_baseline_passed
+      - user_chooses_project_profile_setup
     agent_actions:
       - collect_minimal_project_profile_inputs
       - create_or_select_project_profile
-      - copy_safe_baseline_from_default_without_secrets_or_state
+      - copy_safe_baseline_from_profile_factory_without_secrets_or_state
       - write_project_specific_english_SOUL_and_PROFILE_INSTRUCTIONS
       - create_or_verify_project_workspace
       - install_project_relevant_skillpack
       - configure_memory_context_for_project_profile
       - run_project_profile_smoke_tests
+      - show_stage_result_in_chat
     pass_requires:
       - project_profile_created_or_existing_verified
       - workspace_ready
       - safe_baseline_applied
       - project_profile_smoke_tests_passed
+      - user_visible_stage_result_delivered
     forbidden:
       - copy_env_values
       - copy_auth_json
@@ -132,13 +242,18 @@ stages:
   - id: stage_5
     name: Project/SaaS onboarding
     depends_on: stage_4
+    entry_conditions:
+      - project_profile_ready
+      - product_mode_lock_completed_or_handed_to_project_profile
     agent_actions:
       - ask_project_goal_after_profile_foundation
       - classify_project_type
       - create_project_operator_kit
       - classify_external_product_roles_before_adapter_or_dependency_work
       - choose_implementation_mode_before_code_or_runtime_work
+      - show_stage_result_in_chat
     pass_requires:
       - project_onboarding_started_after_profile_ready
       - external_product_role_gate_available
       - implementation_mode_gate_available
+      - user_visible_stage_result_delivered

@@ -159,9 +159,21 @@ Stage 1 must inspect the full software and capability matrix, not a narrow hand-
 
 Stage 1 pass is impossible without smoke tests. A diagnostic report alone is not enough. The agent must create a diagnostic report, setup plan, perform allowed local non-secret setup or record a gated blocker, then run smoke tests before profile work is allowed.
 
-### Default profile rule
+### Default/profile-factory policy
 
-The Default profile must become an Engineering SaaS Profile / Profile Factory. It must understand Hermes config, profiles, skills, toolsets, memory/context, messaging, MCP readiness, advanced settings, workspace boundaries, gates, smoke tests, and project-profile creation. Machine/profile instructions and skill bodies are written in English.
+LaunchRoom creates or uses an isolated Profile Factory profile by default. Promoting or overwriting a real `default` profile is a separate reviewed decision. The Profile Factory must understand Hermes config, profiles, skills, toolsets, memory/context, messaging, MCP readiness, advanced settings, workspace boundaries, gates, smoke tests, and project-profile creation. Machine/profile instructions and skill bodies are written in English.
+
+### Product-mode lock
+
+When this repo or release link is the active task, LaunchRoom becomes the temporary setup authority. The agent must ignore unrelated current projects, prior handoffs, and ambient profile habits until the Default/Profile Factory baseline is complete, the user stops, or a blocked report is delivered. Existing profile memory is evidence only.
+
+### Stage result and transition contract
+
+Every stage must show a short result in chat and save a machine-readable report when the stage owns evidence. Do not hide the meaningful result only in a file. Do not move to the next stage until required steps are complete or blocked, stage status is declared, the chat summary is delivered, required report files are written, and the next decision is explicit.
+
+### Skills/software inventory rule
+
+Before Profile Factory or project-profile decisions, show the skills/software/toolsets inventory, separate LaunchRoom setup needs from later project/SaaS runtime needs, and propose missing installs or skill loads only behind explicit gates.
 """
 
 def render_link_bootstrap(source: dict) -> str:

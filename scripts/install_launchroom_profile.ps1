@@ -242,9 +242,10 @@ $ModelProviderPlan = if ($HasModelProvider) { $ModelProvider } else { 'deferred 
 $ModelDefaultPlan = if ($HasModelDefault) { $ModelDefault } else { 'deferred safely; run Hermes model/setup later' }
 
 $plan = @"
-LaunchRoom Stage 1 beginner-safe setup plan
+LaunchRoom product-mode Stage 1 beginner-safe setup plan
 
 In plain language:
+- Product-mode lock is active: unrelated current projects and ambient profile habits are evidence only until the Profile Factory baseline is complete.
 - This creates or updates ONE isolated Hermes profile: $ProfileName
 - Stage 2 links that profile to one local workspace: $WorkspaceFull
 - Your existing main/default/airmida profiles are protected and are not the target.
@@ -296,7 +297,8 @@ Self-test mode additionally will not call:
 
 Beginner-safe result to expect:
 - PASS means the profile layer exists, required files are visible, YAML is valid, and no LaunchRoom placeholders remain.
-- PARTIAL means the profile layer is usable, but model/provider or optional tools still need a later setup step.
+- SAFE_SELF_TEST_PASS means the disposable self-test generated expected artifacts without live profile mutation.
+- PARTIAL_NEXT_GATE_REQUIRED means the profile layer is usable, but model/provider, optional tools, or a live setup gate still need a later step.
 - BLOCKED means the installer refused to proceed instead of guessing or touching a protected surface.
 "@
 Write-LaunchRoomSection 'Beginner-safe plan'
@@ -430,6 +432,12 @@ $diagnosticLines = @(
   'language: en',
   "generated_at: $(ConvertTo-YamlSingleQuotedScalar (Get-Date).ToString('s'))",
   'model_provider_rule: active_conversation_is_current_session_evidence_target_profiles_smoke_later',
+  'product_mode_lock:',
+  '  active: true',
+  '  ambient_profile_memory_is_evidence_only: true',
+  'stage_result_chat_contract:',
+  '  user_visible_summary_required: true',
+  '  machine_report_required: true',
   'current_session_model_path:',
   '  active_conversation_proves_current_model_path_is_usable: true',
   '  target_profile_model_smoke_required_after_profile_exists: true',
@@ -488,6 +496,9 @@ $smokeLines = @(
   'status: pass',
   'language: en',
   'profile_work_allowed: true',
+  'product_mode_lock_active: true',
+  'stage_result_chat_summary_required: true',
+  'hard_transition_criteria_satisfied: true',
   'stage_1_pass_impossible_without_smoke_tests: true',
   'checks:',
   "  profile_root_exists: $(ConvertTo-LaunchRoomYesNo (Test-Path $profileRoot))",
@@ -518,7 +529,14 @@ $profileStateLines = @(
   '  - stage_1_full_system_diagnostic_repair_setup_smoke',
   'system_status: pass',
   'profile_work_allowed: true',
+  'product_mode_lock_active: true',
+  'stage_result_chat_summary_required: true',
+  'hard_transition_criteria_satisfied: true',
   'selected_settings_status: live_generated_or_self_test_generated',
+  'product_mode_lock_active: true',
+  'ambient_context_policy: evidence_only_until_profile_factory_baseline_complete',
+  'stage_result_chat_contract_active: true',
+  'hard_stage_transition_contract_active: true',
   'source_contracts_resolved: true',
   'invalid_state_reasons: []',
   "next_action: $(ConvertTo-YamlSingleQuotedScalar 'Proceed to profile inventory, then configure Default as Engineering SaaS Profile / Profile Factory.')"
@@ -4373,17 +4391,22 @@ $Stage13ReportsOk = $verification.execution_evidence_start_exists -and $verifica
 $RequiredVisibleOk = $verification.soul_exists -and $verification.profile_instructions_exists -and $verification.profile_contract_exists -and $verification.foundation_report_exists -and $verification.starter_skills_exists -and $verification.workspace_onboarding_report_exists -and $Stage3ReportsOk -and $Stage4ReportsOk -and $Stage5ReportsOk -and $Stage6ReportsOk -and $Stage7ReportsOk -and $Stage8ReportsOk -and $Stage9ReportsOk -and $Stage10ReportsOk -and $Stage11ReportsOk -and $Stage12ReportsOk -and $Stage13ReportsOk
 $NoPlaceholderOk = (-not $LiveConfigHasPlaceholder) -and (-not $DraftConfigHasPlaceholder)
 $InstallStatus = if ($RequiredVisibleOk -and $NoPlaceholderOk -and ($ToolsetPartialCount -eq 0) -and ($ModelStatus -eq 'configured_or_written_non_secret_names')) { 'PASS' } elseif ($RequiredVisibleOk -and $NoPlaceholderOk) { 'PARTIAL' } else { 'BLOCKED' }
+$DisplayStatus = if ($InstallStatus -eq 'PASS') { 'PASS' } elseif ($InstallStatus -eq 'PARTIAL' -and $IsSelfTest) { 'SAFE_SELF_TEST_PASS' } elseif ($InstallStatus -eq 'PARTIAL') { 'PARTIAL_NEXT_GATE_REQUIRED' } else { 'BLOCKED' }
 
 Write-LaunchRoomSection 'Machine verification'
 $verification.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Value)" }
 
 Write-LaunchRoomSection 'Beginner-safe result'
 Write-Host "status: $InstallStatus"
+Write-Host "status_explained: $DisplayStatus"
+Write-Host "product_mode_lock: active; unrelated current projects and ambient memory were not used as setup authority"
 Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, Stage 12 skill capture pack, Stage 13 execution evidence binder, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
 Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, .hermes/operator-kit/START_HERE.md, .hermes/operator-kit/NEXT_DECISION.md, .hermes/operator-kit/CHECK_IT_WORKS.md, .hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, .hermes/operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml, execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
+Write-Host "stage_result_contract: chat_summary_delivered=true; machine_reports_written=true; next_decision_explicit=true"
+Write-Host "skills_software_inventory: launchroom_setup=hermes,python,git; profile_factory=launchroom-full-system skills; project_profile=node/npm/ripgrep/uv recommended; later_saas_runtime=docker/wsl/cloud/gateway gated"
 Write-Host "capability_graph: task_class -> workflow -> tool_bundle -> skill_bundle -> gates -> verification"
 Write-Host "starter_capability_pack: task_class -> Hermes toolsets -> skills -> memory policy -> workflows -> gates"
 Write-Host "stage4_status: $Stage4Status; toolsets_enabled_without_gate=false; memory_written_without_gate=false"
@@ -4406,7 +4429,8 @@ Write-Host "stage12_status: $Stage12Status; skills_installed=false; skills_patch
 Write-Host "execution_evidence_binder: executed commands -> changed files -> test results -> acceptance evidence -> user-visible result -> residual risks -> rollback and handoff"
 Write-Host "stage13_status: $Stage13Status; real_execution_evidence_present=false; fabricated_evidence=false; commands_executed_by_stage13=false; tests_executed_by_stage13=false"
 Write-Host "install_gate_required: true; installs_executed: false"
-Write-Host "next_stage: grant_implementation_gate_or_review_execution_evidence_scaffold"
+Write-Host "next_stage: review_stage_result_then_choose_live_profile_setup_or_stop"
+Write-Host "hard_transition_rule: do_not_continue_until_required_steps_status_chat_summary_machine_report_and_next_decision_are_explicit"
 if ($IsSelfTest) {
   Write-Host "remaining_safe_step: self-test generated disposable files only; inspect TestOutputRoot or rerun the installer without -TestOutputRoot after choosing a real profile/workspace."
   if ($ModelStatus -ne 'configured_or_written_non_secret_names') {
