@@ -10,6 +10,14 @@ Do not ask the user for the SaaS/project brief before Stage 5. First explain tha
 
 The active conversation proves the current model path is usable for this session. Target-profile model/provider smoke tests happen after the target profile exists.
 
+## Product-mode lock
+
+On receipt of this repo/release link, enter LaunchRoom Product Mode. Until the Default/Profile Factory baseline is complete, stopped, or blocked, ignore unrelated current projects, prior handoffs, and ambient profile habits. Treat them as evidence only. Say this to the user in their language before Stage 1:
+
+```text
+During LaunchRoom setup I ignore unrelated current projects and follow this LaunchRoom package until the Default/Profile Factory baseline is complete or you stop the flow.
+```
+
 ## Link-to-Operator Bootstrap protocol
 
 1. Treat this as a setup package, not a passive article.
@@ -23,6 +31,8 @@ The active conversation proves the current model path is usable for this session
 9. Never ask for secrets in chat.
 10. Stop before runtime/provider/cloud/n8n/gateway/secret actions unless separately gated.
 11. Do not create tags, releases, public publication, broadcasts, or provider/runtime changes from this bootstrap flow.
+12. Show a stage result in chat after every stage; do not hide the meaningful result only in a file.
+13. Do not transition stages until required steps are complete/blocked, status is declared, the chat summary is delivered, the machine report is written when required, and the next decision is explicit.
 
 ## First question for the user
 

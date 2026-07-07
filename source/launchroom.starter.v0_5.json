@@ -34,7 +34,12 @@
     "required user choices collected or explicitly deferred",
     "selected allowed setup action completed and verified",
     "evidence ledger present",
-    "next action is next stage, retry, report, or pause"
+    "next action is next stage, retry, report, or pause",
+    "LaunchRoom product-mode lock active or explicitly exited",
+    "user-visible stage result delivered in chat",
+    "machine-readable stage report written when required",
+    "hard transition criteria satisfied before next stage",
+    "skills/software inventory shown before profile-factory/project-profile decisions"
   ],
   "stages": [
     {
@@ -783,5 +788,108 @@
     "model_provider_rule": "active_conversation_is_current_session_evidence_target_profiles_smoke_later",
     "do_not_start_project_questions_before_stage_5": true,
     "stage_1_pass_impossible_without_smoke_tests": true
+  },
+  "product_mode_lock_contract": {
+    "enabled": true,
+    "entered_when": [
+      "user provides LaunchRoom repository URL",
+      "user provides LaunchRoom release URL",
+      "user opens BOOTSTRAP_WITH_HERMES.md or RUN_ME_FIRST.md as the active setup task"
+    ],
+    "authority_order_during_lock": [
+      "current user message and selected choices",
+      "tag-pinned LaunchRoom release files or explicitly selected local repo files",
+      "BOOTSTRAP_WITH_HERMES.md",
+      "RUN_ME_FIRST.md",
+      "contracts/launchroom-full-system-bootstrap-contract.yaml",
+      "source/full-system-bootstrap/launchroom-v0.7-stage-map.yaml",
+      "live system evidence gathered by the setup flow",
+      "ambient profile memory/current projects as evidence only"
+    ],
+    "ignore_until_default_factory_baseline_complete": [
+      "unrelated current user projects",
+      "unrelated engineering handoffs",
+      "ambient profile habits",
+      "prior workspace goals",
+      "memory-derived project routing that conflicts with LaunchRoom setup"
+    ],
+    "exit_conditions": [
+      "Default/Profile Factory baseline completes and user chooses project profile setup",
+      "user explicitly stops LaunchRoom setup",
+      "blocked report delivered because required evidence/gate is missing"
+    ],
+    "required_user_visible_statement": "During LaunchRoom setup I ignore unrelated current projects and follow this LaunchRoom package until the Default/Profile Factory baseline is complete or you stop the flow."
+  },
+  "stage_result_chat_contract": {
+    "enabled": true,
+    "required_after_each_stage": true,
+    "chat_summary_required": true,
+    "machine_report_required": true,
+    "user_must_not_open_file_to_understand_result": true,
+    "required_fields": [
+      "stage_name",
+      "status",
+      "what_i_checked",
+      "what_i_changed",
+      "what_i_did_not_touch",
+      "skills_and_software",
+      "machine_report_path",
+      "next_required_decision"
+    ],
+    "allowed_statuses": [
+      "PASS",
+      "SAFE_SELF_TEST_PASS",
+      "PARTIAL_NEXT_GATE_REQUIRED",
+      "BLOCKED",
+      "NEEDS_CHOICE",
+      "INVALID_CONFLICTING_EVIDENCE"
+    ],
+    "partial_label_rule": "Do not end with bare PARTIAL. Explain the safe completed result and the exact next gate."
+  },
+  "hard_stage_transition_contract": {
+    "enabled": true,
+    "no_transition_without": [
+      "required steps completed or blocked",
+      "stage status declared",
+      "chat summary delivered",
+      "machine-readable report written when the stage owns an artifact",
+      "next decision or contract-defined auto transition is explicit"
+    ],
+    "self_test_only_is_not_stage_1_pass": true,
+    "stage_3_may_start_only_if": [
+      "stage_1_full_foundation_ready",
+      "stage_1_smoke_tests_passed_or_blocked_reported",
+      "stage_2_profile_classification_complete",
+      "target_profile_policy_resolved",
+      "plain_summary_shown_to_user"
+    ],
+    "invalid_if": [
+      "example settings treated as live user choice",
+      "contradictory evidence reported as pass",
+      "stage transition happens before user-visible result"
+    ]
+  },
+  "skills_software_inventory_contract": {
+    "enabled": true,
+    "required_before_profile_factory_or_project_profile_decision": true,
+    "chat_inventory_required": true,
+    "machine_report_required": true,
+    "separate_lists": [
+      "launchroom_setup_skills_and_software",
+      "profile_factory_skills_and_software",
+      "project_profile_skills_and_software",
+      "later_saas_runtime_skills_and_software"
+    ],
+    "missing_items_policy": "Propose install/load only with explicit local/profile/admin gate; never auto-install from inventory."
+  },
+  "default_profile_policy": {
+    "protected_profile_names": [
+      "default",
+      "airmida",
+      "main"
+    ],
+    "recommended_target_profile": "launchroom",
+    "default_profile_promotion_requires_reviewed_gate": true,
+    "plain_language_rule": "LaunchRoom creates or uses an isolated profile-factory profile by default; promoting the real default profile is a separate reviewed decision."
   }
 }

@@ -60,6 +60,9 @@ REQUIRED_BOOTSTRAP_MARKERS = [
     "Request explicit approval before real profile/workspace mutation",
     "Never ask for secrets in chat",
     "Stop before runtime/provider/cloud/n8n/gateway/secret actions unless separately gated",
+    "During LaunchRoom setup I ignore unrelated current projects",
+    "Show a stage result in chat after every stage",
+    "Do not transition stages until required steps are complete/blocked",
 ]
 
 REQUIRED_RUNBOOK_MARKERS = [
@@ -73,6 +76,9 @@ REQUIRED_RUNBOOK_MARKERS = [
     "advanced/custom",
     "Run the `-TestOutputRoot` self-test before any real setup",
     "Do not ask for secret values in chat",
+    "Product-mode lock",
+    "Stage result and transition contract",
+    "skills/software/toolsets inventory",
 ]
 
 REQUIRED_ENTRYPOINT_MARKERS = {

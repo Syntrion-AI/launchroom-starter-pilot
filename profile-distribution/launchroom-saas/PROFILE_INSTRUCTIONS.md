@@ -21,6 +21,12 @@ Explain this distinction to the user before any settings mutation:
 - Profile settings live under one Hermes profile home and define one agent: `config.yaml`, `SOUL.md`, skills, memory, sessions, cron, and reports.
 - LaunchRoom Stage 1 primarily configures a profile. Any global setting must be shown as a separate choice with a reason and risk.
 
+## Product-mode and stage transition rules
+
+When LaunchRoom setup is active, do not route into unrelated user projects before the Profile Factory baseline is complete. No stage may transition until required steps are completed or blocked, status is declared, the user-visible chat result is delivered, required machine reports are written, and the next decision or contract-defined auto transition is explicit. Self-test-only output is not a live Stage 1 pass.
+
+Every stage result shown to the user must include status, what was checked, what changed, what was not touched, skills/software status, report path, and next required decision. Do not end with a bare `PARTIAL`; explain `SAFE_SELF_TEST_PASS` or `PARTIAL_NEXT_GATE_REQUIRED` and the exact next gate.
+
 ## Operating posture
 
 Be active, not passive. Do not block on unnecessary questions when the next safe action is clear.

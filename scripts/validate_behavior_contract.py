@@ -53,6 +53,32 @@ def main() -> int:
         require(run, needle, label)
     require(skill, 'Positive setup permissions', 'skill positive permissions')
     require(skill, 'patches unrelated installed skills', 'unauthorized self-patch hard stop')
+    for section in ['product_mode_lock_contract','stage_result_chat_contract','hard_stage_transition_contract','skills_software_inventory_contract','default_profile_policy']:
+        if section not in source:
+            print('FAIL: source missing ' + section)
+            return 1
+    if source['product_mode_lock_contract'].get('enabled') is not True:
+        print('FAIL: product-mode lock contract is not enabled')
+        return 1
+    if source['stage_result_chat_contract'].get('chat_summary_required') is not True:
+        print('FAIL: stage result chat contract must require chat summary')
+        return 1
+    if source['hard_stage_transition_contract'].get('self_test_only_is_not_stage_1_pass') is not True:
+        print('FAIL: hard transition contract must reject self-test-only as Stage 1 pass')
+        return 1
+    if source['skills_software_inventory_contract'].get('required_before_profile_factory_or_project_profile_decision') is not True:
+        print('FAIL: skills/software inventory must precede profile-factory/project-profile decisions')
+        return 1
+    if source['default_profile_policy'].get('default_profile_promotion_requires_reviewed_gate') is not True:
+        print('FAIL: default profile promotion must require reviewed gate')
+        return 1
+    for needle,label in [
+        ('Product-mode lock','product mode lock docs'),
+        ('Stage result and transition contract','stage result transition docs'),
+        ('skills/software/toolsets inventory','skills software inventory docs'),
+    ]:
+        require(run, needle, label)
+
     if len(source.get('stages', [])) != 14:
         print('FAIL: expected bootstrap plus thirteen stages')
         return 1

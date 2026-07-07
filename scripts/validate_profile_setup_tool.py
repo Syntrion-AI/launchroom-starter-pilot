@@ -75,6 +75,11 @@ def run_self_test_if_available() -> None:
             print('FAIL: installer self-test reported BLOCKED; expected PARTIAL/PASS for generated self-test output')
             print(output)
             raise SystemExit(1)
+        for marker in ['status_explained: SAFE_SELF_TEST_PASS', 'product_mode_lock: active', 'stage_result_contract: chat_summary_delivered=true', 'hard_transition_rule: do_not_continue_until_required_steps_status_chat_summary_machine_report_and_next_decision_are_explicit']:
+            if marker.lower() not in output.lower():
+                print('FAIL: installer self-test output missing product-mode/stage marker: ' + marker)
+                print(output)
+                raise SystemExit(1)
         if not re.search(r'(?m)^status: PARTIAL$', output) and not re.search(r'(?m)^status: PASS$', output):
             print('FAIL: installer self-test did not report final PARTIAL or PASS status')
             print(output)
@@ -207,6 +212,14 @@ def run_self_test_if_available() -> None:
                 raise SystemExit(1)
         if foundation_report.get('verification_evidence', {}).get('self_test_mode') is not True:
             print('FAIL: self-test foundation report does not record self_test_mode=true')
+            raise SystemExit(1)
+        profile_state = yaml.safe_load((profile_root / 'LAUNCHROOM_PROFILE_STATE.yaml').read_text(encoding='utf-8'))
+        for key in ['product_mode_lock_active', 'stage_result_chat_contract_active', 'hard_stage_transition_contract_active']:
+            if profile_state.get(key) is not True:
+                print('FAIL: profile state missing ' + key + '=true')
+                raise SystemExit(1)
+        if profile_state.get('ambient_context_policy') != 'evidence_only_until_profile_factory_baseline_complete':
+            print('FAIL: profile state missing ambient context policy')
             raise SystemExit(1)
         workspace_readme_text = (workspace_root / 'README.md').read_text(encoding='utf-8')
         if 'saas-operator-kit/' in workspace_readme_text:
@@ -549,7 +562,7 @@ def main() -> int:
         ('TestOutputRoot','supports non-mutating self-test mode'),
         ('ProjectType','supports Stage 2 project type selection'),
         ('--no-skills','creates LaunchRoom profile without default bundled skill noise'),
-        ('LaunchRoom Stage 1 beginner-safe setup plan','beginner-safe plan title'),
+        ('LaunchRoom product-mode Stage 1 beginner-safe setup plan','beginner-safe plan title'),
         ('In plain language:','plain-language explanation'),
         ('Selected choices:','selected choices summary'),
         ('Beginner-safe result to expect:','beginner status contract'),
@@ -683,7 +696,7 @@ def main() -> int:
         ('real_execution_evidence_present=false','records no real evidence yet'),
         ('fabricated_evidence=false','records no fabricated evidence'),
         ('commands_executed_by_stage13=false','records no commands executed'),
-        ('next_stage: grant_implementation_gate_or_review_execution_evidence_scaffold','hands off to implementation gate or evidence review'),
+        ('next_stage: review_stage_result_then_choose_live_profile_setup_or_stop','hands off to stage-result review and live setup/stop choice'),
         ('dependencies_installed=false','records no dependency install'),
         ('install_gate_required: true','requires install gate for software changes'),
         ('installs_executed: false','records no install execution'),

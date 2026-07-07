@@ -197,6 +197,12 @@ def validate_source_contracts() -> None:
         fail("contract must require engineering_saas_profile_factory default role")
     if contract.get("model_provider_rule") != "active_conversation_is_current_session_evidence_target_profiles_smoke_later":
         fail("contract must encode corrected model/provider rule")
+    for key in ["product_mode_lock_required", "stage_result_chat_contract_required", "hard_stage_transition_contract_required", "skills_software_inventory_required_before_profile_factory", "default_profile_promotion_requires_reviewed_gate"]:
+        if contract.get(key) is not True:
+            fail(f"full-system contract missing {key}=true")
+
+    for marker in ["product_mode_lock:", "stage_result_chat_contract:", "hard_stage_transition_contract:", "skills_software_inventory_contract:", "default_profile_policy:"]:
+        require_contains(FULL_SYSTEM_DIR / "launchroom-v0.7-stage-map.yaml", marker, marker)
 
     source = json.loads(read(SOURCE))
     full = source.get("full_system_bootstrap_contract", {})
@@ -204,6 +210,9 @@ def validate_source_contracts() -> None:
         fail("source launchroom.starter must enable full_system_bootstrap_contract")
     if full.get("contract") != "contracts/launchroom-full-system-bootstrap-contract.yaml":
         fail("source full_system_bootstrap_contract must point to contract")
+    for section in ["product_mode_lock_contract", "stage_result_chat_contract", "hard_stage_transition_contract", "skills_software_inventory_contract", "default_profile_policy"]:
+        if not source.get(section, {}).get("enabled", section == "default_profile_policy"):
+            fail(f"source missing enabled section: {section}")
     for recipe in ["source/recipes/full-system-bootstrap.json"]:
         if recipe not in source.get("recipes", []):
             fail(f"source recipes missing {recipe}")
@@ -255,6 +264,9 @@ def validate_installer_self_test() -> None:
         output = result.stdout + result.stderr
         if re.search(r"(?mi)^status:\s*blocked\s*$", output):
             fail("installer v0.7 self-test reported BLOCKED")
+        for marker in ["status_explained: SAFE_SELF_TEST_PASS", "product_mode_lock: active", "stage_result_contract: chat_summary_delivered=true", "hard_transition_rule: do_not_continue_until_required_steps_status_chat_summary_machine_report_and_next_decision_are_explicit"]:
+            if marker.lower() not in output.lower():
+                fail("installer v0.7 self-test output missing marker: " + marker)
         profile_root = tmp_path / "profiles" / "launchroom-v07-selftest"
         workspace_root = tmp_path / "workspace" / "launchroom-v07-selftest"
         for rel in REQUIRED_SELF_TEST_FILES:

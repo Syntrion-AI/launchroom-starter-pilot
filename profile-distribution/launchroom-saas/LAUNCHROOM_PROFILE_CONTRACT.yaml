@@ -92,6 +92,33 @@ stage_ownership:
       - MCP
       - remote runtime channels
 
+product_mode_lock:
+  enabled: true
+  ambient_profile_memory_is_evidence_only: true
+  unrelated_projects_ignored_until_profile_factory_baseline_complete: true
+  user_visible_statement_required: true
+
+stage_transition_contract:
+  no_transition_without:
+    - required_steps_completed_or_blocked
+    - stage_status_declared
+    - chat_summary_delivered
+    - machine_report_written_when_required
+    - next_decision_or_contract_defined_auto_transition
+  self_test_only_is_not_stage_1_pass: true
+
+stage_result_chat_contract:
+  required_after_each_stage: true
+  required_fields:
+    - status
+    - what_checked
+    - what_changed
+    - not_touched
+    - skills_and_software
+    - report_path
+    - next_decision
+  bare_partial_forbidden: true
+
 mandatory_policies:
   secret_boundary:
     copied_secret_files: forbidden
