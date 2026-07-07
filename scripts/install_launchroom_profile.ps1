@@ -2597,10 +2597,11 @@ $localPilotStartLines = @(
   '2. FILE_CHANGE_PLAN.md — which paths are allowed, forbidden, or require approval.',
   '3. COMMAND_PLAN.md — which commands are read-only, gated, or forbidden.',
   '4. TEST_PLAN.md — how the later result should be checked.',
-  '5. EVIDENCE_LOG.md — where real command/test outputs will be recorded later.',
-  '6. REVIEW_CHECKLIST.md — how the owner reviews the result.',
-  '7. HANDOFF_SUMMARY.md — what to pass to the next agent/developer.',
-  '8. READINESS_REPORT.yaml — machine-readable safety and evidence status.',
+  '5. EXTERNAL_PRACTICE_INPUTS.md — useful donor/repository practices mapped into LaunchRoom rules, not copied as authority.',
+  '6. EVIDENCE_LOG.md — where real command/test outputs will be recorded later.',
+  '7. REVIEW_CHECKLIST.md — how the owner reviews the result.',
+  '8. HANDOFF_SUMMARY.md — what to pass to the next agent/developer.',
+  '9. READINESS_REPORT.yaml — machine-readable safety and evidence status.',
   '',
   '## Your next action',
   '',
@@ -2716,6 +2717,7 @@ $testPlanLines = @(
   '| Safety boundaries | FILE_CHANGE_PLAN.md and COMMAND_PLAN.md | no forbidden path/command touched |',
   '| Rollback readiness | .hermes/first-slice/RISKS_AND_ROLLBACK.md | rollback step identified before execution |',
   '| Local pilot isolation | READINESS_REPORT.yaml | test data only, no prod/dev database target, *_test database when applicable, isolated/repo-derived ports preferred |',
+  '| External practice inputs | EXTERNAL_PRACTICE_INPUTS.md | package manager/scripts/test levels/data target/provider/mobile gates mapped before execution |',
   '',
   '## Local pilot isolation',
   '',
@@ -2730,6 +2732,40 @@ $testPlanLines = @(
   'Run only the tests approved by the implementation gate. If a test fails, stop, record the real failure, and revise the packet instead of covering it up.'
 )
 Write-Utf8NoBom (Join-Path $localPilotRoot 'TEST_PLAN.md') ($testPlanLines -join "`n")
+
+
+$externalPracticeInputsLines = @(
+  '# External Practice Inputs',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  '## Purpose',
+  '',
+  'Capture useful practices from external starter/template repositories as structured inputs for the local pilot. These inputs guide questions and checks; they do not replace LaunchRoom authority, copy external code, or authorize execution.',
+  '',
+  '## Donor/reference examples',
+  '',
+  '| Source | Role | Useful patterns | Boundary |',
+  '| --- | --- | --- | --- |',
+  '| di-sukharev/vibe master | web/backend/website starter reference | package manager/workspace scripts, webapp vs website split, shared contracts, local DB/testing docs | donor/reference only |',
+  '| di-sukharev/vibe mobile | mobile expansion reference | mobile branch gating, Expo/EAS, IAP, push, social auth, Maestro E2E | provider/publication gated |',
+  '',
+  '## Required mapping before execution',
+  '',
+  '- external_practices_mapped_not_copied: translate donor patterns into LaunchRoom questions, gates, validation checks, or local packet fields; do not copy external code or transfer authority.',
+  '- package_manager_detection_required: identify package manager and workspace shape from the target repo before command planning.',
+  '- commands_derived_from_repo_scripts_required: use inspected package scripts or explicit owner-approved commands; do not guess commands by framework habit.',
+  '- test_level_selection_required: choose unit, contract, integration, smoke, E2E, or manual demo level based on user-visible risk and available tooling.',
+  '- data_target_preflight_required: identify whether tests touch files, local DB, test DB, external DB, or unknown data; unknown blocks execution.',
+  '- repo_derived_or_isolated_ports_preferred: avoid collisions in parallel checkouts and never kill shared services to free ports.',
+  '- provider_and_mobile_surfaces_gated: app stores, push, IAP, OAuth/provider consoles, EAS, cloud specs, and deployment remain separate gates.',
+  '- clean_release_source_required_for_publication: publication/release/deploy requires clean synced source and a publication gate.',
+  '',
+  '## Mapping rule',
+  '',
+  'Borrow practices, not authority. If a donor template suggests a provider, framework, command, or branch, translate it into a LaunchRoom question, gate, or validation check before using it.'
+)
+Write-Utf8NoBom (Join-Path $localPilotRoot 'EXTERNAL_PRACTICE_INPUTS.md') ($externalPracticeInputsLines -join "`n")
 
 $evidenceLogLines = @(
   '# Evidence Log',
@@ -2777,7 +2813,7 @@ $handoffSummaryLines = @(
   '',
   '## For the next agent/developer',
   '',
-  'Start with START_HERE.md, then read EXECUTION_PACKET.md, FILE_CHANGE_PLAN.md, COMMAND_PLAN.md, TEST_PLAN.md, and the Stage 7 first-slice files.',
+  'Start with START_HERE.md, then read EXECUTION_PACKET.md, FILE_CHANGE_PLAN.md, COMMAND_PLAN.md, TEST_PLAN.md, EXTERNAL_PRACTICE_INPUTS.md, and the Stage 7 first-slice files.',
   '',
   '## Current state',
   '',
@@ -2812,6 +2848,7 @@ $localPilotReadinessLines = @(
   '  - FILE_CHANGE_PLAN.md',
   '  - COMMAND_PLAN.md',
   '  - TEST_PLAN.md',
+  '  - EXTERNAL_PRACTICE_INPUTS.md',
   '  - EVIDENCE_LOG.md',
   '  - REVIEW_CHECKLIST.md',
   '  - HANDOFF_SUMMARY.md',
@@ -2840,6 +2877,12 @@ $localPilotReadinessLines += @(
   '  file_change_plan_present: true',
   '  command_plan_present: true',
   '  test_plan_present: true',
+  '  external_practice_inputs_present: true',
+  '  external_practices_mapped_not_copied: true',
+  '  package_manager_detection_required: true',
+  '  commands_derived_from_repo_scripts_required: true',
+  '  test_level_selection_required: true',
+  '  provider_and_mobile_surfaces_gated: true',
   '  evidence_log_present: true',
   '  review_checklist_present: true',
   '  handoff_summary_present: true',
@@ -2877,6 +2920,7 @@ $projectAuditEvidenceFiles = @(
   '.hermes/local-pilot/FILE_CHANGE_PLAN.md',
   '.hermes/local-pilot/COMMAND_PLAN.md',
   '.hermes/local-pilot/TEST_PLAN.md',
+  '.hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md',
   '.hermes/local-pilot/READINESS_REPORT.yaml'
 )
 $missingProjectAuditEvidence = @($projectAuditEvidenceFiles | Where-Object { -not (Test-Path (Join-Path $WorkspaceFull $_)) })
@@ -2926,6 +2970,7 @@ $planIntegrityLines = @(
   '- Stage 6 IMPLEMENTATION_ROADMAP.md',
   '- Stage 7 first-slice planning files',
   '- Stage 8 local-pilot execution packet files',
+  '- Stage 8 EXTERNAL_PRACTICE_INPUTS.md donor-practice mapping',
   '',
   '## Integrity checks',
   '',
@@ -2958,6 +3003,7 @@ $expectedResultLines = @(
   '| Acceptance signal | ACCEPTANCE_TESTS.md | pass/revise/defer criteria | must map to expected result |',
   '| Execution scope | EXECUTION_PACKET.md and FILE_CHANGE_PLAN.md | allowed files and forbidden paths | must not exceed first slice |',
   '| Command/test scope | COMMAND_PLAN.md and TEST_PLAN.md | safe commands and tests after gate | Stage 10 validates toolchain readiness |',
+  '| External practice inputs | EXTERNAL_PRACTICE_INPUTS.md | donor practices mapped into LaunchRoom checks | informs audit and readiness without becoming authority |',
   '| Non-goals | gates and safety reports | no secrets/runtime/cloud/gateway/n8n/git publication | must remain enforced |',
   '',
   '## Audit conclusion',
@@ -3109,6 +3155,7 @@ $projectAuditReportLines = @(
   '  implementation_brief: .hermes/first-slice/IMPLEMENTATION_BRIEF.md',
   '  acceptance_tests: .hermes/first-slice/ACCEPTANCE_TESTS.md',
   '  execution_packet: .hermes/local-pilot/EXECUTION_PACKET.md',
+  '  external_practice_inputs: .hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md',
   'generated_files:',
   '  - START_HERE.md',
   '  - PLAN_INTEGRITY_REPORT.md',
@@ -3182,6 +3229,7 @@ $agentReadinessEvidenceFiles = @(
   '.hermes/local-pilot/FILE_CHANGE_PLAN.md',
   '.hermes/local-pilot/COMMAND_PLAN.md',
   '.hermes/local-pilot/TEST_PLAN.md',
+  '.hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md',
   '.hermes/reports/software-inventory-report.yaml',
   '.hermes/reports/software-purpose-map.yaml',
   '.hermes/reports/software-install-recommendation.yaml',
@@ -3450,6 +3498,8 @@ $executionReadinessLines = @(
   '  stage9_audit: .hermes/project-audit/AUDIT_REPORT.yaml',
   '  stage8_execution_packet: .hermes/local-pilot/EXECUTION_PACKET.md',
   '  stage8_command_plan: .hermes/local-pilot/COMMAND_PLAN.md',
+  '  stage8_test_plan: .hermes/local-pilot/TEST_PLAN.md',
+  '  stage8_external_practice_inputs: .hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md',
   '  stage3_software_inventory: .hermes/reports/software-inventory-report.yaml',
   '  stage3_install_recommendation: .hermes/reports/software-install-recommendation.yaml',
   '  stage4_starter_capability_pack: .hermes/reports/starter-capability-pack.yaml',
@@ -3480,6 +3530,7 @@ $executionReadinessLines += @(
   '  agent_pipeline_plan_present: true',
   '  install_plan_present: true',
   '  command_readiness_present: true',
+  '  stage8_external_practice_inputs_consumed: true',
   '  execution_ready_false_until_owner_gate: true',
   'action_flags:',
   '  software_installed: false',
@@ -4459,6 +4510,7 @@ $verification = [ordered]@{
   local_pilot_file_change_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/FILE_CHANGE_PLAN.md')
   local_pilot_command_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/COMMAND_PLAN.md')
   local_pilot_test_plan_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/TEST_PLAN.md')
+  local_pilot_external_practice_inputs_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md')
   local_pilot_evidence_log_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/EVIDENCE_LOG.md')
   local_pilot_review_checklist_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/REVIEW_CHECKLIST.md')
   local_pilot_handoff_summary_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/local-pilot/HANDOFF_SUMMARY.md')
@@ -4537,7 +4589,7 @@ $Stage4ReportsOk = $verification.starter_capability_pack_exists
 $Stage5ReportsOk = $verification.communication_channel_map_exists -and $verification.communication_user_guide_exists
 $Stage6ReportsOk = $verification.operator_kit_root_exists -and $verification.operator_kit_start_here_exists -and $verification.operator_kit_next_decision_exists -and $verification.operator_kit_check_it_works_exists -and $verification.operator_kit_examples_exists -and $verification.operator_kit_readiness_exists -and $verification.guided_session_state_exists -and $verification.guided_session_agent_guide_exists -and $verification.guided_session_user_lesson_exists -and $verification.guided_session_idea_intake_exists -and $verification.guided_session_project_intake_exists -and $verification.guided_session_surface_routing_exists -and $verification.guided_session_template_origin_safety_exists -and $verification.guided_session_project_blueprint_exists -and $verification.guided_session_first_slice_exists -and $verification.guided_session_default_catalog_exists -and $verification.guided_session_implementation_roadmap_exists -and $verification.guided_session_completion_summary_exists
 $Stage7ReportsOk = $verification.first_slice_start_exists -and $verification.first_slice_implementation_brief_exists -and $verification.first_slice_local_pilot_plan_exists -and $verification.first_slice_acceptance_tests_exists -and $verification.first_slice_user_demo_script_exists -and $verification.first_slice_risks_rollback_exists -and $verification.first_slice_decision_gate_exists -and $verification.first_slice_readiness_exists
-$Stage8ReportsOk = $verification.local_pilot_start_exists -and $verification.local_pilot_execution_packet_exists -and $verification.local_pilot_file_change_plan_exists -and $verification.local_pilot_command_plan_exists -and $verification.local_pilot_test_plan_exists -and $verification.local_pilot_evidence_log_exists -and $verification.local_pilot_review_checklist_exists -and $verification.local_pilot_handoff_summary_exists -and $verification.local_pilot_readiness_exists
+$Stage8ReportsOk = $verification.local_pilot_start_exists -and $verification.local_pilot_execution_packet_exists -and $verification.local_pilot_file_change_plan_exists -and $verification.local_pilot_command_plan_exists -and $verification.local_pilot_test_plan_exists -and $verification.local_pilot_external_practice_inputs_exists -and $verification.local_pilot_evidence_log_exists -and $verification.local_pilot_review_checklist_exists -and $verification.local_pilot_handoff_summary_exists -and $verification.local_pilot_readiness_exists
 $Stage9ReportsOk = $verification.project_audit_start_exists -and $verification.project_audit_plan_integrity_exists -and $verification.project_audit_expected_result_exists -and $verification.project_audit_missing_fragments_exists -and $verification.project_audit_contradiction_scan_exists -and $verification.project_audit_stage_drift_scan_exists -and $verification.project_audit_assumption_register_exists -and $verification.project_audit_implementation_blockers_exists -and $verification.project_audit_repair_recommendations_exists -and $verification.project_audit_report_exists
 $Stage10ReportsOk = $verification.agent_readiness_start_exists -and $verification.agent_readiness_toolchain_requirements_exists -and $verification.agent_readiness_software_gap_exists -and $verification.agent_readiness_toolset_plan_exists -and $verification.agent_readiness_skill_load_plan_exists -and $verification.agent_readiness_agent_pipeline_plan_exists -and $verification.agent_readiness_install_plan_exists -and $verification.agent_readiness_command_readiness_exists -and $verification.agent_readiness_report_exists
 $Stage11ReportsOk = $verification.hygiene_start_exists -and $verification.hygiene_artifact_index_exists -and $verification.hygiene_active_files_exists -and $verification.hygiene_superseded_files_exists -and $verification.hygiene_broken_or_stale_files_exists -and $verification.hygiene_do_not_use_exists -and $verification.hygiene_cleanup_plan_exists -and $verification.hygiene_archive_plan_exists -and $verification.hygiene_deletion_gate_exists -and $verification.hygiene_report_exists
@@ -4557,7 +4609,7 @@ Write-Host "status_explained: $DisplayStatus"
 Write-Host "product_mode_lock: active; unrelated current projects and ambient memory were not used as setup authority"
 Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, Stage 12 skill capture pack, Stage 13 execution evidence binder, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, .hermes/operator-kit/START_HERE.md, .hermes/operator-kit/NEXT_DECISION.md, .hermes/operator-kit/CHECK_IT_WORKS.md, .hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, .hermes/operator-kit/guided-session/PROJECT_INTAKE.md, .hermes/operator-kit/guided-session/SURFACE_ROUTING.md, .hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md, .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, .hermes/operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml, execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, .hermes/operator-kit/START_HERE.md, .hermes/operator-kit/NEXT_DECISION.md, .hermes/operator-kit/CHECK_IT_WORKS.md, .hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, .hermes/operator-kit/guided-session/PROJECT_INTAKE.md, .hermes/operator-kit/guided-session/SURFACE_ROUTING.md, .hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md, .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, .hermes/operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/EXTERNAL_PRACTICE_INPUTS.md, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml, execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "stage_result_contract: chat_summary_delivered=true; machine_reports_written=true; next_decision_explicit=true"
@@ -4571,8 +4623,8 @@ Write-Host "saas_operator_kit: START_HERE -> examples -> next decision -> produc
 Write-Host "stage6_status: $Stage6Status; guided_session_present=true; project_intake_present=true; active_deferred_surfaces_present=true; website_webapp_routing_present=true; mobile_deferred_or_explicitly_active=true; template_origin_safety_present=true; no_idea_default_workflow_catalog_present=true; blueprint_to_solution_path_present=true; implementation_executed=false; runtime_mutation=false; cloud_mutation=false"
 Write-Host "first_slice_planning: implementation brief -> local pilot plan -> acceptance tests -> demo script -> decision gate"
 Write-Host "stage7_status: $Stage7Status; acceptance_contract_present=true; primary_signal_present=true; pass_criteria_present=true; secondary_signals_present=true; evidence_required_present=true; cannot_claim_done_if_present=true; implementation_executed=false; dependencies_installed=false; runtime_mutation=false; gateway_mutation=false"
-Write-Host "local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary"
-Write-Host "stage8_status: $Stage8Status; local_pilot_isolation_present=true; test_data_only=true; prod_or_dev_database_forbidden=true; test_database_suffix_required_when_database_url_present=true; repo_derived_or_isolated_ports_preferred=true; ambiguous_data_target_blocks_execution=true; implementation_executed=false; file_changes_executed: false; commands_executed: false; tests_executed: false; runtime_mutation=false; gateway_mutation=false"
+Write-Host "local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> external practice inputs -> evidence log -> review checklist -> handoff summary"
+Write-Host "stage8_status: $Stage8Status; external_practice_inputs_present=true; external_practices_mapped_not_copied=true; package_manager_detection_required=true; commands_derived_from_repo_scripts_required=true; test_level_selection_required=true; provider_and_mobile_surfaces_gated=true; local_pilot_isolation_present=true; test_data_only=true; prod_or_dev_database_forbidden=true; test_database_suffix_required_when_database_url_present=true; repo_derived_or_isolated_ports_preferred=true; ambiguous_data_target_blocks_execution=true; implementation_executed=false; file_changes_executed: false; commands_executed: false; tests_executed: false; runtime_mutation=false; gateway_mutation=false"
 Write-Host "project_plan_integrity_audit: expected result map -> missing fragments -> contradiction scan -> stage drift scan -> repair recommendations"
 Write-Host "stage9_status: $Stage9Status; execution_allowed=false; implementation_executed=false; commands_executed=false; tests_executed=false; runtime_mutation=false"
 Write-Host "agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness"

@@ -22,6 +22,7 @@
     ".hermes/local-pilot/FILE_CHANGE_PLAN.md",
     ".hermes/local-pilot/COMMAND_PLAN.md",
     ".hermes/local-pilot/TEST_PLAN.md",
+    ".hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md",
     ".hermes/reports/software-inventory-report.yaml",
     ".hermes/reports/software-purpose-map.yaml",
     ".hermes/reports/software-install-recommendation.yaml",

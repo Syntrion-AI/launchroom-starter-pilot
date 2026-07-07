@@ -32,6 +32,7 @@ stage_boundary:
     - .hermes/local-pilot/FILE_CHANGE_PLAN.md
     - .hermes/local-pilot/COMMAND_PLAN.md
     - .hermes/local-pilot/TEST_PLAN.md
+    - .hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md
     - .hermes/reports/software-inventory-report.yaml
     - .hermes/reports/software-purpose-map.yaml
     - .hermes/reports/software-install-recommendation.yaml
@@ -132,7 +133,7 @@ acceptance_criteria:
   - Agent readiness folder exists under workspace `.hermes/agent-readiness/`.
   - All required markdown and YAML readiness files exist.
   - EXECUTION_READINESS_REPORT.yaml parses as YAML.
-  - Stage 10 references Stage 9 audit, Stage 8 execution packet, Stage 3 software reports, and Stage 4 starter capability pack.
+  - Stage 10 references Stage 9 audit, Stage 8 execution packet, Stage 8 external practice inputs, Stage 3 software reports, and Stage 4 starter capability pack.
   - Toolchain requirements map project work to required software, Hermes toolsets, skills, agent roles, commands, gates, and verification.
   - Software gap analysis separates installed/present, missing/unknown, optional, and gated install candidates.
   - Install plan explains why each software category may be needed, install command shape, verification command, risk, rollback, admin/restart/PATH notes, and owner gate.

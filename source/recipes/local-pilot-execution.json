@@ -8,6 +8,7 @@
     "FILE_CHANGE_PLAN.md",
     "COMMAND_PLAN.md",
     "TEST_PLAN.md",
+    "EXTERNAL_PRACTICE_INPUTS.md",
     "EVIDENCE_LOG.md",
     "REVIEW_CHECKLIST.md",
     "HANDOFF_SUMMARY.md",
@@ -23,7 +24,7 @@
     ".hermes/first-slice/READINESS_REPORT.yaml"
   ],
   "status_marker": "Hermes working artifact / not AIRMIDA authority",
-  "packet_flow": "first slice plan -> execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary",
+  "packet_flow": "first slice plan -> execution packet -> file change plan -> command plan -> test plan -> external practice inputs -> evidence log -> review checklist -> handoff summary",
   "required_readiness_flags": [
     "implementation_executed: false",
     "file_changes_executed: false",
@@ -40,6 +41,12 @@
     "file_change_plan_present: true",
     "command_plan_present: true",
     "test_plan_present: true",
+    "external_practice_inputs_present: true",
+    "external_practices_mapped_not_copied: true",
+    "package_manager_detection_required: true",
+    "commands_derived_from_repo_scripts_required: true",
+    "test_level_selection_required: true",
+    "provider_and_mobile_surfaces_gated: true",
     "evidence_log_present: true",
     "review_checklist_present: true",
     "handoff_summary_present: true",
@@ -76,5 +83,30 @@
     "prefer_repo_derived_ports_for_parallel_checkouts": true,
     "stop_not_repair_if_data_target_is_ambiguous": true,
     "do_not_start_or_kill_shared_services_to_free_ports": true
+  },
+  "external_practice_inputs": {
+    "purpose": "Capture useful patterns from external starter/template repositories as mapped inputs, not as authority or copied code.",
+    "reference_examples": [
+      {
+        "repo": "https://github.com/di-sukharev/vibe",
+        "branches": [
+          "master",
+          "mobile"
+        ],
+        "use_as": "donor/reference only"
+      }
+    ],
+    "required_mappings": [
+      "package_manager_and_workspace_scripts",
+      "active_surface_command_sources",
+      "test_level_selection",
+      "data_target_and_database_isolation",
+      "repo_derived_or_isolated_ports",
+      "provider_publication_gates",
+      "mobile_store_push_iap_e2e_gates",
+      "clean_release_source_checks"
+    ],
+    "do_not_copy_without_gate": true,
+    "launchroom_remains_authority": true
   }
 }

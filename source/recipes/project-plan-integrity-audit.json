@@ -28,6 +28,7 @@
     ".hermes/local-pilot/FILE_CHANGE_PLAN.md",
     ".hermes/local-pilot/COMMAND_PLAN.md",
     ".hermes/local-pilot/TEST_PLAN.md",
+    ".hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md",
     ".hermes/local-pilot/READINESS_REPORT.yaml"
   ],
   "status_marker": "Hermes working artifact / not AIRMIDA authority",

@@ -35,6 +35,7 @@ stage_boundary:
     - .hermes/local-pilot/FILE_CHANGE_PLAN.md
     - .hermes/local-pilot/COMMAND_PLAN.md
     - .hermes/local-pilot/TEST_PLAN.md
+    - .hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md
     - .hermes/local-pilot/READINESS_REPORT.yaml
   owns:
     - project audit folder
@@ -124,7 +125,7 @@ acceptance_criteria:
   - Project audit folder exists under workspace `.hermes/project-audit/`.
   - All required markdown and YAML audit files exist.
   - AUDIT_REPORT.yaml parses as YAML.
-  - Stage 9 references Stage 6 blueprint, Stage 7 first-slice plan, and Stage 8 local execution packet.
+  - Stage 9 references Stage 6 blueprint, Stage 7 first-slice plan, Stage 8 local execution packet, and Stage 8 external practice inputs.
   - Expected result map separates planned result, user-visible result, acceptance signal, and non-goals.
   - Missing fragments and assumptions are explicitly recorded instead of hidden.
   - Contradiction scan checks plan vs first slice vs execution packet vs gates.

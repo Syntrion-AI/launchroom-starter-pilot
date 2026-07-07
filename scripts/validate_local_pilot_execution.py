@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIRED_FILES = ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md','READINESS_REPORT.yaml']
-REQUIRED_FLAGS = ['implementation_executed: false','file_changes_executed: false','commands_executed: false','tests_executed: false','dependencies_installed: false','runtime_mutation: false','cloud_mutation: false','gateway_mutation: false','n8n_mutation: false','secrets_read_or_written: false','git_publication_executed: false','execution_packet_present: true','file_change_plan_present: true','command_plan_present: true','test_plan_present: true','evidence_log_present: true','review_checklist_present: true','handoff_summary_present: true','next_execution_gate_present: true','local_pilot_isolation_present: true','test_data_only: true','prod_or_dev_database_forbidden: true','test_database_suffix_required_when_database_url_present: true','repo_derived_or_isolated_ports_preferred: true','ambiguous_data_target_blocks_execution: true']
+REQUIRED_FILES = ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EXTERNAL_PRACTICE_INPUTS.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md','READINESS_REPORT.yaml']
+REQUIRED_FLAGS = ['implementation_executed: false','file_changes_executed: false','commands_executed: false','tests_executed: false','dependencies_installed: false','runtime_mutation: false','cloud_mutation: false','gateway_mutation: false','n8n_mutation: false','secrets_read_or_written: false','git_publication_executed: false','execution_packet_present: true','file_change_plan_present: true','command_plan_present: true','test_plan_present: true','evidence_log_present: true','review_checklist_present: true','handoff_summary_present: true','next_execution_gate_present: true','local_pilot_isolation_present: true','test_data_only: true','prod_or_dev_database_forbidden: true','test_database_suffix_required_when_database_url_present: true','repo_derived_or_isolated_ports_preferred: true','ambiguous_data_target_blocks_execution: true','external_practice_inputs_present: true','external_practices_mapped_not_copied: true','package_manager_detection_required: true','commands_derived_from_repo_scripts_required: true','test_level_selection_required: true','provider_and_mobile_surfaces_gated: true']
 REQUIRED_CONSUMES = ['.hermes/first-slice/IMPLEMENTATION_BRIEF.md','.hermes/first-slice/LOCAL_PILOT_PLAN.md','.hermes/first-slice/ACCEPTANCE_TESTS.md','.hermes/first-slice/USER_DEMO_SCRIPT.md','.hermes/first-slice/RISKS_AND_ROLLBACK.md','.hermes/first-slice/DECISION_GATE.md','.hermes/first-slice/READINESS_REPORT.yaml']
 
 def main() -> int:
@@ -43,11 +43,12 @@ def main() -> int:
         'FILE_CHANGE_PLAN.md',
         'COMMAND_PLAN.md',
         'TEST_PLAN.md',
+        'EXTERNAL_PRACTICE_INPUTS.md',
         'EVIDENCE_LOG.md',
         'REVIEW_CHECKLIST.md',
         'HANDOFF_SUMMARY.md',
         'READINESS_REPORT.yaml',
-        'first slice plan -> execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary',
+        'first slice plan -> execution packet -> file change plan -> command plan -> test plan -> external practice inputs -> evidence log -> review checklist -> handoff summary',
         'file_changes_executed: false',
         'commands_executed: false',
         'tests_executed: false',
@@ -55,10 +56,20 @@ def main() -> int:
         'file_change_plan_present: true',
         'command_plan_present: true',
         'test_plan_present: true',
+        'external_practice_inputs_present: true',
+        'external_practices_mapped_not_copied: true',
+        'package_manager_detection_required: true',
+        'commands_derived_from_repo_scripts_required: true',
+        'test_level_selection_required: true',
+        'provider_and_mobile_surfaces_gated: true',
         'evidence_log_present: true',
         'review_checklist_present: true',
         'handoff_summary_present: true',
         'next_execution_gate_present: true',
+        'external_practice_inputs:',
+        'donor_reference_policy:',
+        'external_practices_mapped_not_copied',
+        'commands_derived_from_repo_scripts_required',
         'local_pilot_isolation:',
         'test_data_only: true',
         'forbid_prod_or_dev_database_in_tests: true',
