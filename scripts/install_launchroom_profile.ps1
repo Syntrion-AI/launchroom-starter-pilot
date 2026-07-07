@@ -2276,6 +2276,9 @@ $firstSliceRoot = Join-Path $WorkspaceFull '.hermes/first-slice'
 New-Item -ItemType Directory -Force -Path $firstSliceRoot | Out-Null
 $Stage7Status = 'pass'
 $firstSliceEvidenceFiles = @(
+  '.hermes/operator-kit/guided-session/PROJECT_INTAKE.md',
+  '.hermes/operator-kit/guided-session/SURFACE_ROUTING.md',
+  '.hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md',
   '.hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md',
   '.hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md',
   '.hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md',
@@ -2320,6 +2323,9 @@ $implementationBriefLines = @(
   '',
   '## Source lineage',
   '',
+  '- .hermes/operator-kit/guided-session/PROJECT_INTAKE.md',
+  '- .hermes/operator-kit/guided-session/SURFACE_ROUTING.md',
+  '- .hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md',
   '- .hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md',
   '- .hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md',
   '- .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md',

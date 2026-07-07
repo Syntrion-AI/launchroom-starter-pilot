@@ -162,6 +162,8 @@ project_intake:
     - needs_persistence
     - needs_uploads_or_media
     - needs_payments
+    - needs_admin_tools
+    - needs_external_integrations
     - needs_realtime_or_collaboration
     - deployment_needed_now
     - validation_scope
@@ -195,6 +197,8 @@ template_origin_safety:
     - creating_user_project_from_template
     - existing_project_work
   no_pr_to_template_without_explicit_template_contribution_gate: true
+  no_push_without_publication_gate: true
+  release_or_deploy_requires_clean_synced_source: true
 
 v0_7_2_required_stage_6_markers:
   - PROJECT_INTAKE.md

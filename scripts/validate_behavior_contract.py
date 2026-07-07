@@ -91,9 +91,10 @@ def main() -> int:
     if project_intake.get('enabled') is not True:
         print('FAIL: project intake contract is not enabled')
         return 1
-    required_intake_fields = ['project_name_or_slug','product_goal','first_user_journey','active_surfaces','deferred_surfaces','needs_auth','needs_persistence','needs_uploads_or_media','needs_payments','needs_realtime_or_collaboration','deployment_needed_now','validation_scope']
-    for field in required_intake_fields:
-        if field not in project_intake.get('required_fields', []):
+    required_intake_fields = list(project_intake.get('required_fields', []))
+    expected_intake_fields = ['project_name_or_slug','product_goal','first_user_journey','active_surfaces','deferred_surfaces','needs_auth','needs_persistence','needs_uploads_or_media','needs_payments','needs_admin_tools','needs_external_integrations','needs_realtime_or_collaboration','deployment_needed_now','validation_scope']
+    for field in expected_intake_fields:
+        if field not in required_intake_fields:
             print('FAIL: project intake required field missing ' + field)
             return 1
     if project_intake.get('do_not_ask_before_stage_5_or_project_onboarding_gate') is not True:
@@ -128,6 +129,28 @@ def main() -> int:
     for mode in ['improving_template','creating_user_project_from_template','existing_project_work']:
         if mode not in git_safety.get('classify_git_work_mode_before_publication', []):
             print('FAIL: git work mode missing ' + mode)
+            return 1
+
+    stage6_text = (ROOT/'source/stages/stage-6-saas-operator-kit.yaml').read_text(encoding='utf-8')
+    stage6_recipe = json.loads((ROOT/'source/recipes/saas-operator-kit.json').read_text(encoding='utf-8'))
+    for field in expected_intake_fields:
+        if field not in stage6_text:
+            print('FAIL: Stage 6 contract missing intake field ' + field)
+            return 1
+        if field not in stage6_recipe.get('project_intake_fields', []):
+            print('FAIL: Stage 6 recipe missing intake field ' + field)
+            return 1
+    recipe_git = stage6_recipe.get('template_origin_safety', {})
+    for key in ['inspect_git_remote_before_branch_commit_push_pr','no_pr_to_template_without_explicit_template_contribution_gate','no_push_without_publication_gate','release_or_deploy_requires_clean_synced_source']:
+        if key not in stage6_text:
+            print('FAIL: Stage 6 contract missing template-origin key ' + key)
+            return 1
+        if recipe_git.get(key) is not True:
+            print('FAIL: Stage 6 recipe template-origin key not true: ' + key)
+            return 1
+    for mode in ['improving_template','creating_user_project_from_template','existing_project_work']:
+        if mode not in stage6_text or mode not in recipe_git.get('work_modes', []):
+            print('FAIL: Stage 6 template-origin work mode missing ' + mode)
             return 1
 
     acceptance = source.get('acceptance_contract', {})

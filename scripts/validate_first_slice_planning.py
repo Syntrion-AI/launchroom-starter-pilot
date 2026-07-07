@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_FILES = ['START_HERE.md','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','USER_DEMO_SCRIPT.md','RISKS_AND_ROLLBACK.md','DECISION_GATE.md','READINESS_REPORT.yaml']
 REQUIRED_FLAGS = ['implementation_executed: false','dependencies_installed: false','runtime_mutation: false','cloud_mutation: false','gateway_mutation: false','n8n_mutation: false','secrets_read_or_written: false','git_publication_executed: false','local_pilot_plan_present: true','acceptance_tests_present: true','user_demo_script_present: true','next_implementation_gate_present: true','acceptance_contract_present: true','primary_signal_present: true','pass_criteria_present: true','secondary_signals_present: true','evidence_required_present: true','cannot_claim_done_if_present: true']
-REQUIRED_CONSUMES = ['.hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md','.hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md','.hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md','.hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md']
+REQUIRED_CONSUMES = ['.hermes/operator-kit/guided-session/PROJECT_INTAKE.md','.hermes/operator-kit/guided-session/SURFACE_ROUTING.md','.hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md','.hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md','.hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md','.hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md','.hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md']
 
 def main() -> int:
     recipe_path = ROOT / 'source' / 'recipes' / 'first-slice-planning.json'
@@ -40,6 +40,9 @@ def main() -> int:
         'Hermes working artifact / not AIRMIDA authority',
         '.hermes/first-slice/',
         'IMPLEMENTATION_BRIEF.md',
+        '.hermes/operator-kit/guided-session/PROJECT_INTAKE.md',
+        '.hermes/operator-kit/guided-session/SURFACE_ROUTING.md',
+        '.hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md',
         'LOCAL_PILOT_PLAN.md',
         'ACCEPTANCE_TESTS.md',
         'USER_DEMO_SCRIPT.md',

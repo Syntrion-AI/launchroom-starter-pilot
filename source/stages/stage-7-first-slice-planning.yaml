@@ -24,6 +24,9 @@ purpose:
 
 stage_boundary:
   consumes:
+    - .hermes/operator-kit/guided-session/PROJECT_INTAKE.md
+    - .hermes/operator-kit/guided-session/SURFACE_ROUTING.md
+    - .hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md
     - .hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md
     - .hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md
     - .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md
@@ -101,7 +104,7 @@ acceptance_criteria:
   - First-slice folder exists under workspace `.hermes/first-slice/`.
   - All required markdown and YAML planning files exist.
   - READINESS_REPORT.yaml parses as YAML.
-  - Stage 7 references Stage 6 blueprint, first slice packet, roadmap, and default workflow catalog.
+  - Stage 7 references Stage 6 project intake, surface routing, template-origin safety, blueprint, first slice packet, roadmap, and default workflow catalog.
   - Implementation brief states one output target and one user-visible success check.
   - Local pilot plan describes how to verify the first slice without live runtime/cloud/provider/gateway/n8n mutation.
   - Acceptance tests are human-readable and executor-ready after an implementation gate.
