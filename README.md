@@ -4,6 +4,25 @@ LaunchRoom Starter is a public test package that turns a new or default Hermes p
 
 It is not AIRMIDA authority. It is a productization pilot for onboarding, profile setup, workspace setup, software inventory, starter capability readiness, communication setup paths, a local SaaS operator kit, beginner Wizard Rooms, room transitions, and a first-run self-test demo.
 
+
+## Full-System Bootstrap v0.7
+
+LaunchRoom v0.7 is a full-system setup product. It does not start by asking for the SaaS/project brief. It starts by diagnosing and preparing the local Hermes execution surface for a real project-builder user.
+
+Required order:
+
+```text
+Stage 0 greeting and diagnostic announcement -> Stage 1 full system diagnostic/setup/smoke -> Stage 2 profile inventory -> Stage 3 Default as Engineering SaaS Profile / Profile Factory -> Stage 4 user/project profile -> Stage 5 project/SaaS onboarding
+```
+
+Key corrections:
+
+- The active conversation proves the current model path is usable for this session; target-profile model/provider smoke tests happen after that target profile exists.
+- The system software check uses a full software and capability matrix, not a tiny checklist.
+- Stage 1 creates a diagnostic report, setup plan, and smoke test report; Stage 1 pass is impossible without smoke tests.
+- Missing required builder software creates a repair/install plan instead of being ignored as optional noise.
+- Machine/profile instructions and skill bodies are written in English.
+
 ## Start here
 
 For a default Hermes agent that receives only this GitHub repository or release link, start with the Link-to-Operator Bootstrap:
@@ -67,6 +86,10 @@ The script creates or selects the Hermes profile, applies non-secret config, wri
 | `RUN_ME_FIRST.md` | Canonical guided runbook |
 | `generated/RUN_ME_FIRST.md` | Generated runbook mirror |
 | `source/launchroom.starter.v0_5.json` | Source behavior/stage/UX/distribution contract |
+| `source/full-system-bootstrap/launchroom-v0.7-stage-map.yaml` | Full-System Bootstrap v0.7 stage map |
+| `source/full-system-bootstrap/full-system-software-and-capability-inventory.yaml` | Full software and capability matrix |
+| `source/skillpacks/launchroom-full-system-skillpack.v0_7.yaml` | Full curated v0.7 LaunchRoom skillpack contract |
+| `contracts/launchroom-full-system-bootstrap-contract.yaml` | Full-System Bootstrap v0.7 contract |
 | `source/skillpacks/launchroom-skillpacks.v0_1.yaml` | Curated staged skillpack registry, including hidden/advanced candidates and sanitized abstraction pack boundaries |
 | `source/skillpacks/SANITIZED_ABSTRACTION_BOUNDARY.md` | Boundary that forbids mutating AIRMIDA internal skills when creating LaunchRoom sanitized abstractions |
 | `source/skills/launchroom-sanitized-abstractions/launchroom-memory-governance/SKILL.md` | First customer-safe LaunchRoom memory governance abstraction skill |
@@ -117,6 +140,7 @@ Release/distribution readiness is not release execution. This repository can pre
 python scripts/build_agentpack.py --check
 python scripts/doctor.py
 python scripts/validate_behavior_contract.py
+python scripts/validate_full_system_bootstrap.py
 python scripts/validate_link_bootstrap.py
 python scripts/validate_language_policy.py
 python scripts/validate_archive_policy.py

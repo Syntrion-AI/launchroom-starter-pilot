@@ -1,7 +1,7 @@
 ---
 name: airmida-launchroom-starter
 description: LaunchRoom Starter setup wizard for turning a new/default Hermes profile into a safe SaaS project operator room.
-version: 0.5.0
+version: 0.7.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -19,10 +19,12 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 - Use `RUN_ME_FIRST.md` as the canonical executable route after bootstrap.
 - Speak with the user in the language they use. Do not force a fixed language set.
 - Keep repository documentation and machine contracts in English.
-- Treat the package as a guided setup wizard, not a read-only audit.
+- Treat the package as a Full-System Bootstrap setup product, not a read-only audit or tiny checklist.
+- Run full system diagnostic/setup/smoke before profile work.
+- Configure Default as an Engineering SaaS Profile / Profile Factory before creating project profiles.
 - Prefer the real setup tool `scripts/install_launchroom_profile.ps1` for profile/workspace installation after `-TestOutputRoot` self-test and explicit target approval.
 - Run safe T0 checks without extra ceremony after the user starts the wizard.
-- Ask whether the user has an existing project and offer self-test only, new blank SaaS workspace, existing project workspace, or advanced/custom setup.
+- Do not ask for the project/SaaS brief before Stage 5; offer Full-System Bootstrap setup modes first.
 - Ask before T1 profile/workspace setup.
 - Require separate gates for software installs, gateway setup, cloud/runtime/provider changes, git publication, and secrets.
 

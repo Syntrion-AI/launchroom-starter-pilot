@@ -1,0 +1,144 @@
+artifact_id: LAUNCHROOM_V0_7_STAGE_MAP
+artifact_type: machine_stage_map
+status: source_package_contract
+status_marker: public LaunchRoom test package / not AIRMIDA authority
+language: en
+source_repo_mutation: true
+runtime_mutation: false
+cloud_mutation: false
+gateway_mutation: false
+n8n_mutation: false
+secret_readback_or_storage: false
+
+core_sequence:
+  - stage_0_greeting_and_full_diagnostic_announcement
+  - stage_1_full_system_diagnostic_repair_setup_smoke
+  - stage_2_profile_inventory_and_state_classification
+  - stage_3_default_engineering_saas_profile_factory
+  - stage_4_user_project_profile_creation
+  - stage_5_project_saas_onboarding
+
+stages:
+  - id: stage_0
+    name: Greeting and full diagnostic announcement
+    agent_actions:
+      - detect_and_mirror_user_language
+      - explain_that_launchroom_will_run_full_system_diagnostic_first
+      - explain_no_secret_readback_and_no_external_runtime_mutation_without_gate
+      - start_system_diagnostic
+    pass_requires:
+      - user_language_recorded
+      - diagnostic_scope_explained
+      - project_questions_not_started
+
+  - id: stage_1
+    name: Full system diagnostic, repair/setup, and smoke tests
+    agent_actions:
+      - inspect_hermes_runtime_desktop_cli_status
+      - inspect_terminal_backend_shell_path_and_windows_quoting_risk
+      - record_active_conversation_model_as_current_session_evidence
+      - inspect_callable_tools_and_toolsets
+      - inspect_full_software_and_capability_matrix
+      - inspect_runtime_enabled_skills_and_required_launchroom_skillpack
+      - inspect_memory_context_stack
+      - inspect_messaging_gateway_readiness_without_secret_values
+      - inspect_mcp_advanced_surface_and_mutation_risk
+      - inspect_security_checkpoints_compression_session_db_health
+      - create_system_diagnostic_report
+      - create_system_setup_plan
+      - perform_allowed_local_non_secret_setup_after_setup_start
+      - request_gate_for_admin_installs_oauth_gateway_or_external_runtime_actions
+      - run_smoke_tests_after_setup
+    pass_requires:
+      - diagnostic_report_created
+      - setup_plan_created
+      - required_local_setup_completed_or_gated_blocker_recorded
+      - smoke_tests_passed
+      - profile_work_allowed_true
+    blocked_if:
+      - terminal_backend_unavailable_without_repair_path
+      - session_db_corruption_without_repair_path
+      - required_local_setup_blocker_unresolved
+      - smoke_tests_failed
+
+  - id: stage_2
+    name: Profile inventory and profile-state classification
+    depends_on: stage_1
+    agent_actions:
+      - list_profiles
+      - identify_active_and_sticky_profile
+      - classify_default_profile_state
+      - detect_existing_project_profiles
+      - detect_cli_vs_desktop_profile_drift
+      - detect_terminal_cwd_profile_workspace_drift
+      - detect_profile_memory_tool_skill_mismatch
+      - create_profile_inventory_report
+    pass_requires:
+      - profiles_classified
+      - drift_recorded_or_absent
+      - no_profile_overwrite_without_reviewed_choice
+
+  - id: stage_3
+    name: Configure default as Engineering SaaS Profile / Profile Factory
+    depends_on: stage_2
+    agent_actions:
+      - configure_default_profile_identity_as_engineering_saas_operator
+      - write_english_SOUL_md
+      - write_english_PROFILE_INSTRUCTIONS_md
+      - write_english_LAUNCHROOM_PROFILE_CONTRACT_yaml
+      - write_LAUNCHROOM_PROFILE_STATE_yaml
+      - apply_non_secret_config_baseline
+      - install_or_stage_full_curated_launchroom_skillpack
+      - configure_toolset_strategy
+      - configure_memory_context_strategy
+      - configure_messaging_strategy
+      - configure_mcp_advanced_strategy
+      - record_hermes_runtime_profile_project_boundary_knowledge
+      - run_default_profile_smoke_tests
+    pass_requires:
+      - default_profile_role_engineering_saas_profile_factory
+      - technical_instructions_written_in_english
+      - full_skillpack_available_or_gate_blocker_recorded
+      - default_profile_smoke_tests_passed
+      - can_create_project_profiles_true
+    blocked_if:
+      - default_profile_remains_weak_or_generic
+      - instructions_are_only_prohibitions_without_positive_permissions
+      - secrets_or_state_files_copied_between_profiles
+
+  - id: stage_4
+    name: Create user/project profile
+    depends_on: stage_3
+    agent_actions:
+      - collect_minimal_project_profile_inputs
+      - create_or_select_project_profile
+      - copy_safe_baseline_from_default_without_secrets_or_state
+      - write_project_specific_english_SOUL_and_PROFILE_INSTRUCTIONS
+      - create_or_verify_project_workspace
+      - install_project_relevant_skillpack
+      - configure_memory_context_for_project_profile
+      - run_project_profile_smoke_tests
+    pass_requires:
+      - project_profile_created_or_existing_verified
+      - workspace_ready
+      - safe_baseline_applied
+      - project_profile_smoke_tests_passed
+    forbidden:
+      - copy_env_values
+      - copy_auth_json
+      - copy_state_db
+      - copy_oauth_or_session_stores
+
+  - id: stage_5
+    name: Project/SaaS onboarding
+    depends_on: stage_4
+    agent_actions:
+      - ask_project_goal_after_profile_foundation
+      - classify_project_type
+      - create_project_operator_kit
+      - classify_external_product_roles_before_adapter_or_dependency_work
+      - choose_implementation_mode_before_code_or_runtime_work
+    pass_requires:
+      - project_onboarding_started_after_profile_ready
+      - external_product_role_gate_available
+      - implementation_mode_gate_available

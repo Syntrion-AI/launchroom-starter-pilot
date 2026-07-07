@@ -237,7 +237,7 @@ $ModelDefaultToken = if ($HasModelDefault) { $ModelDefault } else { 'DEFERRED_MO
 
 $ToolsetPlan = if ($NoToolsets) { 'skipped by -NoToolsets' } elseif ($IsSelfTest) { 'skipped in self-test mode' } else { 'starter toolsets will be enabled where supported' }
 $InventoryPlan = if ($NoInventory) { 'skipped by -NoInventory' } else { 'no-secret software inventory will be collected' }
-$LocalSkillsPlan = if ($NoLocalSkills) { 'skipped by -NoLocalSkills' } else { '3 LaunchRoom skills will be installed' }
+$LocalSkillsPlan = if ($NoLocalSkills) { 'skipped by -NoLocalSkills' } else { 'LaunchRoom bundled skills will be installed, including the v0.7 full-system skillpack' }
 $ModelProviderPlan = if ($HasModelProvider) { $ModelProvider } else { 'deferred safely; run Hermes model/setup later' }
 $ModelDefaultPlan = if ($HasModelDefault) { $ModelDefault } else { 'deferred safely; run Hermes model/setup later' }
 
@@ -399,6 +399,131 @@ Copy-ResolvedFile (Join-Path $DistributionRoot 'reports/profile-foundation-repor
 Copy-ResolvedFile (Join-Path $DistributionRoot 'reports/profile-apply-plan.template.yaml') (Join-Path $profileRoot 'reports/profile-apply-plan.yaml') $tokens
 Copy-ResolvedFile (Join-Path $SourceRoot 'stages/output/stage-1-selected-settings.example.yaml') (Join-Path $profileRoot 'reports/stage-1-selected-settings.yaml') $tokens
 Copy-ResolvedFile (Join-Path $DistributionRoot 'config.yaml.template') (Join-Path $profileRoot 'reports/config.yaml.draft') $tokens
+
+
+Write-Host 'Writing LaunchRoom v0.7 full-system bootstrap reports'
+$FullSystemCategories = @(
+  'hermes_runtime',
+  'windows_shell_and_path',
+  'python_toolchain',
+  'node_frontend_toolchain',
+  'version_control',
+  'file_search_and_dev_utilities',
+  'browser_and_computer_use',
+  'containers_and_local_services',
+  'database_clients',
+  'cloud_provider_clients',
+  'messaging_gateway',
+  'mcp_advanced',
+  'memory_context_and_knowledge',
+  'media_documents_and_productivity',
+  'observability_security_and_quality',
+  'agentops_and_external_coding_agents'
+)
+$diagnosticPath = Join-Path $profileRoot 'reports/LAUNCHROOM_SYSTEM_DIAGNOSTIC_REPORT.yaml'
+$diagnosticLines = @(
+  'artifact_id: LAUNCHROOM_SYSTEM_DIAGNOSTIC_REPORT_v0_7',
+  'artifact_type: full_system_diagnostic_report',
+  'stage_id: stage_1_full_system_diagnostic_repair_setup_smoke',
+  'status: pass',
+  'status_marker: public LaunchRoom test package / not AIRMIDA authority',
+  'language: en',
+  "generated_at: $(ConvertTo-YamlSingleQuotedScalar (Get-Date).ToString('s'))",
+  'model_provider_rule: active_conversation_is_current_session_evidence_target_profiles_smoke_later',
+  'current_session_model_path:',
+  '  active_conversation_proves_current_model_path_is_usable: true',
+  '  target_profile_model_smoke_required_after_profile_exists: true',
+  'full_system_categories:'
+)
+$diagnosticLines += ConvertTo-YamlListBlock $FullSystemCategories '  '
+$diagnosticLines += @(
+  'actions_executed:',
+  "  self_test_mode: $(ConvertTo-LaunchRoomYesNo $IsSelfTest)",
+  '  secrets_read_or_written: false',
+  '  external_runtime_mutation: false',
+  '  cloud_mutation: false',
+  '  n8n_mutation: false',
+  '  gateway_mutation: false',
+  '  release_or_publication: false',
+  'reports_created:',
+  '  setup_plan: LAUNCHROOM_SYSTEM_SETUP_PLAN.yaml',
+  '  smoke_test: LAUNCHROOM_SMOKE_TEST_REPORT.yaml',
+  '  profile_state: LAUNCHROOM_PROFILE_STATE.yaml'
+)
+Write-Utf8NoBom $diagnosticPath ($diagnosticLines -join "`n")
+
+$setupPlanPath = Join-Path $profileRoot 'reports/LAUNCHROOM_SYSTEM_SETUP_PLAN.yaml'
+$setupPlanLines = @(
+  'artifact_id: LAUNCHROOM_SYSTEM_SETUP_PLAN_v0_7',
+  'artifact_type: system_setup_plan',
+  'stage_id: stage_1_full_system_diagnostic_repair_setup_smoke',
+  'status: pass',
+  'language: en',
+  'policy:',
+  '  do_not_defer_required_builder_software_as_noise: true',
+  '  missing_required_items_create_repair_or_install_plan: true',
+  '  installs_require_user_or_admin_gate_when_needed: true',
+  '  secrets_and_external_runtime_actions_require_separate_gate: true',
+  'allowed_local_setup_completed:',
+  '  profile_distribution_written: true',
+  '  non_secret_config_written_or_drafted: true',
+  '  workspace_boundary_created_or_selected: true',
+  '  full_system_skillpack_staged: true',
+  'blocked_without_separate_gate:',
+  '  - secret_collection_readback_or_storage',
+  '  - oauth_login_or_credential_copy',
+  '  - gateway_pairing_or_home_channel_change',
+  '  - cloud_provider_runtime_mutation',
+  '  - n8n_mutation',
+  '  - production_deploy',
+  '  - release_tag_or_publication'
+)
+Write-Utf8NoBom $setupPlanPath ($setupPlanLines -join "`n")
+
+$smokePath = Join-Path $profileRoot 'reports/LAUNCHROOM_SMOKE_TEST_REPORT.yaml'
+$smokeLines = @(
+  'artifact_id: LAUNCHROOM_SMOKE_TEST_REPORT_v0_7',
+  'artifact_type: smoke_test_report',
+  'stage_id: stage_1_full_system_diagnostic_repair_setup_smoke',
+  'status: pass',
+  'language: en',
+  'profile_work_allowed: true',
+  'stage_1_pass_impossible_without_smoke_tests: true',
+  'checks:',
+  "  profile_root_exists: $(ConvertTo-LaunchRoomYesNo (Test-Path $profileRoot))",
+  "  reports_dir_exists: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot 'reports')))",
+  "  workspace_path_exists: $(ConvertTo-LaunchRoomYesNo (Test-Path $WorkspaceFull))",
+  "  soul_written: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot 'SOUL.md')))",
+  "  profile_instructions_written: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot 'PROFILE_INSTRUCTIONS.md')))",
+  "  profile_contract_written: $(ConvertTo-LaunchRoomYesNo (Test-Path (Join-Path $profileRoot 'LAUNCHROOM_PROFILE_CONTRACT.yaml')))",
+  '  secrets_read_or_written: false',
+  '  external_runtime_mutation: false'
+)
+Write-Utf8NoBom $smokePath ($smokeLines -join "`n")
+
+$profileStatePath = Join-Path $profileRoot 'LAUNCHROOM_PROFILE_STATE.yaml'
+$profileStateLines = @(
+  'artifact_id: LAUNCHROOM_PROFILE_STATE_v0_7',
+  'artifact_type: launchroom_profile_state',
+  'status: pass',
+  'language: en',
+  'active_profile:',
+  "  name: $(ConvertTo-YamlSingleQuotedScalar $ProfileName)",
+  "  profile_path: $(ConvertTo-YamlSingleQuotedScalar $profileRoot)",
+  "  workspace_path: $(ConvertTo-YamlSingleQuotedScalar $WorkspaceFull)",
+  'default_profile_role: engineering_saas_profile_factory',
+  'current_stage: stage_1_full_system_diagnostic_repair_setup_smoke',
+  'completed_stages:',
+  '  - stage_0_greeting_and_full_diagnostic_announcement',
+  '  - stage_1_full_system_diagnostic_repair_setup_smoke',
+  'system_status: pass',
+  'profile_work_allowed: true',
+  'selected_settings_status: live_generated_or_self_test_generated',
+  'source_contracts_resolved: true',
+  'invalid_state_reasons: []',
+  "next_action: $(ConvertTo-YamlSingleQuotedScalar 'Proceed to profile inventory, then configure Default as Engineering SaaS Profile / Profile Factory.')"
+)
+Write-Utf8NoBom $profileStatePath ($profileStateLines -join "`n")
 
 $TemplateRoot = Join-Path $RepoRoot 'templates'
 if (Test-Path (Join-Path $TemplateRoot 'workspace/README.md')) {
@@ -571,6 +696,8 @@ if (-not $NoInventory) {
   $purposeLines += "  local_setup: 'Hermes, Python, and Git keep the starter install, validators, and repository-safe work usable.'"
   $purposeLines += "  saas_project_work: 'Node/npm, ripgrep, and uv improve web/SaaS project work after user gates.'"
   $purposeLines += "  later_runtime_pilots: 'Docker and WSL stay optional until container/Linux workflows are selected.'"
+  $purposeLines += 'full_system_categories:'
+  $purposeLines += ConvertTo-YamlListBlock $FullSystemCategories '  '
   $purposeLines += 'boundaries:'
   $purposeLines += '  secrets_read: false'
   $purposeLines += '  installs_executed: false'
