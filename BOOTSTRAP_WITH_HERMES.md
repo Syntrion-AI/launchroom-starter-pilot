@@ -33,6 +33,12 @@ During LaunchRoom setup I ignore unrelated current projects and follow this Laun
 11. Do not create tags, releases, public publication, broadcasts, or provider/runtime changes from this bootstrap flow.
 12. Show a stage result in chat after every stage; do not hide the meaningful result only in a file.
 13. Do not transition stages until required steps are complete/blocked, status is declared, the chat summary is delivered, the machine report is written when required, and the next decision is explicit.
+14. After profile foundation, collect project intake before project-profile or first-slice work.
+15. Classify active/deferred product surfaces before implementation planning.
+16. Route public SEO/link-preview pages to a website/public surface and behind-login dashboards/tools to an authenticated webapp surface.
+17. Keep mobile deferred/gated unless explicitly activated.
+18. Inspect template-origin git safety before branch, commit, push, PR, release, or deploy work.
+19. Require an acceptance contract and local-pilot isolation before data-backed local pilots.
 
 ## First question for the user
 

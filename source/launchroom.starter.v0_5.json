@@ -39,7 +39,12 @@
     "user-visible stage result delivered in chat",
     "machine-readable stage report written when required",
     "hard transition criteria satisfied before next stage",
-    "skills/software inventory shown before profile-factory/project-profile decisions"
+    "skills/software inventory shown before profile-factory/project-profile decisions",
+    "project intake collected before project-profile/first-slice work or explicitly deferred with next gate",
+    "active/deferred surfaces classified before first-slice planning",
+    "template-origin safety checked before git publication",
+    "acceptance contract present for non-trivial implementation packets",
+    "local pilot isolation rules declared before running data-backed tests"
   ],
   "stages": [
     {
@@ -120,8 +125,8 @@
     },
     {
       "id": "stage_6",
-      "name": "SaaS operator kit",
-      "purpose": "Run an agent-led SaaS operator kit stage: explain Stage 6, create structure, offer common default workflows when the user has no idea, transform idea/workflow into project blueprint, and show the gated path from blueprint to working result without runtime/cloud/provider/gateway/n8n mutation.",
+      "name": "SaaS operator kit and project intake",
+      "purpose": "Run an agent-led SaaS operator kit stage: explain Stage 6, collect product intake, classify active/deferred surfaces, create structure, offer common default workflows when the user has no idea, transform idea/workflow into project blueprint, and show the gated path from blueprint to working result without runtime/cloud/provider/gateway/n8n mutation.",
       "pass_requires": [
         "implementation roadmap explains blueprint to working result",
         "default workflow catalog exists for users without an idea",
@@ -134,7 +139,11 @@
         "operator kit carries Hermes working artifact / not AIRMIDA authority marker",
         "first workflow follows intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision",
         "runtime/cloud/provider/gateway/n8n/git/secret actions remain false or gated",
-        "next owner decision is explicit"
+        "next owner decision is explicit",
+        "project intake report records project name/slug, product goal, first user journey, active/deferred surfaces, auth/persistence/uploads/payments/realtime/deployment needs, and validation scope",
+        "website vs webapp routing is explained in product terms when browser surfaces are active",
+        "mobile surface remains deferred/gated unless the user explicitly activates mobile",
+        "template-origin git safety mode is classified before publication or PR work"
       ]
     },
     {
@@ -148,7 +157,9 @@
         "Stage 6 blueprint, first slice packet, roadmap, and default workflow catalog are referenced",
         "acceptance tests and user demo script explain the user-visible working result",
         "implementation, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated",
-        "next implementation gate is explicit"
+        "next implementation gate is explicit",
+        "acceptance contract defines primary signal, 3-5 pass criteria, secondary signals, required evidence, and cannot-claim-done conditions",
+        "active/deferred surfaces from Stage 6 are referenced before first-slice implementation planning"
       ]
     },
     {
@@ -165,7 +176,10 @@
         "test plan maps checks to expected evidence and acceptance criteria",
         "evidence log is scaffolded and does not fabricate execution results",
         "implementation, file changes, commands, tests, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated",
-        "next execution gate is explicit"
+        "next execution gate is explicit",
+        "local pilot isolation rules forbid tests against production/development data targets",
+        "data-backed test plans require *_test database names or an explicit override gate when applicable",
+        "repo-derived or isolated ports are preferred for parallel local checkouts"
       ]
     },
     {
@@ -249,7 +263,9 @@
         "executed commands, changed files, test results, acceptance evidence, and user-visible result files are clearly marked as scaffolds until real gated execution fills them",
         "binder forbids fabricated evidence and distinguishes planned commands from executed commands",
         "residual risks and rollback/handoff sections exist for closeout",
-        "Stage 13 does not execute implementation, commands, tests, file changes, dependency installs, runtime/cloud/gateway/n8n/git/secret actions"
+        "Stage 13 does not execute implementation, commands, tests, file changes, dependency installs, runtime/cloud/gateway/n8n/git/secret actions",
+        "acceptance evidence is tied back to the acceptance contract primary signal and pass criteria",
+        "execution evidence distinguishes planned commands from actually executed commands and never fabricates results"
       ]
     }
   ],
@@ -291,7 +307,11 @@
       "stage transition",
       "git publication gate",
       "implementation gate",
-      "runtime/provider/secret/destructive-action gate"
+      "runtime/provider/secret/destructive-action gate",
+      "project intake gate",
+      "active/deferred surfaces choice",
+      "template-origin publication safety gate",
+      "acceptance contract review"
     ],
     "clarify_tool_contract": {
       "clarify_tool_required_when_available": true,
@@ -891,5 +911,105 @@
     "recommended_target_profile": "launchroom",
     "default_profile_promotion_requires_reviewed_gate": true,
     "plain_language_rule": "LaunchRoom creates or uses an isolated profile-factory profile by default; promoting the real default profile is a separate reviewed decision."
+  },
+  "project_intake_contract": {
+    "enabled": true,
+    "required_before_project_profile_or_first_slice": true,
+    "purpose": "Collect a minimal product-focused intake after Profile Factory foundation and before project profile, first-slice, or implementation planning.",
+    "do_not_ask_before_stage_5_or_project_onboarding_gate": true,
+    "record_answers_in_machine_report": true,
+    "record_answers_in_user_visible_summary": true,
+    "required_fields": [
+      "project_name_or_slug",
+      "product_goal",
+      "first_user_journey",
+      "active_surfaces",
+      "deferred_surfaces",
+      "needs_auth",
+      "needs_persistence",
+      "needs_uploads_or_media",
+      "needs_payments",
+      "needs_admin_tools",
+      "needs_external_integrations",
+      "needs_realtime_or_collaboration",
+      "deployment_needed_now",
+      "validation_scope"
+    ],
+    "plain_language_rule": "Ask what the user wants to build and which product surfaces are active now; do not force technical stack choices onto a beginner."
+  },
+  "active_deferred_surfaces_contract": {
+    "enabled": true,
+    "purpose": "Separate active work surfaces from deferred/gated surfaces before project-profile or first-slice work.",
+    "surface_status_values": [
+      "active_now",
+      "deferred",
+      "gated_later",
+      "not_applicable",
+      "unknown_requires_choice"
+    ],
+    "required_surfaces": [
+      "website_public_seo",
+      "webapp_authenticated_csr",
+      "backend_api",
+      "mobile_app",
+      "automation_or_n8n",
+      "cloud_runtime"
+    ],
+    "browser_routing_rule": {
+      "website_public_seo": "Use website/public surface for landing pages, docs, catalog/listing/product pages, public SEO, and rich link previews.",
+      "webapp_authenticated_csr": "Use webapp/authenticated surface for login-protected dashboards, account flows, admin panels, settings, and tools that do not need SEO.",
+      "explain_to_user_in_product_terms": true,
+      "do_not_build_seo_pages_inside_authenticated_webapp_by_habit": true,
+      "do_not_move_full_authenticated_app_into_website_by_habit": true
+    },
+    "mobile_policy": {
+      "default_status": "deferred_or_gated_later",
+      "activate_only_after_explicit_mobile_choice": true,
+      "expo_eas_app_store_google_play_iap_push_require_provider_publication_gates": true,
+      "maestro_e2e_requires_installed_dev_client_not_expo_go": true
+    }
+  },
+  "template_origin_safety_contract": {
+    "enabled": true,
+    "purpose": "Prevent accidental pushes, PRs, or deployments against a starter/template repository when the user is creating a new project.",
+    "inspect_git_remote_before_branch_commit_push_pr": true,
+    "classify_git_work_mode_before_publication": [
+      "improving_template",
+      "creating_user_project_from_template",
+      "existing_project_work"
+    ],
+    "if_origin_points_to_template_and_mode_is_new_project": "detach/remove template origin or leave publishing unconfigured until the user chooses their own destination repository",
+    "no_pr_to_template_without_explicit_template_contribution_gate": true,
+    "no_push_without_publication_gate": true,
+    "release_or_deploy_requires_clean_synced_source": true
+  },
+  "acceptance_contract": {
+    "enabled": true,
+    "required_for_non_trivial_packets": true,
+    "required_fields": [
+      "primary_signal",
+      "pass_criteria",
+      "secondary_signals",
+      "evidence_required",
+      "cannot_claim_done_if"
+    ],
+    "minimum_pass_criteria": 3,
+    "maximum_recommended_pass_criteria": 5,
+    "cannot_claim_done_if": [
+      "only a plan or stub was written for a requested working result",
+      "only terminal output exists and no user-visible stage result was delivered",
+      "validators or smoke tests were skipped without an explicit partial/blocker explanation",
+      "acceptance evidence is fabricated or copied from a previous run"
+    ]
+  },
+  "local_pilot_isolation_contract": {
+    "enabled": true,
+    "purpose": "Keep local pilot validation isolated from development, production, or user data targets.",
+    "test_data_only": true,
+    "forbid_prod_or_dev_database_in_tests": true,
+    "require_test_suffix_when_database_url_present": true,
+    "prefer_repo_derived_ports_for_parallel_checkouts": true,
+    "stop_not_repair_if_data_target_is_ambiguous": true,
+    "do_not_start_or_kill_shared_services_to_free_ports": true
   }
 }

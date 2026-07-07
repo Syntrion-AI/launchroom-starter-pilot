@@ -53,7 +53,7 @@ def main() -> int:
         require(run, needle, label)
     require(skill, 'Positive setup permissions', 'skill positive permissions')
     require(skill, 'patches unrelated installed skills', 'unauthorized self-patch hard stop')
-    for section in ['product_mode_lock_contract','stage_result_chat_contract','hard_stage_transition_contract','skills_software_inventory_contract','default_profile_policy']:
+    for section in ['product_mode_lock_contract','stage_result_chat_contract','hard_stage_transition_contract','skills_software_inventory_contract','default_profile_policy','project_intake_contract','active_deferred_surfaces_contract','template_origin_safety_contract','acceptance_contract','local_pilot_isolation_contract']:
         if section not in source:
             print('FAIL: source missing ' + section)
             return 1
@@ -76,8 +76,77 @@ def main() -> int:
         ('Product-mode lock','product mode lock docs'),
         ('Stage result and transition contract','stage result transition docs'),
         ('skills/software/toolsets inventory','skills software inventory docs'),
+        ('Project Intake, Surface Routing, and Template Safety','v0.7.2 project intake section'),
+        ('Project intake contract','project intake docs'),
+        ('Active/deferred surface routing','active/deferred surface docs'),
+        ('Website/public SEO rule','website routing rule'),
+        ('Webapp/authenticated CSR rule','webapp routing rule'),
+        ('Template-origin and git publication safety','template-origin safety docs'),
+        ('Acceptance contract','acceptance contract docs'),
+        ('Local pilot isolation','local pilot isolation docs'),
     ]:
         require(run, needle, label)
+
+    project_intake = source.get('project_intake_contract', {})
+    if project_intake.get('enabled') is not True:
+        print('FAIL: project intake contract is not enabled')
+        return 1
+    required_intake_fields = ['project_name_or_slug','product_goal','first_user_journey','active_surfaces','deferred_surfaces','needs_auth','needs_persistence','needs_uploads_or_media','needs_payments','needs_realtime_or_collaboration','deployment_needed_now','validation_scope']
+    for field in required_intake_fields:
+        if field not in project_intake.get('required_fields', []):
+            print('FAIL: project intake required field missing ' + field)
+            return 1
+    if project_intake.get('do_not_ask_before_stage_5_or_project_onboarding_gate') is not True:
+        print('FAIL: project intake must not start before Stage 5/project onboarding gate')
+        return 1
+
+    surfaces = source.get('active_deferred_surfaces_contract', {})
+    if surfaces.get('enabled') is not True:
+        print('FAIL: active/deferred surfaces contract is not enabled')
+        return 1
+    for surface in ['website_public_seo','webapp_authenticated_csr','backend_api','mobile_app','automation_or_n8n','cloud_runtime']:
+        if surface not in surfaces.get('required_surfaces', []):
+            print('FAIL: required surface missing ' + surface)
+            return 1
+    browser = surfaces.get('browser_routing_rule', {})
+    if browser.get('do_not_build_seo_pages_inside_authenticated_webapp_by_habit') is not True or browser.get('do_not_move_full_authenticated_app_into_website_by_habit') is not True:
+        print('FAIL: browser surface routing guard missing')
+        return 1
+    mobile = surfaces.get('mobile_policy', {})
+    if mobile.get('activate_only_after_explicit_mobile_choice') is not True:
+        print('FAIL: mobile must remain deferred/gated unless explicitly activated')
+        return 1
+
+    git_safety = source.get('template_origin_safety_contract', {})
+    if git_safety.get('enabled') is not True:
+        print('FAIL: template-origin safety contract is not enabled')
+        return 1
+    for key in ['inspect_git_remote_before_branch_commit_push_pr','no_pr_to_template_without_explicit_template_contribution_gate','no_push_without_publication_gate','release_or_deploy_requires_clean_synced_source']:
+        if git_safety.get(key) is not True:
+            print(f'FAIL: template-origin safety missing {key}=true')
+            return 1
+    for mode in ['improving_template','creating_user_project_from_template','existing_project_work']:
+        if mode not in git_safety.get('classify_git_work_mode_before_publication', []):
+            print('FAIL: git work mode missing ' + mode)
+            return 1
+
+    acceptance = source.get('acceptance_contract', {})
+    if acceptance.get('enabled') is not True or acceptance.get('required_for_non_trivial_packets') is not True:
+        print('FAIL: acceptance contract must be enabled and required for non-trivial packets')
+        return 1
+    for field in ['primary_signal','pass_criteria','secondary_signals','evidence_required','cannot_claim_done_if']:
+        if field not in acceptance.get('required_fields', []):
+            print('FAIL: acceptance contract field missing ' + field)
+            return 1
+
+    isolation = source.get('local_pilot_isolation_contract', {})
+    if isolation.get('enabled') is not True:
+        print('FAIL: local pilot isolation contract is not enabled')
+        return 1
+    for key in ['test_data_only','forbid_prod_or_dev_database_in_tests','require_test_suffix_when_database_url_present','prefer_repo_derived_ports_for_parallel_checkouts','stop_not_repair_if_data_target_is_ambiguous']:
+        if isolation.get(key) is not True:
+            print(f'FAIL: local pilot isolation missing {key}=true')
+            return 1
 
     if len(source.get('stages', [])) != 14:
         print('FAIL: expected bootstrap plus thirteen stages')
@@ -100,7 +169,7 @@ def main() -> int:
         if clarify.get(key) is not expected:
             print(f'FAIL: decision UI clarify contract missing {key}={expected}')
             return 1
-    for point in ['git publication gate','implementation gate','runtime/provider/secret/destructive-action gate']:
+    for point in ['git publication gate','implementation gate','runtime/provider/secret/destructive-action gate','project intake gate','active/deferred surfaces choice','template-origin publication safety gate','acceptance contract review']:
         if point not in decision.get('required_decision_points', []):
             print('FAIL: decision UI required point missing ' + point)
             return 1

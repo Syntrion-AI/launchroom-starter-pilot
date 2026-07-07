@@ -65,6 +65,79 @@ link -> bootstrap -> RUN_ME_FIRST -> explain full diagnostic -> full-system self
 ```
 
 
+## Project Intake, Surface Routing, and Template Safety
+
+This v0.7.2 layer strengthens the handoff from profile setup into a real project. It is inspired by external starter-template patterns, but LaunchRoom remains the authority for gates and safety. These rules do not authorize implementation, publication, deployment, provider/runtime changes, or secret handling.
+
+### Project intake contract
+
+Collect project intake only after the Profile Factory foundation is ready or explicitly deferred. Do not ask project/product questions before the LaunchRoom setup stages allow it.
+
+Required intake fields:
+
+- `project_name_or_slug`
+- `product_goal`
+- `first_user_journey`
+- `active_surfaces`
+- `deferred_surfaces`
+- `needs_auth`
+- `needs_persistence`
+- `needs_uploads_or_media`
+- `needs_payments`
+- `needs_admin_tools`
+- `needs_external_integrations`
+- `needs_realtime_or_collaboration`
+- `deployment_needed_now`
+- `validation_scope`
+
+Plain-language rule: Ask what the user wants to build and which product surfaces are active now; do not force technical stack choices onto a beginner.
+
+### Active/deferred surface routing
+
+Before project-profile or first-slice work, classify each product surface as active now, deferred, gated later, not applicable, or unknown requiring a choice.
+
+Required surfaces:
+
+- `website_public_seo`
+- `webapp_authenticated_csr`
+- `backend_api`
+- `mobile_app`
+- `automation_or_n8n`
+- `cloud_runtime`
+
+Website/public SEO rule: Use website/public surface for landing pages, docs, catalog/listing/product pages, public SEO, and rich link previews.
+
+Webapp/authenticated CSR rule: Use webapp/authenticated surface for login-protected dashboards, account flows, admin panels, settings, and tools that do not need SEO.
+
+Do not build SEO pages inside the authenticated webapp by habit, and do not move the full authenticated app into the website by habit.
+
+Mobile policy: mobile is `deferred_or_gated_later` by default and activates only after an explicit mobile choice; Expo/EAS/App Store/Google Play/IAP/push remain provider/publication gated.
+
+### Template-origin and git publication safety
+
+Before branch, commit, push, PR, release, or deploy work, inspect `git remote -v` and classify the git work mode.
+
+Git work modes: improving_template, creating_user_project_from_template, existing_project_work
+
+If origin points to the starter/template and this is a new user project: detach/remove template origin or leave publishing unconfigured until the user chooses their own destination repository.
+
+Do not open a PR to the template repository unless the user explicitly grants a template-contribution gate. Do not push without a publication gate. Release/deploy work requires a clean, synced source.
+
+### Acceptance contract
+
+Every non-trivial implementation or local pilot packet must define `primary_signal`, 3-5 `pass_criteria`, `secondary_signals`, `evidence_required`, and `cannot_claim_done_if` before execution.
+
+Cannot claim done if:
+
+- only a plan or stub was written for a requested working result
+- only terminal output exists and no user-visible stage result was delivered
+- validators or smoke tests were skipped without an explicit partial/blocker explanation
+- acceptance evidence is fabricated or copied from a previous run
+
+### Local pilot isolation
+
+Local pilots and data-backed tests must use test data only. If a database URL is present, test plans require a `*_test` database name or an explicit override gate, prefer repo-derived/isolated ports for parallel checkouts, and stop instead of repairing when the data target is ambiguous.
+
 ## Primary setup tool
 
 For CI-grade non-mutating generation checks, run the installer in self-test mode:
@@ -510,9 +583,9 @@ Pass requires:
 - gateway setup, pairing, home-channel, autostart, and delivery tests remain gated
 - no provider/runtime/cloud/n8n mutation is executed
 
-### stage_6 - SaaS operator kit
+### stage_6 - SaaS operator kit and project intake
 
-Purpose: Run an agent-led SaaS operator kit stage: explain Stage 6, create structure, offer common default workflows when the user has no idea, transform idea/workflow into project blueprint, and show the gated path from blueprint to working result without runtime/cloud/provider/gateway/n8n mutation.
+Purpose: Run an agent-led SaaS operator kit stage: explain Stage 6, collect product intake, classify active/deferred surfaces, create structure, offer common default workflows when the user has no idea, transform idea/workflow into project blueprint, and show the gated path from blueprint to working result without runtime/cloud/provider/gateway/n8n mutation.
 
 Pass requires:
 - implementation roadmap explains blueprint to working result
@@ -527,6 +600,10 @@ Pass requires:
 - first workflow follows intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision
 - runtime/cloud/provider/gateway/n8n/git/secret actions remain false or gated
 - next owner decision is explicit
+- project intake report records project name/slug, product goal, first user journey, active/deferred surfaces, auth/persistence/uploads/payments/realtime/deployment needs, and validation scope
+- website vs webapp routing is explained in product terms when browser surfaces are active
+- mobile surface remains deferred/gated unless the user explicitly activates mobile
+- template-origin git safety mode is classified before publication or PR work
 
 ### stage_7 - First slice implementation planning and local pilot readiness
 
@@ -540,6 +617,8 @@ Pass requires:
 - acceptance tests and user demo script explain the user-visible working result
 - implementation, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated
 - next implementation gate is explicit
+- acceptance contract defines primary signal, 3-5 pass criteria, secondary signals, required evidence, and cannot-claim-done conditions
+- active/deferred surfaces from Stage 6 are referenced before first-slice implementation planning
 
 ### stage_8 - Local pilot execution packet
 
@@ -556,6 +635,9 @@ Pass requires:
 - evidence log is scaffolded and does not fabricate execution results
 - implementation, file changes, commands, tests, dependencies, runtime, cloud, gateway, n8n, git publication, and secrets remain false or gated
 - next execution gate is explicit
+- local pilot isolation rules forbid tests against production/development data targets
+- data-backed test plans require *_test database names or an explicit override gate when applicable
+- repo-derived or isolated ports are preferred for parallel local checkouts
 
 ### stage_9 - Project plan integrity and drift audit
 
@@ -635,6 +717,8 @@ Pass requires:
 - binder forbids fabricated evidence and distinguishes planned commands from executed commands
 - residual risks and rollback/handoff sections exist for closeout
 - Stage 13 does not execute implementation, commands, tests, file changes, dependency installs, runtime/cloud/gateway/n8n/git/secret actions
+- acceptance evidence is tied back to the acceptance contract primary signal and pass criteria
+- execution evidence distinguishes planned commands from actually executed commands and never fabricates results
 
 
 ## Inventory rule

@@ -148,3 +148,60 @@ next_decision:
     - choose first vertical slice
     - approve implementation planning packet
     - defer runtime/provider/cloud setup
+
+project_intake:
+  required: true
+  report: .hermes/operator-kit/guided-session/PROJECT_INTAKE.md
+  required_fields:
+    - project_name_or_slug
+    - product_goal
+    - first_user_journey
+    - active_surfaces
+    - deferred_surfaces
+    - needs_auth
+    - needs_persistence
+    - needs_uploads_or_media
+    - needs_payments
+    - needs_realtime_or_collaboration
+    - deployment_needed_now
+    - validation_scope
+
+active_deferred_surfaces:
+  required: true
+  report: .hermes/operator-kit/guided-session/SURFACE_ROUTING.md
+  status_values:
+    - active_now
+    - deferred
+    - gated_later
+    - not_applicable
+    - unknown_requires_choice
+  required_surfaces:
+    - website_public_seo
+    - webapp_authenticated_csr
+    - backend_api
+    - mobile_app
+    - automation_or_n8n
+    - cloud_runtime
+  website_public_seo_rule: Public SEO, landing, docs, catalog/listing/product pages, and rich link previews belong to a website/public surface.
+  webapp_authenticated_csr_rule: Behind-login dashboards, account flows, admin panels, settings, and tools that do not need SEO belong to an authenticated webapp surface.
+  mobile_policy: Mobile remains deferred/gated unless explicitly activated.
+
+template_origin_safety:
+  required_before_git_publication: true
+  report: .hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md
+  inspect_git_remote_before_branch_commit_push_pr: true
+  work_modes:
+    - improving_template
+    - creating_user_project_from_template
+    - existing_project_work
+  no_pr_to_template_without_explicit_template_contribution_gate: true
+
+v0_7_2_required_stage_6_markers:
+  - PROJECT_INTAKE.md
+  - SURFACE_ROUTING.md
+  - TEMPLATE_ORIGIN_SAFETY.md
+  - project_intake_present: true
+  - active_deferred_surfaces_present: true
+  - website_webapp_routing_present: true
+  - mobile_deferred_or_explicitly_active: true
+  - template_origin_safety_present: true

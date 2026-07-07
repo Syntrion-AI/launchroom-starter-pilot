@@ -125,3 +125,23 @@ next_decision:
     - run a local-only pilot after gate
     - prepare communication channel setup gate
     - defer implementation
+
+acceptance_contract:
+  required_for_non_trivial_packets: true
+  primary_signal_required: true
+  pass_criteria_minimum: 3
+  pass_criteria_maximum_recommended: 5
+  secondary_signals_required: true
+  evidence_required_section_required: true
+  cannot_claim_done_if_required: true
+  required_report_markers:
+    - acceptance_contract_present: true
+    - primary_signal_present: true
+    - pass_criteria_present: true
+    - secondary_signals_present: true
+    - evidence_required_present: true
+    - cannot_claim_done_if_present: true
+  cannot_claim_done_if:
+    - only a plan or stub was written for a requested working result
+    - validators or smoke tests were skipped without an explicit partial/blocker explanation
+    - acceptance evidence is fabricated or copied from a previous run

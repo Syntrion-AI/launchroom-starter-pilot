@@ -124,6 +124,9 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'AGENT_GUIDE.md',
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'USER_LESSON.md',
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'IDEA_INTAKE.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'PROJECT_INTAKE.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'SURFACE_ROUTING.md',
+            workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'TEMPLATE_ORIGIN_SAFETY.md',
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'PROJECT_BLUEPRINT.md',
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'FIRST_SLICE_PACKET.md',
             workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / 'DEFAULT_WORKFLOW_CATALOG.md',
@@ -247,7 +250,7 @@ def run_self_test_if_available() -> None:
         communication_guide = (workspace_root / '.hermes' / 'reports' / 'communication-user-guide.md').read_text(encoding='utf-8')
         operator_readiness = yaml.safe_load((workspace_root / '.hermes' / 'operator-kit' / 'readiness_report.yaml').read_text(encoding='utf-8'))
         operator_text = '\n'.join((workspace_root / '.hermes' / 'operator-kit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','NEXT_DECISION.md','CHECK_IT_WORKS.md','PAIN_TO_WORKFLOW_EXAMPLES.md','product_brief.md','target_user.md','first_workflow.md','backlog.md','local_task_packet.md','gates.md'])
-        guided_text = '\n'.join((workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / name).read_text(encoding='utf-8') for name in ['SESSION_STATE.yaml','AGENT_GUIDE.md','USER_LESSON.md','IDEA_INTAKE.md','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','DEFAULT_WORKFLOW_CATALOG.md','IMPLEMENTATION_ROADMAP.md','COMPLETION_SUMMARY.md'])
+        guided_text = '\n'.join((workspace_root / '.hermes' / 'operator-kit' / 'guided-session' / name).read_text(encoding='utf-8') for name in ['SESSION_STATE.yaml','AGENT_GUIDE.md','USER_LESSON.md','IDEA_INTAKE.md','PROJECT_INTAKE.md','SURFACE_ROUTING.md','TEMPLATE_ORIGIN_SAFETY.md','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','DEFAULT_WORKFLOW_CATALOG.md','IMPLEMENTATION_ROADMAP.md','COMPLETION_SUMMARY.md'])
         first_slice_readiness = yaml.safe_load((workspace_root / '.hermes' / 'first-slice' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
         first_slice_text = '\n'.join((workspace_root / '.hermes' / 'first-slice' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','USER_DEMO_SCRIPT.md','RISKS_AND_ROLLBACK.md','DECISION_GATE.md'])
         local_pilot_readiness = yaml.safe_load((workspace_root / '.hermes' / 'local-pilot' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
@@ -364,15 +367,15 @@ def run_self_test_if_available() -> None:
             if action_flags.get(key) is not False:
                 print('FAIL: self-test operator kit action flag not false: ' + key)
                 raise SystemExit(1)
-        for key in ['beginner_next_decision_present','pain_to_workflow_examples_present','guided_session_present','no_idea_default_workflow_catalog_present','blueprint_to_solution_path_present']:
+        for key in ['beginner_next_decision_present','pain_to_workflow_examples_present','guided_session_present','no_idea_default_workflow_catalog_present','blueprint_to_solution_path_present','project_intake_present','active_deferred_surfaces_present','website_webapp_routing_present','mobile_deferred_or_explicitly_active','template_origin_safety_present']:
             if action_flags.get(key) is not True:
-                print('FAIL: self-test operator kit navigation flag not true: ' + key)
+                print('FAIL: self-test operator kit navigation/intake flag not true: ' + key)
                 raise SystemExit(1)
         for needle in ['Hermes working artifact / not AIRMIDA authority','intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision','implementation_gate','runtime_provider_gate','secret_readback','Done when','Stage 6','Check It Works','Pain to Workflow Examples','Recommended beginner path','Show me 3 first workflow options','Which one small pain do I want the agent to help solve first']:
             if needle not in operator_text:
                 print('FAIL: self-test operator kit text missing ' + needle)
                 raise SystemExit(1)
-        for needle in ['agent must lead','DEFAULT_WORKFLOW_CATALOG.md','messenger setup','Telegram or Discord channel management','Email, calendar, and notes assistant','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','IMPLEMENTATION_ROADMAP.md','blueprint -> first slice packet -> implementation plan -> local pilot -> verification -> next gate','working result']:
+        for needle in ['agent must lead','DEFAULT_WORKFLOW_CATALOG.md','messenger setup','Telegram or Discord channel management','Email, calendar, and notes assistant','PROJECT_INTAKE.md','SURFACE_ROUTING.md','TEMPLATE_ORIGIN_SAFETY.md','website_public_seo','webapp_authenticated_csr','no_pr_to_template_without_explicit_template_contribution_gate','PROJECT_BLUEPRINT.md','FIRST_SLICE_PACKET.md','IMPLEMENTATION_ROADMAP.md','blueprint -> first slice packet -> implementation plan -> local pilot -> verification -> next gate','working result']:
             if needle not in guided_text:
                 print('FAIL: self-test guided session text missing ' + needle)
                 raise SystemExit(1)
@@ -390,11 +393,11 @@ def run_self_test_if_available() -> None:
             if first_slice_flags.get(key) is not False:
                 print('FAIL: self-test first slice action flag not false: ' + key)
                 raise SystemExit(1)
-        for key in ['local_pilot_plan_present','acceptance_tests_present','user_demo_script_present','next_implementation_gate_present']:
+        for key in ['local_pilot_plan_present','acceptance_tests_present','user_demo_script_present','next_implementation_gate_present','acceptance_contract_present','primary_signal_present','pass_criteria_present','secondary_signals_present','evidence_required_present','cannot_claim_done_if_present']:
             if first_slice_flags.get(key) is not True:
-                print('FAIL: self-test first slice readiness flag not true: ' + key)
+                print('FAIL: self-test first slice readiness/acceptance flag not true: ' + key)
                 raise SystemExit(1)
-        for needle in ['First Slice Planning','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','USER_DEMO_SCRIPT.md','DECISION_GATE.md','implementation_planning_gate','communication_channel_setup_gate','working result','No implementation before implementation_gate']:
+        for needle in ['First Slice Planning','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','Acceptance contract','primary_signal','pass_criteria','secondary_signals','evidence_required','cannot_claim_done_if','USER_DEMO_SCRIPT.md','DECISION_GATE.md','implementation_planning_gate','communication_channel_setup_gate','working result','No implementation before implementation_gate']:
             if needle not in first_slice_text:
                 print('FAIL: self-test first slice text missing ' + needle)
                 raise SystemExit(1)
@@ -412,11 +415,11 @@ def run_self_test_if_available() -> None:
             if local_pilot_flags.get(key) is not False:
                 print('FAIL: self-test local pilot action flag not false: ' + key)
                 raise SystemExit(1)
-        for key in ['execution_packet_present','file_change_plan_present','command_plan_present','test_plan_present','evidence_log_present','review_checklist_present','handoff_summary_present','next_execution_gate_present']:
+        for key in ['execution_packet_present','file_change_plan_present','command_plan_present','test_plan_present','evidence_log_present','review_checklist_present','handoff_summary_present','next_execution_gate_present','local_pilot_isolation_present','test_data_only','prod_or_dev_database_forbidden','test_database_suffix_required_when_database_url_present','repo_derived_or_isolated_ports_preferred','ambiguous_data_target_blocks_execution']:
             if local_pilot_flags.get(key) is not True:
-                print('FAIL: self-test local pilot readiness flag not true: ' + key)
+                print('FAIL: self-test local pilot readiness/isolation flag not true: ' + key)
                 raise SystemExit(1)
-        for needle in ['Local Pilot Execution Packet','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md','Do not fabricate evidence','approve local implementation execution']:
+        for needle in ['Local Pilot Execution Packet','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','Local pilot isolation','test data only','*_test','repo-derived','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md','Do not fabricate evidence','approve local implementation execution']:
             if needle not in local_pilot_text:
                 print('FAIL: self-test local pilot text missing ' + needle)
                 raise SystemExit(1)

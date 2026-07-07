@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIRED_FILES = ['START_HERE.md','NEXT_DECISION.md','CHECK_IT_WORKS.md','PAIN_TO_WORKFLOW_EXAMPLES.md','product_brief.md','target_user.md','first_workflow.md','backlog.md','local_task_packet.md','gates.md','readiness_report.yaml','guided-session/SESSION_STATE.yaml','guided-session/AGENT_GUIDE.md','guided-session/USER_LESSON.md','guided-session/IDEA_INTAKE.md','guided-session/PROJECT_BLUEPRINT.md','guided-session/FIRST_SLICE_PACKET.md','guided-session/DEFAULT_WORKFLOW_CATALOG.md','guided-session/IMPLEMENTATION_ROADMAP.md','guided-session/COMPLETION_SUMMARY.md']
-REQUIRED_FLAGS = ['runtime_mutation: false','cloud_mutation: false','n8n_mutation: false','gateway_mutation: false','git_publication_executed: false','secrets_read_or_written: false','implementation_executed: false','beginner_next_decision_present: true','pain_to_workflow_examples_present: true','guided_session_present: true','no_idea_default_workflow_catalog_present: true','blueprint_to_solution_path_present: true']
+REQUIRED_FILES = ['START_HERE.md','NEXT_DECISION.md','CHECK_IT_WORKS.md','PAIN_TO_WORKFLOW_EXAMPLES.md','product_brief.md','target_user.md','first_workflow.md','backlog.md','local_task_packet.md','gates.md','readiness_report.yaml','guided-session/SESSION_STATE.yaml','guided-session/AGENT_GUIDE.md','guided-session/USER_LESSON.md','guided-session/IDEA_INTAKE.md','guided-session/PROJECT_INTAKE.md','guided-session/SURFACE_ROUTING.md','guided-session/TEMPLATE_ORIGIN_SAFETY.md','guided-session/PROJECT_BLUEPRINT.md','guided-session/FIRST_SLICE_PACKET.md','guided-session/DEFAULT_WORKFLOW_CATALOG.md','guided-session/IMPLEMENTATION_ROADMAP.md','guided-session/COMPLETION_SUMMARY.md']
+REQUIRED_FLAGS = ['runtime_mutation: false','cloud_mutation: false','n8n_mutation: false','gateway_mutation: false','git_publication_executed: false','secrets_read_or_written: false','implementation_executed: false','beginner_next_decision_present: true','pain_to_workflow_examples_present: true','guided_session_present: true','no_idea_default_workflow_catalog_present: true','blueprint_to_solution_path_present: true','project_intake_present: true','active_deferred_surfaces_present: true','website_webapp_routing_present: true','mobile_deferred_or_explicitly_active: true','template_origin_safety_present: true']
 
 def main() -> int:
     recipe_path = ROOT / 'source' / 'recipes' / 'saas-operator-kit.json'
@@ -53,6 +53,17 @@ def main() -> int:
         'messenger setup',
         'blueprint -> first slice packet -> implementation plan -> local pilot -> verification -> next gate',
         'intent -> scope -> evidence -> structure -> delivery packet -> execution -> verification -> handoff -> next decision',
+        'PROJECT_INTAKE.md',
+        'SURFACE_ROUTING.md',
+        'TEMPLATE_ORIGIN_SAFETY.md',
+        'project_intake:',
+        'active_deferred_surfaces:',
+        'website_public_seo_rule:',
+        'webapp_authenticated_csr_rule:',
+        'mobile_policy:',
+        'template_origin_safety:',
+        'inspect_git_remote_before_branch_commit_push_pr: true',
+        'no_pr_to_template_without_explicit_template_contribution_gate: true',
     ]:
         if marker not in contract_text:
             print('FAIL: Stage 6 contract marker missing: ' + marker)
@@ -75,6 +86,13 @@ def main() -> int:
     if recipe.get('blueprint_to_solution_path_required') is not True:
         print('FAIL: blueprint_to_solution_path_required is not true')
         return 1
+    if recipe.get('project_intake_required') is not True or recipe.get('active_deferred_surfaces_required') is not True or recipe.get('template_origin_safety_required') is not True:
+        print('FAIL: Stage 6 v0.7.2 intake/surface/template safety requirements missing')
+        return 1
+    for field in ['project_name_or_slug','product_goal','first_user_journey','active_surfaces','deferred_surfaces','validation_scope']:
+        if field not in recipe.get('project_intake_fields', []):
+            print('FAIL: Stage 6 project intake missing field: ' + field)
+            return 1
     blocked = recipe.get('blocked_without_gate', [])
     for item in ['Cloudflare mutation','Hetzner mutation','n8n mutation','MCP/runtime mutation','provider/model/billing mutation','gateway setup/autostart/pairing','production deploy','public git push','secret readback or storage']:
         if item not in blocked:

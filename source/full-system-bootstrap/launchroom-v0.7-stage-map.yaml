@@ -257,3 +257,76 @@ stages:
       - external_product_role_gate_available
       - implementation_mode_gate_available
       - user_visible_stage_result_delivered
+
+project_intake_contract:
+  enabled: true
+  required_before_project_profile_or_first_slice: true
+  do_not_ask_before_stage_5_or_project_onboarding_gate: true
+  report_required: true
+  user_visible_summary_required: true
+  required_fields:
+    - project_name_or_slug
+    - product_goal
+    - first_user_journey
+    - active_surfaces
+    - deferred_surfaces
+    - needs_auth
+    - needs_persistence
+    - needs_uploads_or_media
+    - needs_payments
+    - needs_admin_tools
+    - needs_external_integrations
+    - needs_realtime_or_collaboration
+    - deployment_needed_now
+    - validation_scope
+
+active_deferred_surfaces_contract:
+  enabled: true
+  required_before_first_slice: true
+  required_surfaces:
+    - website_public_seo
+    - webapp_authenticated_csr
+    - backend_api
+    - mobile_app
+    - automation_or_n8n
+    - cloud_runtime
+  browser_routing_rule:
+    website_public_seo: Public SEO, landing, docs, catalog/listing/product pages, and rich link previews belong to a website/public surface.
+    webapp_authenticated_csr: Behind-login dashboards, account flows, admin panels, settings, and tools that do not need SEO belong to an authenticated webapp surface.
+    do_not_build_seo_pages_inside_authenticated_webapp_by_habit: true
+    do_not_move_full_authenticated_app_into_website_by_habit: true
+  mobile_policy:
+    default_status: deferred_or_gated_later
+    activate_only_after_explicit_mobile_choice: true
+    expo_eas_app_store_google_play_iap_push_require_provider_publication_gates: true
+
+template_origin_safety_contract:
+  enabled: true
+  inspect_git_remote_before_branch_commit_push_pr: true
+  classify_git_work_mode_before_publication:
+    - improving_template
+    - creating_user_project_from_template
+    - existing_project_work
+  no_pr_to_template_without_explicit_template_contribution_gate: true
+  no_push_without_publication_gate: true
+  release_or_deploy_requires_clean_synced_source: true
+
+acceptance_contract:
+  enabled: true
+  required_for_non_trivial_packets: true
+  required_fields:
+    - primary_signal
+    - pass_criteria
+    - secondary_signals
+    - evidence_required
+    - cannot_claim_done_if
+  minimum_pass_criteria: 3
+  maximum_recommended_pass_criteria: 5
+
+local_pilot_isolation_contract:
+  enabled: true
+  test_data_only: true
+  forbid_prod_or_dev_database_in_tests: true
+  require_test_suffix_when_database_url_present: true
+  prefer_repo_derived_ports_for_parallel_checkouts: true
+  stop_not_repair_if_data_target_is_ambiguous: true

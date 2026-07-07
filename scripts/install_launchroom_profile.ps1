@@ -1385,9 +1385,12 @@ $startHereLines = @(
   '5. product_brief.md — refine what we might build.',
   '6. target_user.md — choose who the first user is.',
   '7. first_workflow.md — define the first tiny workflow.',
-  '8. backlog.md — see what is safe now vs gated.',
-  '9. gates.md — understand what needs explicit permission.',
-  '10. readiness_report.yaml — machine-readable status for the agent/validators.',
+  '8. PROJECT_INTAKE.md — record the minimum product/project intake before project-profile or first-slice work.',
+  '9. SURFACE_ROUTING.md — classify active/deferred surfaces and website vs webapp routing.',
+  '10. TEMPLATE_ORIGIN_SAFETY.md — classify template/new-project/existing-project git safety before publication.',
+  '11. backlog.md — see what is safe now vs gated.',
+  '12. gates.md — understand what needs explicit permission.',
+  '13. readiness_report.yaml — machine-readable status for the agent/validators.',
   '',
   '## Beginner rule',
   '',
@@ -1418,6 +1421,9 @@ $checkItWorksLines = @(
   '- backlog.md',
   '- local_task_packet.md',
   '- gates.md',
+  '- guided-session/PROJECT_INTAKE.md',
+  '- guided-session/SURFACE_ROUTING.md',
+  '- guided-session/TEMPLATE_ORIGIN_SAFETY.md',
   '- readiness_report.yaml',
   '',
   '## What should be true',
@@ -1425,6 +1431,8 @@ $checkItWorksLines = @(
   '- You can explain what Stage 6 is in one sentence.',
   '- You can identify one user pain.',
   '- You can choose one example workflow or ask the agent for alternatives.',
+  '- You can classify active/deferred product surfaces before implementation planning.',
+  '- You can explain why public SEO pages belong to a website/public surface and dashboards/tools belong to an authenticated webapp surface.',
   '- You can see what is safe now and what requires approval.',
   '- readiness_report.yaml says runtime/cloud/n8n/gateway/git/secrets/implementation actions are false.',
   '',
@@ -1556,6 +1564,11 @@ $sessionStateLines = @(
   'guided_session_present: true',
   'no_idea_default_workflow_catalog_present: true',
   'blueprint_to_solution_path_present: true',
+  'project_intake_present: true',
+  'active_deferred_surfaces_present: true',
+  'website_webapp_routing_present: true',
+  'mobile_deferred_or_explicitly_active: true',
+  'template_origin_safety_present: true',
   'states:',
   '  - orientation',
   '  - structure_created',
@@ -1598,11 +1611,14 @@ $agentGuideLines = @(
   '6. Select one target user.',
   '7. Select one first workflow.',
   '8. Define one concrete output and verification.',
-  '9. Create PROJECT_BLUEPRINT.md.',
-  '10. Create FIRST_SLICE_PACKET.md.',
-  '11. Explain IMPLEMENTATION_ROADMAP.md: blueprint -> first slice packet -> implementation plan -> local pilot -> verification -> next gate.',
-  '12. Teach the user the idea -> pain -> workflow -> output -> verification -> gate model.',
-  '13. Create COMPLETION_SUMMARY.md.',
+  '9. Create PROJECT_INTAKE.md before project-profile or first-slice work.',
+  '10. Create SURFACE_ROUTING.md and classify website_public_seo, webapp_authenticated_csr, backend_api, mobile_app, automation_or_n8n, and cloud_runtime as active/deferred/gated/not applicable.',
+  '11. Create TEMPLATE_ORIGIN_SAFETY.md before any branch, commit, push, PR, release, or deploy work.',
+  '12. Create PROJECT_BLUEPRINT.md.',
+  '13. Create FIRST_SLICE_PACKET.md.',
+  '14. Explain IMPLEMENTATION_ROADMAP.md: blueprint -> first slice packet -> implementation plan -> local pilot -> verification -> next gate.',
+  '15. Teach the user the idea -> pain -> workflow -> output -> verification -> gate model.',
+  '16. Create COMPLETION_SUMMARY.md.',
   '',
   '## Rule',
   '',
@@ -1691,6 +1707,90 @@ $ideaIntakeLines = @(
   'selected_pain: pending_user_choice'
 )
 Write-Utf8NoBom (Join-Path $guidedSessionRoot 'IDEA_INTAKE.md') ($ideaIntakeLines -join "`n")
+
+$projectIntakeLines = @(
+  '# Project Intake',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'This v0.7.2 file records the minimum product-focused intake before project-profile, first-slice, or implementation planning. It is not a stack decision and not permission to execute.',
+  '',
+  'project_name_or_slug: pending_user_choice',
+  "project_name_draft: $ProjectName",
+  'product_goal: pending_user_input',
+  'first_user_journey: pending_user_input',
+  'active_surfaces: []',
+  'deferred_surfaces: []',
+  'needs_auth: unknown_requires_choice',
+  'needs_persistence: unknown_requires_choice',
+  'needs_uploads_or_media: unknown_requires_choice',
+  'needs_payments: unknown_requires_choice',
+  'needs_admin_tools: unknown_requires_choice',
+  'needs_external_integrations: unknown_requires_choice',
+  'needs_realtime_or_collaboration: unknown_requires_choice',
+  'deployment_needed_now: unknown_requires_choice',
+  'validation_scope: pending_user_choice',
+  '',
+  '## Beginner rule',
+  '',
+  'Ask what the user wants to build and which product surfaces are active now; do not force technical stack choices onto a beginner.',
+  '',
+  '## Next file',
+  '',
+  'SURFACE_ROUTING.md'
+)
+Write-Utf8NoBom (Join-Path $guidedSessionRoot 'PROJECT_INTAKE.md') ($projectIntakeLines -join "`n")
+
+$surfaceRoutingLines = @(
+  '# Surface Routing',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Classify each product surface before project-profile or first-slice work.',
+  '',
+  '## Required surfaces',
+  '',
+  '| Surface | Default status | Product rule |',
+  '| --- | --- | --- |',
+  '| website_public_seo | unknown_requires_choice | Public SEO, landing, docs, catalog/listing/product pages, and rich link previews belong to a website/public surface. |',
+  '| webapp_authenticated_csr | unknown_requires_choice | Behind-login dashboards, account flows, admin panels, settings, and tools that do not need SEO belong to an authenticated webapp surface. |',
+  '| backend_api | unknown_requires_choice | Use when auth, persistence, uploads, integrations, or server-side business rules are active now. |',
+  '| mobile_app | deferred_or_gated_later | Mobile remains deferred/gated unless explicitly activated. Expo/EAS/App Store/Google Play/IAP/push require provider/publication gates. |',
+  '| automation_or_n8n | gated_later | n8n/automation is an external runtime surface and requires a separate gate. |',
+  '| cloud_runtime | gated_later | Cloud/runtime/provider deployment is gated and not implied by local planning. |',
+  '',
+  '## Guards',
+  '',
+  '- Do not build SEO pages inside the authenticated webapp by habit.',
+  '- Do not move the full authenticated app into the website by habit.',
+  '- Explain website vs webapp in product terms before stack/tool choices.',
+  '- Keep mobile deferred unless the user explicitly selects a mobile path.'
+)
+Write-Utf8NoBom (Join-Path $guidedSessionRoot 'SURFACE_ROUTING.md') ($surfaceRoutingLines -join "`n")
+
+$templateOriginSafetyLines = @(
+  '# Template Origin Safety',
+  '',
+  'Status: Hermes working artifact / not AIRMIDA authority',
+  '',
+  'Before branch, commit, push, PR, release, or deploy work, inspect git remotes and classify the work mode.',
+  '',
+  'inspect_git_remote_before_branch_commit_push_pr: true',
+  'no_pr_to_template_without_explicit_template_contribution_gate: true',
+  'no_push_without_publication_gate: true',
+  'release_or_deploy_requires_clean_synced_source: true',
+  '',
+  '## Work modes',
+  '',
+  '- improving_template: changes intentionally improve the LaunchRoom/starter template itself.',
+  '- creating_user_project_from_template: detach/remove template origin or leave publishing unconfigured until the user chooses their own destination repository.',
+  '- existing_project_work: confirm origin points to the intended project repository before publication.',
+  '',
+  '## Rule',
+  '',
+  'Do not open a PR to the template repository unless the user explicitly grants a template-contribution gate.'
+)
+Write-Utf8NoBom (Join-Path $guidedSessionRoot 'TEMPLATE_ORIGIN_SAFETY.md') ($templateOriginSafetyLines -join "`n")
 
 $projectBlueprintLines = @(
   '# Project Blueprint',
@@ -2124,6 +2224,9 @@ $readinessLines = @(
   '  - guided-session/AGENT_GUIDE.md',
   '  - guided-session/USER_LESSON.md',
   '  - guided-session/IDEA_INTAKE.md',
+  '  - guided-session/PROJECT_INTAKE.md',
+  '  - guided-session/SURFACE_ROUTING.md',
+  '  - guided-session/TEMPLATE_ORIGIN_SAFETY.md',
   '  - guided-session/PROJECT_BLUEPRINT.md',
   '  - guided-session/FIRST_SLICE_PACKET.md',
   '  - guided-session/DEFAULT_WORKFLOW_CATALOG.md',
@@ -2156,6 +2259,11 @@ $readinessLines += @(
   '  guided_session_present: true',
   '  no_idea_default_workflow_catalog_present: true',
   '  blueprint_to_solution_path_present: true',
+  '  project_intake_present: true',
+  '  active_deferred_surfaces_present: true',
+  '  website_webapp_routing_present: true',
+  '  mobile_deferred_or_explicitly_active: true',
+  '  template_origin_safety_present: true',
   'next_owner_decision:',
   '  - review and edit product brief',
   '  - choose first vertical slice',
@@ -2273,6 +2381,23 @@ $acceptanceTestsLines = @(
   'Status: Hermes working artifact / not AIRMIDA authority',
   '',
   'These are human-readable acceptance tests for the first slice. They become executable or checklist tests only after the next gate.',
+  '',
+  '## Acceptance contract',
+  '',
+  'primary_signal: pending_user_visible_result',
+  'pass_criteria:',
+  '  - selected workflow solves one named user pain',
+  '  - output target is visible to the user',
+  '  - verification method does not require production runtime',
+  'secondary_signals:',
+  '  - relevant validators or smoke tests pass after implementation gate',
+  '  - user demo script can be followed',
+  'evidence_required:',
+  '  - real command/test output or manual evidence after execution gate',
+  'cannot_claim_done_if:',
+  '  - only a plan or stub was written for a requested working result',
+  '  - validators or smoke tests were skipped without explicit partial/blocker explanation',
+  '  - acceptance evidence is fabricated or copied from a previous run',
   '',
   '## Universal tests',
   '',
@@ -2420,6 +2545,12 @@ $firstSliceReadinessLines += @(
   '  acceptance_tests_present: true',
   '  user_demo_script_present: true',
   '  next_implementation_gate_present: true',
+  '  acceptance_contract_present: true',
+  '  primary_signal_present: true',
+  '  pass_criteria_present: true',
+  '  secondary_signals_present: true',
+  '  evidence_required_present: true',
+  '  cannot_claim_done_if_present: true',
   'next_owner_decision:',
   '  - approve implementation planning',
   '  - revise first slice',
@@ -2578,6 +2709,15 @@ $testPlanLines = @(
   '| User demo | .hermes/first-slice/USER_DEMO_SCRIPT.md | screenshot/log/manual confirmation after gate |',
   '| Safety boundaries | FILE_CHANGE_PLAN.md and COMMAND_PLAN.md | no forbidden path/command touched |',
   '| Rollback readiness | .hermes/first-slice/RISKS_AND_ROLLBACK.md | rollback step identified before execution |',
+  '| Local pilot isolation | READINESS_REPORT.yaml | test data only, no prod/dev database target, *_test database when applicable, isolated/repo-derived ports preferred |',
+  '',
+  '## Local pilot isolation',
+  '',
+  '- Use test data only.',
+  '- Refuse production/development database targets for tests.',
+  '- If a database URL is present, require a `*_test` database name unless an explicit override gate is recorded.',
+  '- Prefer repo-derived or otherwise isolated ports for parallel checkouts.',
+  '- If the data target is ambiguous, stop instead of guessing a repair.',
   '',
   '## Executor rule',
   '',
@@ -2698,6 +2838,12 @@ $localPilotReadinessLines += @(
   '  review_checklist_present: true',
   '  handoff_summary_present: true',
   '  next_execution_gate_present: true',
+  '  local_pilot_isolation_present: true',
+  '  test_data_only: true',
+  '  prod_or_dev_database_forbidden: true',
+  '  test_database_suffix_required_when_database_url_present: true',
+  '  repo_derived_or_isolated_ports_preferred: true',
+  '  ambiguous_data_target_blocks_execution: true',
   'next_owner_decision:',
   '  - approve local implementation execution',
   '  - revise execution packet',
@@ -4286,6 +4432,9 @@ $verification = [ordered]@{
   guided_session_agent_guide_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/AGENT_GUIDE.md')
   guided_session_user_lesson_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/USER_LESSON.md')
   guided_session_idea_intake_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/IDEA_INTAKE.md')
+  guided_session_project_intake_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/PROJECT_INTAKE.md')
+  guided_session_surface_routing_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/SURFACE_ROUTING.md')
+  guided_session_template_origin_safety_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md')
   guided_session_project_blueprint_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md')
   guided_session_first_slice_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md')
   guided_session_default_catalog_exists = Test-Path (Join-Path $WorkspaceFull '.hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md')
@@ -4380,7 +4529,7 @@ if ($IsSelfTest -and $LiveConfigHasPlaceholder) { throw 'Self-test failed: simul
 $Stage3ReportsOk = if ($NoInventory) { $true } else { $verification.inventory_report_exists -and $verification.software_purpose_map_exists -and $verification.software_install_recommendation_exists -and $verification.capability_graph_exists }
 $Stage4ReportsOk = $verification.starter_capability_pack_exists
 $Stage5ReportsOk = $verification.communication_channel_map_exists -and $verification.communication_user_guide_exists
-$Stage6ReportsOk = $verification.operator_kit_root_exists -and $verification.operator_kit_start_here_exists -and $verification.operator_kit_next_decision_exists -and $verification.operator_kit_check_it_works_exists -and $verification.operator_kit_examples_exists -and $verification.operator_kit_readiness_exists -and $verification.guided_session_state_exists -and $verification.guided_session_agent_guide_exists -and $verification.guided_session_user_lesson_exists -and $verification.guided_session_idea_intake_exists -and $verification.guided_session_project_blueprint_exists -and $verification.guided_session_first_slice_exists -and $verification.guided_session_default_catalog_exists -and $verification.guided_session_implementation_roadmap_exists -and $verification.guided_session_completion_summary_exists
+$Stage6ReportsOk = $verification.operator_kit_root_exists -and $verification.operator_kit_start_here_exists -and $verification.operator_kit_next_decision_exists -and $verification.operator_kit_check_it_works_exists -and $verification.operator_kit_examples_exists -and $verification.operator_kit_readiness_exists -and $verification.guided_session_state_exists -and $verification.guided_session_agent_guide_exists -and $verification.guided_session_user_lesson_exists -and $verification.guided_session_idea_intake_exists -and $verification.guided_session_project_intake_exists -and $verification.guided_session_surface_routing_exists -and $verification.guided_session_template_origin_safety_exists -and $verification.guided_session_project_blueprint_exists -and $verification.guided_session_first_slice_exists -and $verification.guided_session_default_catalog_exists -and $verification.guided_session_implementation_roadmap_exists -and $verification.guided_session_completion_summary_exists
 $Stage7ReportsOk = $verification.first_slice_start_exists -and $verification.first_slice_implementation_brief_exists -and $verification.first_slice_local_pilot_plan_exists -and $verification.first_slice_acceptance_tests_exists -and $verification.first_slice_user_demo_script_exists -and $verification.first_slice_risks_rollback_exists -and $verification.first_slice_decision_gate_exists -and $verification.first_slice_readiness_exists
 $Stage8ReportsOk = $verification.local_pilot_start_exists -and $verification.local_pilot_execution_packet_exists -and $verification.local_pilot_file_change_plan_exists -and $verification.local_pilot_command_plan_exists -and $verification.local_pilot_test_plan_exists -and $verification.local_pilot_evidence_log_exists -and $verification.local_pilot_review_checklist_exists -and $verification.local_pilot_handoff_summary_exists -and $verification.local_pilot_readiness_exists
 $Stage9ReportsOk = $verification.project_audit_start_exists -and $verification.project_audit_plan_integrity_exists -and $verification.project_audit_expected_result_exists -and $verification.project_audit_missing_fragments_exists -and $verification.project_audit_contradiction_scan_exists -and $verification.project_audit_stage_drift_scan_exists -and $verification.project_audit_assumption_register_exists -and $verification.project_audit_implementation_blockers_exists -and $verification.project_audit_repair_recommendations_exists -and $verification.project_audit_report_exists
@@ -4402,7 +4551,7 @@ Write-Host "status_explained: $DisplayStatus"
 Write-Host "product_mode_lock: active; unrelated current projects and ambient memory were not used as setup authority"
 Write-Host "what_is_ready: LaunchRoom Stage 1 profile layer, Stage 2 workspace boundary, Stage 3 engineering capability map, Stage 4 starter capability pack, Stage 5 communication channel map, Stage 6 SaaS operator kit, Stage 7 first-slice planning, Stage 8 local pilot execution packet, Stage 9 project plan integrity audit, Stage 10 agent execution readiness plan, Stage 11 workspace hygiene package, Stage 12 skill capture pack, Stage 13 execution evidence binder, workspace instructions, required reports, and local LaunchRoom skills."
 Write-Host "what_was_not_touched: secrets, auth.json, state.db, other Hermes profiles, n8n, Cloudflare, Hetzner, MCP credentials, gateways, and production runtime surfaces."
-Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, .hermes/operator-kit/START_HERE.md, .hermes/operator-kit/NEXT_DECISION.md, .hermes/operator-kit/CHECK_IT_WORKS.md, .hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, .hermes/operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml, execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml"
+Write-Host "visible_files_to_check: SOUL.md, PROFILE_INSTRUCTIONS.md, LAUNCHROOM_PROFILE_CONTRACT.yaml, reports/profile-foundation-report.yaml, skills/launchroom/*, workspace .hermes/reports/workspace-onboarding-report.yaml, software-purpose-map.yaml, software-install-recommendation.yaml, capability-graph.yaml, starter-capability-pack.yaml, communication-channel-map.yaml, communication-user-guide.md, .hermes/operator-kit/START_HERE.md, .hermes/operator-kit/NEXT_DECISION.md, .hermes/operator-kit/CHECK_IT_WORKS.md, .hermes/operator-kit/PAIN_TO_WORKFLOW_EXAMPLES.md, .hermes/operator-kit/guided-session/PROJECT_INTAKE.md, .hermes/operator-kit/guided-session/SURFACE_ROUTING.md, .hermes/operator-kit/guided-session/TEMPLATE_ORIGIN_SAFETY.md, .hermes/operator-kit/guided-session/DEFAULT_WORKFLOW_CATALOG.md, .hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md, .hermes/operator-kit/readiness_report.yaml, first-slice/READINESS_REPORT.yaml, local-pilot/READINESS_REPORT.yaml, project-audit/AUDIT_REPORT.yaml, agent-readiness/EXECUTION_READINESS_REPORT.yaml, hygiene/HYGIENE_REPORT.yaml, skills/SKILL_INTEGRATION_REPORT.yaml, execution-evidence/EXECUTION_EVIDENCE_REPORT.yaml"
 Write-Host "workspace_status: project_type=$ProjectType; terminal_cwd_matches_workspace=$(ConvertTo-LaunchRoomYesNo $terminalCwdMatchesWorkspace)"
 Write-Host "tool_readiness_status: $Stage3Status; missing_required=$($missingRequired -join ','); missing_recommended=$($missingRecommended -join ',')"
 Write-Host "stage_result_contract: chat_summary_delivered=true; machine_reports_written=true; next_decision_explicit=true"
@@ -4413,11 +4562,11 @@ Write-Host "stage4_status: $Stage4Status; toolsets_enabled_without_gate=false; m
 Write-Host "communication_channel_map: Desktop, Telegram, Slack, Email, Discord, adapters, webhooks/API -> managers -> guides -> gates -> verification"
 Write-Host "stage5_status: $Stage5Status; gateway_setup_executed=false; pairing_approved=false; tokens_in_reports=false"
 Write-Host "saas_operator_kit: START_HERE -> examples -> next decision -> product brief -> target user -> first workflow -> backlog -> local task packet -> gates -> readiness report"
-Write-Host "stage6_status: $Stage6Status; guided_session_present=true; no_idea_default_workflow_catalog_present=true; blueprint_to_solution_path_present=true; implementation_executed=false; runtime_mutation=false; cloud_mutation=false"
+Write-Host "stage6_status: $Stage6Status; guided_session_present=true; project_intake_present=true; active_deferred_surfaces_present=true; website_webapp_routing_present=true; mobile_deferred_or_explicitly_active=true; template_origin_safety_present=true; no_idea_default_workflow_catalog_present=true; blueprint_to_solution_path_present=true; implementation_executed=false; runtime_mutation=false; cloud_mutation=false"
 Write-Host "first_slice_planning: implementation brief -> local pilot plan -> acceptance tests -> demo script -> decision gate"
-Write-Host "stage7_status: $Stage7Status; implementation_executed=false; dependencies_installed=false; runtime_mutation=false; gateway_mutation=false"
+Write-Host "stage7_status: $Stage7Status; acceptance_contract_present=true; primary_signal_present=true; pass_criteria_present=true; secondary_signals_present=true; evidence_required_present=true; cannot_claim_done_if_present=true; implementation_executed=false; dependencies_installed=false; runtime_mutation=false; gateway_mutation=false"
 Write-Host "local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary"
-Write-Host "stage8_status: $Stage8Status; implementation_executed=false; file_changes_executed: false; commands_executed: false; tests_executed: false; runtime_mutation=false; gateway_mutation=false"
+Write-Host "stage8_status: $Stage8Status; local_pilot_isolation_present=true; test_data_only=true; prod_or_dev_database_forbidden=true; test_database_suffix_required_when_database_url_present=true; repo_derived_or_isolated_ports_preferred=true; ambiguous_data_target_blocks_execution=true; implementation_executed=false; file_changes_executed: false; commands_executed: false; tests_executed: false; runtime_mutation=false; gateway_mutation=false"
 Write-Host "project_plan_integrity_audit: expected result map -> missing fragments -> contradiction scan -> stage drift scan -> repair recommendations"
 Write-Host "stage9_status: $Stage9Status; execution_allowed=false; implementation_executed=false; commands_executed=false; tests_executed=false; runtime_mutation=false"
 Write-Host "agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness"

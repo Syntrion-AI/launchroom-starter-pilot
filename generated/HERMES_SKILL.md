@@ -25,6 +25,9 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 - Prefer the real setup tool `scripts/install_launchroom_profile.ps1` for profile/workspace installation after `-TestOutputRoot` self-test and explicit target approval.
 - Run safe T0 checks without extra ceremony after the user starts the wizard.
 - Do not ask for the project/SaaS brief before Stage 5; offer Full-System Bootstrap setup modes first.
+- Before project profile or first-slice planning, collect project intake, classify active/deferred surfaces, and explain website vs webapp routing in product terms.
+- Keep mobile deferred/gated unless explicitly activated; Expo/EAS/App Store/Google Play/IAP/push are provider/publication gated.
+- Check template-origin git safety before branch/commit/push/PR/release/deploy work.
 - Ask before T1 profile/workspace setup.
 - Require separate gates for software installs, gateway setup, cloud/runtime/provider changes, git publication, and secrets.
 

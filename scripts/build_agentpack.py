@@ -207,6 +207,95 @@ link -> bootstrap -> RUN_ME_FIRST -> explain full diagnostic -> full-system self
 ```
 """
 
+def render_project_intake_and_template_safety(source: dict) -> str:
+    intake = source.get('project_intake_contract', {})
+    surfaces = source.get('active_deferred_surfaces_contract', {})
+    git_safety = source.get('template_origin_safety_contract', {})
+    acceptance = source.get('acceptance_contract', {})
+    isolation = source.get('local_pilot_isolation_contract', {})
+    if not any(section.get('enabled') for section in [intake, surfaces, git_safety, acceptance, isolation]):
+        return ''
+
+    lines = [
+        '## Project Intake, Surface Routing, and Template Safety',
+        '',
+        'This v0.7.2 layer strengthens the handoff from profile setup into a real project. It is inspired by external starter-template patterns, but LaunchRoom remains the authority for gates and safety. These rules do not authorize implementation, publication, deployment, provider/runtime changes, or secret handling.',
+        '',
+    ]
+    if intake.get('enabled'):
+        lines.extend([
+            '### Project intake contract',
+            '',
+            'Collect project intake only after the Profile Factory foundation is ready or explicitly deferred. Do not ask project/product questions before the LaunchRoom setup stages allow it.',
+            '',
+            'Required intake fields:',
+            '',
+        ])
+        for field in intake.get('required_fields', []):
+            lines.append(f'- `{field}`')
+        lines.extend([
+            '',
+            f"Plain-language rule: {intake.get('plain_language_rule', '')}",
+            '',
+        ])
+    if surfaces.get('enabled'):
+        lines.extend([
+            '### Active/deferred surface routing',
+            '',
+            'Before project-profile or first-slice work, classify each product surface as active now, deferred, gated later, not applicable, or unknown requiring a choice.',
+            '',
+            'Required surfaces:',
+            '',
+        ])
+        for surface in surfaces.get('required_surfaces', []):
+            lines.append(f'- `{surface}`')
+        routing = surfaces.get('browser_routing_rule', {})
+        mobile = surfaces.get('mobile_policy', {})
+        lines.extend([
+            '',
+            f"Website/public SEO rule: {routing.get('website_public_seo', '')}",
+            '',
+            f"Webapp/authenticated CSR rule: {routing.get('webapp_authenticated_csr', '')}",
+            '',
+            'Do not build SEO pages inside the authenticated webapp by habit, and do not move the full authenticated app into the website by habit.',
+            '',
+            f"Mobile policy: mobile is `{mobile.get('default_status', 'deferred')}` by default and activates only after an explicit mobile choice; Expo/EAS/App Store/Google Play/IAP/push remain provider/publication gated.",
+            '',
+        ])
+    if git_safety.get('enabled'):
+        modes = ', '.join(git_safety.get('classify_git_work_mode_before_publication', []))
+        lines.extend([
+            '### Template-origin and git publication safety',
+            '',
+            'Before branch, commit, push, PR, release, or deploy work, inspect `git remote -v` and classify the git work mode.',
+            '',
+            f'Git work modes: {modes}',
+            '',
+            f"If origin points to the starter/template and this is a new user project: {git_safety.get('if_origin_points_to_template_and_mode_is_new_project', '')}.",
+            '',
+            'Do not open a PR to the template repository unless the user explicitly grants a template-contribution gate. Do not push without a publication gate. Release/deploy work requires a clean, synced source.',
+            '',
+        ])
+    if acceptance.get('enabled'):
+        lines.extend([
+            '### Acceptance contract',
+            '',
+            'Every non-trivial implementation or local pilot packet must define `primary_signal`, 3-5 `pass_criteria`, `secondary_signals`, `evidence_required`, and `cannot_claim_done_if` before execution.',
+            '',
+            'Cannot claim done if:',
+            '',
+        ])
+        for item in acceptance.get('cannot_claim_done_if', []):
+            lines.append(f'- {item}')
+        lines.append('')
+    if isolation.get('enabled'):
+        lines.extend([
+            '### Local pilot isolation',
+            '',
+            'Local pilots and data-backed tests must use test data only. If a database URL is present, test plans require a `*_test` database name or an explicit override gate, prefer repo-derived/isolated ports for parallel checkouts, and stop instead of repairing when the data target is ambiguous.',
+        ])
+    return '\n'.join(lines)
+
 def render_release_distribution_readiness(source: dict) -> str:
     contract = source.get('release_distribution_readiness_contract', {})
     if not contract.get('enabled'):
@@ -267,7 +356,7 @@ def render_runbook(source: dict) -> str:
 
 Use this file as the executable setup route for a new or default Hermes profile. It is a guided setup wizard, not a passive article. The agent should run the staged setup below, explain each stage in the user's language, and ask for choices before any profile or workspace mutation.
 
-""" + render_full_system_bootstrap(source) + "\n\n" + render_link_bootstrap(source) + """
+""" + render_full_system_bootstrap(source) + "\n\n" + render_link_bootstrap(source) + "\n\n" + render_project_intake_and_template_safety(source) + """
 
 ## Primary setup tool
 
@@ -403,6 +492,9 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 - Prefer the real setup tool `scripts/install_launchroom_profile.ps1` for profile/workspace installation after `-TestOutputRoot` self-test and explicit target approval.
 - Run safe T0 checks without extra ceremony after the user starts the wizard.
 - Do not ask for the project/SaaS brief before Stage 5; offer Full-System Bootstrap setup modes first.
+- Before project profile or first-slice planning, collect project intake, classify active/deferred surfaces, and explain website vs webapp routing in product terms.
+- Keep mobile deferred/gated unless explicitly activated; Expo/EAS/App Store/Google Play/IAP/push are provider/publication gated.
+- Check template-origin git safety before branch/commit/push/PR/release/deploy work.
 - Ask before T1 profile/workspace setup.
 - Require separate gates for software installs, gateway setup, cloud/runtime/provider changes, git publication, and secrets.
 
