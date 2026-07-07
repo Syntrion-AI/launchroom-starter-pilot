@@ -145,6 +145,7 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'local-pilot' / 'FILE_CHANGE_PLAN.md',
             workspace_root / '.hermes' / 'local-pilot' / 'COMMAND_PLAN.md',
             workspace_root / '.hermes' / 'local-pilot' / 'TEST_PLAN.md',
+            workspace_root / '.hermes' / 'local-pilot' / 'EXTERNAL_PRACTICE_INPUTS.md',
             workspace_root / '.hermes' / 'local-pilot' / 'EVIDENCE_LOG.md',
             workspace_root / '.hermes' / 'local-pilot' / 'REVIEW_CHECKLIST.md',
             workspace_root / '.hermes' / 'local-pilot' / 'HANDOFF_SUMMARY.md',
@@ -254,7 +255,7 @@ def run_self_test_if_available() -> None:
         first_slice_readiness = yaml.safe_load((workspace_root / '.hermes' / 'first-slice' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
         first_slice_text = '\n'.join((workspace_root / '.hermes' / 'first-slice' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','IMPLEMENTATION_BRIEF.md','LOCAL_PILOT_PLAN.md','ACCEPTANCE_TESTS.md','USER_DEMO_SCRIPT.md','RISKS_AND_ROLLBACK.md','DECISION_GATE.md'])
         local_pilot_readiness = yaml.safe_load((workspace_root / '.hermes' / 'local-pilot' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
-        local_pilot_text = '\n'.join((workspace_root / '.hermes' / 'local-pilot' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md'])
+        local_pilot_text = '\n'.join((workspace_root / '.hermes' / 'local-pilot' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EXTERNAL_PRACTICE_INPUTS.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md'])
         project_audit_report = yaml.safe_load((workspace_root / '.hermes' / 'project-audit' / 'AUDIT_REPORT.yaml').read_text(encoding='utf-8'))
         project_audit_text = '\n'.join((workspace_root / '.hermes' / 'project-audit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md'])
         agent_readiness_report = yaml.safe_load((workspace_root / '.hermes' / 'agent-readiness' / 'EXECUTION_READINESS_REPORT.yaml').read_text(encoding='utf-8'))
@@ -415,11 +416,11 @@ def run_self_test_if_available() -> None:
             if local_pilot_flags.get(key) is not False:
                 print('FAIL: self-test local pilot action flag not false: ' + key)
                 raise SystemExit(1)
-        for key in ['execution_packet_present','file_change_plan_present','command_plan_present','test_plan_present','evidence_log_present','review_checklist_present','handoff_summary_present','next_execution_gate_present','local_pilot_isolation_present','test_data_only','prod_or_dev_database_forbidden','test_database_suffix_required_when_database_url_present','repo_derived_or_isolated_ports_preferred','ambiguous_data_target_blocks_execution']:
+        for key in ['execution_packet_present','file_change_plan_present','command_plan_present','test_plan_present','external_practice_inputs_present','external_practices_mapped_not_copied','package_manager_detection_required','commands_derived_from_repo_scripts_required','test_level_selection_required','provider_and_mobile_surfaces_gated','evidence_log_present','review_checklist_present','handoff_summary_present','next_execution_gate_present','local_pilot_isolation_present','test_data_only','prod_or_dev_database_forbidden','test_database_suffix_required_when_database_url_present','repo_derived_or_isolated_ports_preferred','ambiguous_data_target_blocks_execution']:
             if local_pilot_flags.get(key) is not True:
                 print('FAIL: self-test local pilot readiness/isolation flag not true: ' + key)
                 raise SystemExit(1)
-        for needle in ['Local Pilot Execution Packet','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','Local pilot isolation','test data only','*_test','repo-derived','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md','Do not fabricate evidence','approve local implementation execution']:
+        for needle in ['Local Pilot Execution Packet','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EXTERNAL_PRACTICE_INPUTS.md','External Practice Inputs','donor/reference','Borrow practices, not authority','external_practices_mapped_not_copied','commands_derived_from_repo_scripts_required','provider_and_mobile_surfaces_gated','Local pilot isolation','test data only','*_test','repo-derived','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md','Do not fabricate evidence','approve local implementation execution']:
             if needle not in local_pilot_text:
                 print('FAIL: self-test local pilot text missing ' + needle)
                 raise SystemExit(1)
@@ -431,6 +432,9 @@ def run_self_test_if_available() -> None:
             raise SystemExit(1)
         if project_audit_report.get('execution_allowed') is not False:
             print('FAIL: self-test project audit execution_allowed is not false')
+            raise SystemExit(1)
+        if project_audit_report.get('source_lineage', {}).get('external_practice_inputs') != '.hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md':
+            print('FAIL: self-test project audit source_lineage missing external_practice_inputs')
             raise SystemExit(1)
         if 'Hermes working artifact / not AIRMIDA authority' not in project_audit_report.get('status_marker',''):
             print('FAIL: self-test project audit missing non-authority marker')
@@ -459,6 +463,12 @@ def run_self_test_if_available() -> None:
             raise SystemExit(1)
         if agent_readiness_report.get('install_gate_required') is not True:
             print('FAIL: self-test agent readiness does not require install gate')
+            raise SystemExit(1)
+        if agent_readiness_report.get('source_lineage', {}).get('stage8_external_practice_inputs') != '.hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md':
+            print('FAIL: self-test agent readiness source_lineage missing stage8_external_practice_inputs')
+            raise SystemExit(1)
+        if agent_readiness_report.get('readiness_checks', {}).get('stage8_external_practice_inputs_consumed') is not True:
+            print('FAIL: self-test agent readiness does not consume Stage 8 external practice inputs')
             raise SystemExit(1)
         if 'Hermes working artifact / not AIRMIDA authority' not in agent_readiness_report.get('status_marker',''):
             print('FAIL: self-test agent readiness missing non-authority marker')
@@ -662,9 +672,14 @@ def main() -> int:
         ('first-slice/READINESS_REPORT.yaml','writes Stage 7 first-slice readiness report'),
         ('first_slice_planning: implementation brief -> local pilot plan -> acceptance tests -> demo script -> decision gate','prints Stage 7 summary'),
         ('stage7_status: $Stage7Status','prints Stage 7 status'),
+        ('local-pilot/EXTERNAL_PRACTICE_INPUTS.md','writes Stage 8 external practice input mapping'),
         ('local-pilot/READINESS_REPORT.yaml','writes Stage 8 local pilot readiness report'),
-        ('local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary','prints Stage 8 summary'),
+        ('local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> external practice inputs -> evidence log -> review checklist -> handoff summary','prints Stage 8 summary'),
         ('stage8_status: $Stage8Status','prints Stage 8 status'),
+        ('external_practice_inputs_present=true','prints Stage 8 external practice input marker'),
+        ('external_practices_mapped_not_copied=true','prints Stage 8 external practice mapping boundary'),
+        ('commands_derived_from_repo_scripts_required=true','prints Stage 8 command-source requirement'),
+        ('provider_and_mobile_surfaces_gated=true','prints Stage 8 provider/mobile gate requirement'),
         ('file_changes_executed: false','records no file changes executed'),
         ('commands_executed: false','records no commands executed'),
         ('tests_executed: false','records no tests executed'),

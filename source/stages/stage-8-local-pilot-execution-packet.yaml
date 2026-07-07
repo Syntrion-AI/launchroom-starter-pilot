@@ -10,7 +10,9 @@ purpose:
     Convert the Stage 7 first-slice planning packet into a bounded local-only
     execution packet that an agent or developer can follow after an explicit
     implementation gate. Stage 8 prepares scoped file-change, command, test,
-    evidence, review, and handoff instructions. It does not execute code changes,
+    external-practice-input, evidence, review, and handoff instructions. It maps
+    external donor/template practices into LaunchRoom gates and checks without
+    transferring authority or copying code. It does not execute code changes,
     install dependencies, connect live channels, deploy, or mutate runtime,
     cloud, provider, gateway, n8n, MCP, database, git publication, or secret
     surfaces.
@@ -39,6 +41,7 @@ stage_boundary:
     - scoped file change plan
     - command plan with allowlist/gates
     - test plan
+    - external practice input mapping
     - evidence log scaffold
     - review checklist
     - handoff summary
@@ -59,6 +62,7 @@ local_pilot_layout:
     - FILE_CHANGE_PLAN.md
     - COMMAND_PLAN.md
     - TEST_PLAN.md
+    - EXTERNAL_PRACTICE_INPUTS.md
     - EVIDENCE_LOG.md
     - REVIEW_CHECKLIST.md
     - HANDOFF_SUMMARY.md
@@ -66,7 +70,7 @@ local_pilot_layout:
 
 packet_model:
   status_marker: Hermes working artifact / not AIRMIDA authority
-  task_flow: first slice plan -> execution packet -> file change plan -> command plan -> test plan -> evidence log -> review checklist -> handoff summary
+  task_flow: first slice plan -> execution packet -> file change plan -> command plan -> test plan -> external practice inputs -> evidence log -> review checklist -> handoff summary
   permission_tier: local_execution_packet_readiness_only
   required_fields:
     - objective
@@ -76,6 +80,7 @@ packet_model:
     - command_allowlist
     - command_gate_notes
     - test_plan
+    - external_practice_inputs
     - evidence_log
     - review_checklist
     - handoff_summary
@@ -89,6 +94,7 @@ outputs:
     - .hermes/local-pilot/FILE_CHANGE_PLAN.md
     - .hermes/local-pilot/COMMAND_PLAN.md
     - .hermes/local-pilot/TEST_PLAN.md
+    - .hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md
     - .hermes/local-pilot/EVIDENCE_LOG.md
     - .hermes/local-pilot/REVIEW_CHECKLIST.md
     - .hermes/local-pilot/HANDOFF_SUMMARY.md
@@ -110,6 +116,12 @@ outputs:
     - file_change_plan_present: true
     - command_plan_present: true
     - test_plan_present: true
+    - external_practice_inputs_present: true
+    - external_practices_mapped_not_copied: true
+    - package_manager_detection_required: true
+    - commands_derived_from_repo_scripts_required: true
+    - test_level_selection_required: true
+    - provider_and_mobile_surfaces_gated: true
     - evidence_log_present: true
     - review_checklist_present: true
     - handoff_summary_present: true
@@ -124,6 +136,7 @@ acceptance_criteria:
   - File change plan separates allowed paths, forbidden paths, and unknown paths requiring user approval.
   - Command plan separates safe read-only commands, gated local commands, and forbidden commands.
   - Test plan maps checks to expected evidence and acceptance criteria.
+  - External practice inputs map useful donor patterns such as repository scripts, test levels, data isolation, provider gates, and mobile gates into LaunchRoom rules without copying code or transferring authority.
   - Evidence log is empty/scaffolded and does not fabricate results.
   - Review checklist and handoff summary are ready for a later executor.
   - All implementation/file-change/command/test/runtime/cloud/provider/gateway/n8n/git/secret actions remain false/gated.
@@ -144,6 +157,26 @@ next_decision:
     - gather missing project evidence
     - prepare communication/runtime gate separately
     - defer implementation
+
+external_practice_inputs:
+  required: true
+  donor_reference_policy: external repositories are donor/reference examples only, not LaunchRoom authority
+  example_sources:
+    - repo: https://github.com/di-sukharev/vibe
+      branches:
+        - master
+        - mobile
+      mapped_patterns:
+        - package manager and workspace script discovery before command planning
+        - test pyramid and test-level selection before execution
+        - local database isolation and repo-derived ports
+        - provider spec generation in scratch with clean release-source checks
+        - mobile store/IAP/push/E2E gates before mobile activation
+  mapping_rules:
+    - external_practices_mapped_not_copied
+    - commands_derived_from_repo_scripts_required
+    - package_manager_detection_required
+    - provider_and_mobile_surfaces_gated
 
 local_pilot_isolation:
   test_data_only: true
