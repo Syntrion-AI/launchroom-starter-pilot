@@ -4,17 +4,44 @@
 
 Use this file as the executable setup route for a new or default Hermes profile. It is a guided setup wizard, not a passive article. The agent should run the staged setup below, explain each stage in the user's language, and ask for choices before any profile or workspace mutation.
 
+## Full-System Bootstrap v0.7
+
+LaunchRoom v0.7 starts as a Full-System Bootstrap, not a tiny profile checklist. The agent must first make the local Hermes execution surface usable for a real project-builder user, then configure the Default profile as an Engineering SaaS Profile / Profile Factory, then create the user's project profile, and only then begin SaaS/project onboarding.
+
+Corrected first-run order:
+
+```text
+Stage 0 -> explain full diagnostic -> Stage 1 full system diagnostic/setup/smoke -> Stage 2 profile inventory -> Stage 3 Engineering SaaS Profile default -> Stage 4 project profile -> Stage 5 project/SaaS onboarding
+```
+
+### Corrected model/provider rule
+
+The active conversation proves the current model path is usable for this session. Do not create an early standalone model/provider blocker just because a target profile has not been created yet. Record the active conversation as current-session evidence. Run target-profile model/provider smoke tests after the target profile exists and has its own configuration.
+
+### Full software and capability matrix
+
+Stage 1 must inspect the full software and capability matrix, not a narrow hand-written shortlist. Missing required project-builder software creates a repair or install plan and the agent proceeds to allowed local setup. Only secrets, OAuth, gateway pairing, cloud/runtime/provider mutation, n8n mutation, production deployment, release/tag/publication, and destructive actions remain separately gated.
+
+### Smoke-test rule
+
+Stage 1 pass is impossible without smoke tests. A diagnostic report alone is not enough. The agent must create a diagnostic report, setup plan, perform allowed local non-secret setup or record a gated blocker, then run smoke tests before profile work is allowed.
+
+### Default profile rule
+
+The Default profile must become an Engineering SaaS Profile / Profile Factory. It must understand Hermes config, profiles, skills, toolsets, memory/context, messaging, MCP readiness, advanced settings, workspace boundaries, gates, smoke tests, and project-profile creation. Machine/profile instructions and skill bodies are written in English.
+
+
 ## Link-to-Operator Bootstrap
 
 If a Hermes agent receives only a GitHub repository or release link, treat this package as a setup package, not a passive article. Prefer the release tag over mutable `main` for installation or acceptance testing. Read `BOOTSTRAP_WITH_HERMES.md`, then this runbook, before scanning the rest of the repository.
 
 First explain the safe boundary in the user's language: local self-test and local profile/workspace setup are separate from runtime, provider, cloud, n8n, gateway, git publication, release, and secret handling.
 
-Ask the first project-state question before real setup: Does the user already have a project? Offer these setup modes with `clarify` choices when available:
+Do not ask the first project/SaaS brief before Stage 5. Before real setup, offer Full-System Bootstrap setup modes with `clarify` choices when available:
 
 - self-test only
-- new blank SaaS workspace
-- existing project workspace
+- Engineering SaaS Profile foundation
+- existing Hermes profile repair
 - advanced/custom
 
 Run the `-TestOutputRoot` self-test before any real setup. Do not ask for secret values in chat, do not copy credential files, and do not mutate runtime/provider/cloud/n8n/gateway surfaces unless a separate gate is granted.
@@ -22,7 +49,7 @@ Run the `-TestOutputRoot` self-test before any real setup. Do not ask for secret
 Required safe order:
 
 ```text
-link -> bootstrap -> RUN_ME_FIRST -> explain boundary -> ask project state -> self-test -> explicit setup gate -> real setup -> verify -> PASS/PARTIAL/BLOCKED summary
+link -> bootstrap -> RUN_ME_FIRST -> explain full diagnostic -> full-system self-test -> explicit setup gate -> allowed local setup/repair -> smoke tests -> Default Engineering SaaS Profile -> project profile -> PASS/PARTIAL/BLOCKED summary
 ```
 
 

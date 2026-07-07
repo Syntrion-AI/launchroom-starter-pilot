@@ -32,8 +32,8 @@ REQUIRED_AGENT_ACTIONS = [
     "identify_setup_package",
     "prefer_release_tag",
     "read_bootstrap_before_runbook",
-    "ask_project_state",
-    "offer_self_test_first",
+    "defer_project_brief_until_stage_5",
+    "offer_full_system_self_test_first",
     "run_self_test_before_real_setup",
     "request_gate_before_mutation",
     "verify_outputs",
@@ -55,7 +55,7 @@ REQUIRED_BOOTSTRAP_MARKERS = [
     "Treat this as a setup package, not a passive article",
     "Prefer the latest stable GitHub Release",
     "Read `RUN_ME_FIRST.md` before other files",
-    "Ask whether the user has an existing project",
+    "Do not ask for the SaaS/project brief before Stage 5",
     "Run `-TestOutputRoot` self-test before real setup",
     "Request explicit approval before real profile/workspace mutation",
     "Never ask for secrets in chat",
@@ -66,10 +66,10 @@ REQUIRED_RUNBOOK_MARKERS = [
     "Link-to-Operator Bootstrap",
     "If a Hermes agent receives only a GitHub repository or release link",
     "prefer the release tag over mutable `main`",
-    "Does the user already have a project?",
+    "Do not ask the first project/SaaS brief before Stage 5",
     "self-test only",
-    "new blank SaaS workspace",
-    "existing project workspace",
+    "engineering SaaS profile foundation",
+    "existing Hermes profile repair",
     "advanced/custom",
     "Run the `-TestOutputRoot` self-test before any real setup",
     "Do not ask for secret values in chat",
@@ -158,7 +158,7 @@ def main() -> int:
         fail("recipe artifact_id mismatch")
     if recipe.get("contract") != "contracts/launchroom-link-bootstrap-contract.json":
         fail("recipe must point to link bootstrap contract")
-    for mode in ["self_test_only", "new_blank_saas_workspace", "existing_project_workspace", "advanced_custom"]:
+    for mode in ["self_test_only", "engineering_saas_profile_foundation", "existing_hermes_profile_repair", "advanced_custom"]:
         if mode not in recipe.get("setup_modes", []):
             fail(f"recipe missing setup mode: {mode}")
     if recipe.get("self_test_before_real_setup") is not True:
@@ -167,6 +167,8 @@ def main() -> int:
         fail("recipe must prefer release tag over mutable main")
     if recipe.get("secrets_in_chat_forbidden") is not True:
         fail("recipe must forbid secrets in chat")
+    if recipe.get("ask_project_or_saas_brief_before_stage_5") is not False:
+        fail("recipe must defer project/SaaS brief until Stage 5")
 
     source = load_json("source/launchroom.starter.v0_5.json")
     recipes = source.get("recipes", [])
@@ -177,9 +179,11 @@ def main() -> int:
         fail("source link_bootstrap_contract must be enabled")
     if bootstrap_contract.get("contract") != "contracts/launchroom-link-bootstrap-contract.json":
         fail("source link_bootstrap_contract must point to contract")
-    for mode in ["self_test_only", "new_blank_saas_workspace", "existing_project_workspace", "advanced_custom"]:
+    for mode in ["self_test_only", "engineering_saas_profile_foundation", "existing_hermes_profile_repair", "advanced_custom"]:
         if mode not in bootstrap_contract.get("setup_modes", []):
             fail(f"source link bootstrap missing setup mode: {mode}")
+    if bootstrap_contract.get("ask_project_or_saas_brief_before_stage_5") is not False:
+        fail("source link bootstrap must defer project/SaaS brief until Stage 5")
 
     print("validate_link_bootstrap: ok")
     return 0

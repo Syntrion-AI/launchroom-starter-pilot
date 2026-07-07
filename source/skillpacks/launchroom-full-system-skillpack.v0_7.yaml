@@ -1,0 +1,61 @@
+artifact_id: LAUNCHROOM_FULL_SYSTEM_SKILLPACK_v0_7
+artifact_type: full_system_skillpack_specification
+status: source_package_contract
+status_marker: public LaunchRoom test package / not AIRMIDA authority
+language: en
+policy:
+  full_curated_skill_package: true
+  not_minimal_chat_only_profile: true
+  skill_bodies_and_machine_instructions_language: en
+  install_with_default_engineering_profile_after_stage_1_smoke: true
+  do_not_mutate_external_runtime_or_credentials: true
+required_new_launchroom_skills_to_author:
+- launchroom-system-diagnostic
+- launchroom-full-software-inventory
+- launchroom-default-engineering-saas-profile
+- launchroom-profile-factory
+- launchroom-profile-state-resolver
+- launchroom-profile-boundary-guard
+- launchroom-profile-smoke-tests
+- launchroom-memory-stack
+- launchroom-context-and-session-search
+- launchroom-messaging-readiness
+- launchroom-mcp-readiness
+- launchroom-provider-readonly-inventory
+- launchroom-cloudroom-readiness
+- launchroom-saas-operator-kit
+- launchroom-first-slice-planning
+- launchroom-local-pilot-execution
+- launchroom-project-plan-integrity
+- launchroom-agent-execution-readiness
+- launchroom-workspace-hygiene
+- launchroom-execution-evidence-binder
+skill_groups:
+  system_bootstrap:
+  - launchroom-system-diagnostic
+  - launchroom-full-software-inventory
+  - launchroom-default-engineering-saas-profile
+  - launchroom-profile-factory
+  - launchroom-profile-state-resolver
+  - launchroom-profile-boundary-guard
+  - launchroom-profile-smoke-tests
+  memory_context_messaging_mcp:
+  - launchroom-memory-stack
+  - launchroom-context-and-session-search
+  - launchroom-messaging-readiness
+  - launchroom-mcp-readiness
+  - launchroom-provider-readonly-inventory
+  - launchroom-cloudroom-readiness
+  project_saas_execution:
+  - launchroom-saas-operator-kit
+  - launchroom-first-slice-planning
+  - launchroom-local-pilot-execution
+  - launchroom-project-plan-integrity
+  - launchroom-agent-execution-readiness
+  - launchroom-workspace-hygiene
+  - launchroom-execution-evidence-binder
+verification:
+  each_skill_has_frontmatter: true
+  each_skill_has_when_to_use_procedure_verification: true
+  profile_distribution_contains_skill_bodies: true
+  installer_self_test_copies_full_system_skillpack: true

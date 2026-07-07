@@ -15,6 +15,15 @@ REQUIRED = [
     'generated/RUN_ME_FIRST.md','generated/SKILLPACKS.md','generated/HERMES_SKILL.md','generated/github-agents/airmida-launchroom.agent.md','source/skillpacks/SANITIZED_ABSTRACTION_BOUNDARY.md','source/skills/launchroom-sanitized-abstractions/launchroom-memory-governance/SKILL.md','source/skills/launchroom-sanitized-abstractions/launchroom-positive-result-capture/SKILL.md','source/skills/launchroom-sanitized-abstractions/launchroom-tool-readiness-smoke/SKILL.md',
     'archive/20260630-rebuild-v0_5/ARCHIVE_MANIFEST.json'
 ]
+REQUIRED.extend([
+    'source/full-system-bootstrap/launchroom-v0.7-stage-map.yaml',
+    'source/full-system-bootstrap/full-system-software-and-capability-inventory.yaml',
+    'source/full-system-bootstrap/default-engineering-saas-profile-instruction-brief.md',
+    'source/skillpacks/launchroom-full-system-skillpack.v0_7.yaml',
+    'contracts/launchroom-full-system-bootstrap-contract.yaml',
+    'source/recipes/full-system-bootstrap.json',
+    'scripts/validate_full_system_bootstrap.py',
+])
 CANONICAL_SCAN_EXTS = {'.md','.py','.ps1','.json','.yaml','.yml'}
 ALLOWED_LOCALIZED_PREFIXES = ('archive/','source/locales/','generated/locale-examples/')
 SECRET_PATTERNS = [

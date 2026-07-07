@@ -132,6 +132,38 @@ def render_first_run_demo(source: dict) -> str:
         lines.append(f"- {action}")
     return '\n'.join(lines)
 
+
+def render_full_system_bootstrap(source: dict) -> str:
+    contract = source.get('full_system_bootstrap_contract', {})
+    if not contract.get('enabled'):
+        return ''
+    return """## Full-System Bootstrap v0.7
+
+LaunchRoom v0.7 starts as a Full-System Bootstrap, not a tiny profile checklist. The agent must first make the local Hermes execution surface usable for a real project-builder user, then configure the Default profile as an Engineering SaaS Profile / Profile Factory, then create the user's project profile, and only then begin SaaS/project onboarding.
+
+Corrected first-run order:
+
+```text
+Stage 0 -> explain full diagnostic -> Stage 1 full system diagnostic/setup/smoke -> Stage 2 profile inventory -> Stage 3 Engineering SaaS Profile default -> Stage 4 project profile -> Stage 5 project/SaaS onboarding
+```
+
+### Corrected model/provider rule
+
+The active conversation proves the current model path is usable for this session. Do not create an early standalone model/provider blocker just because a target profile has not been created yet. Record the active conversation as current-session evidence. Run target-profile model/provider smoke tests after the target profile exists and has its own configuration.
+
+### Full software and capability matrix
+
+Stage 1 must inspect the full software and capability matrix, not a narrow hand-written shortlist. Missing required project-builder software creates a repair or install plan and the agent proceeds to allowed local setup. Only secrets, OAuth, gateway pairing, cloud/runtime/provider mutation, n8n mutation, production deployment, release/tag/publication, and destructive actions remain separately gated.
+
+### Smoke-test rule
+
+Stage 1 pass is impossible without smoke tests. A diagnostic report alone is not enough. The agent must create a diagnostic report, setup plan, perform allowed local non-secret setup or record a gated blocker, then run smoke tests before profile work is allowed.
+
+### Default profile rule
+
+The Default profile must become an Engineering SaaS Profile / Profile Factory. It must understand Hermes config, profiles, skills, toolsets, memory/context, messaging, MCP readiness, advanced settings, workspace boundaries, gates, smoke tests, and project-profile creation. Machine/profile instructions and skill bodies are written in English.
+"""
+
 def render_link_bootstrap(source: dict) -> str:
     contract = source.get('link_bootstrap_contract', {})
     if not contract.get('enabled'):
@@ -139,8 +171,8 @@ def render_link_bootstrap(source: dict) -> str:
     modes = contract.get('setup_modes', [])
     labels = {
         'self_test_only': 'self-test only',
-        'new_blank_saas_workspace': 'new blank SaaS workspace',
-        'existing_project_workspace': 'existing project workspace',
+        'engineering_saas_profile_foundation': 'Engineering SaaS Profile foundation',
+        'existing_hermes_profile_repair': 'existing Hermes profile repair',
         'advanced_custom': 'advanced/custom',
     }
     mode_lines = '\n'.join(f"- {labels.get(mode, mode.replace('_', ' '))}" for mode in modes)
@@ -150,7 +182,7 @@ If a Hermes agent receives only a GitHub repository or release link, treat this 
 
 First explain the safe boundary in the user's language: local self-test and local profile/workspace setup are separate from runtime, provider, cloud, n8n, gateway, git publication, release, and secret handling.
 
-Ask the first project-state question before real setup: Does the user already have a project? Offer these setup modes with `clarify` choices when available:
+Do not ask the first project/SaaS brief before Stage 5. Before real setup, offer Full-System Bootstrap setup modes with `clarify` choices when available:
 
 {mode_lines}
 
@@ -159,7 +191,7 @@ Run the `-TestOutputRoot` self-test before any real setup. Do not ask for secret
 Required safe order:
 
 ```text
-link -> bootstrap -> RUN_ME_FIRST -> explain boundary -> ask project state -> self-test -> explicit setup gate -> real setup -> verify -> PASS/PARTIAL/BLOCKED summary
+link -> bootstrap -> RUN_ME_FIRST -> explain full diagnostic -> full-system self-test -> explicit setup gate -> allowed local setup/repair -> smoke tests -> Default Engineering SaaS Profile -> project profile -> PASS/PARTIAL/BLOCKED summary
 ```
 """
 
@@ -223,7 +255,7 @@ def render_runbook(source: dict) -> str:
 
 Use this file as the executable setup route for a new or default Hermes profile. It is a guided setup wizard, not a passive article. The agent should run the staged setup below, explain each stage in the user's language, and ask for choices before any profile or workspace mutation.
 
-""" + render_link_bootstrap(source) + """
+""" + render_full_system_bootstrap(source) + "\n\n" + render_link_bootstrap(source) + """
 
 ## Primary setup tool
 
@@ -335,7 +367,7 @@ def render_skill() -> str:
     return """---
 name: airmida-launchroom-starter
 description: LaunchRoom Starter setup wizard for turning a new/default Hermes profile into a safe SaaS project operator room.
-version: 0.5.0
+version: 0.7.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -353,10 +385,12 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 - Use `RUN_ME_FIRST.md` as the canonical executable route after bootstrap.
 - Speak with the user in the language they use. Do not force a fixed language set.
 - Keep repository documentation and machine contracts in English.
-- Treat the package as a guided setup wizard, not a read-only audit.
+- Treat the package as a Full-System Bootstrap setup product, not a read-only audit or tiny checklist.
+- Run full system diagnostic/setup/smoke before profile work.
+- Configure Default as an Engineering SaaS Profile / Profile Factory before creating project profiles.
 - Prefer the real setup tool `scripts/install_launchroom_profile.ps1` for profile/workspace installation after `-TestOutputRoot` self-test and explicit target approval.
 - Run safe T0 checks without extra ceremony after the user starts the wizard.
-- Ask whether the user has an existing project and offer self-test only, new blank SaaS workspace, existing project workspace, or advanced/custom setup.
+- Do not ask for the project/SaaS brief before Stage 5; offer Full-System Bootstrap setup modes first.
 - Ask before T1 profile/workspace setup.
 - Require separate gates for software installs, gateway setup, cloud/runtime/provider changes, git publication, and secrets.
 
@@ -401,12 +435,12 @@ You operate the LaunchRoom Starter wizard.
 - Speak in the user's language.
 - Keep canonical repository documentation and contracts in English.
 - Perform T0 safe checks after the wizard starts.
-- Ask whether the user has an existing project and offer self-test only, new blank SaaS workspace, existing project workspace, or advanced/custom setup.
+- Do not ask for the project/SaaS brief before Stage 5; offer Full-System Bootstrap setup modes first.
 - Ask before T1 profile/workspace setup.
 - Recommend installs but do not install without a separate gate.
 - Do not mutate cloud/runtime/provider/publication surfaces without a separate owner gate.
 - Use `scripts/install_launchroom_profile.ps1` or manually create equivalent artifacts before claiming profile setup pass.
-- Build a real setup outcome: profile SOUL, workspace instructions, terminal.cwd, software inventory, capability pack, communication path, and Stage 6 local SaaS operator kit.
+- Build a real setup outcome: full system diagnostic, setup plan, smoke test report, Engineering SaaS Profile default, project profile handoff, workspace instructions, terminal.cwd, software inventory, capability pack, communication path, and Stage 6 local SaaS operator kit.
 """
 
 def expected_files(source: dict) -> dict[Path, str]:

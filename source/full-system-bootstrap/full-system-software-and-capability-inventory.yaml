@@ -1,0 +1,250 @@
+artifact_id: LAUNCHROOM_V0_7_FULL_SYSTEM_SOFTWARE_AND_CAPABILITY_INVENTORY
+artifact_type: software_capability_matrix
+status: source_package_contract
+status_marker: public LaunchRoom test package / not AIRMIDA authority
+language: en
+purpose: Prevent drift from tiny tool lists by giving LaunchRoom a full project-builder software and capability matrix.
+
+policy:
+  not_a_small_checklist: true
+  project_builder_orientation: true
+  missing_required_items_create_repair_or_install_plan: true
+  do_not_defer_required_builder_software_as_noise: true
+  installs_require_local_admin_or_user_gate_when_needed: true
+  secrets_and_external_runtime_actions_require_separate_gate: true
+  active_conversation_model_is_current_session_evidence: true
+  target_profile_model_smoke_required_after_profile_setup: true
+
+status_values:
+  - present
+  - missing
+  - broken
+  - disabled
+  - needs_setup
+  - gated
+  - not_applicable
+  - unknown_requires_probe
+
+software_categories:
+  - id: hermes_runtime
+    name: Hermes runtime, Desktop, CLI, dashboard, profiles
+    required_for_full_bootstrap: true
+    check_examples:
+      - hermes --version
+      - hermes doctor
+      - hermes status --all
+      - hermes config path
+      - hermes config env-path
+      - hermes profile list
+    items:
+      - hermes_cli
+      - hermes_desktop
+      - hermes_dashboard_or_desktop_backend
+      - profile_manager
+      - config_checker
+      - doctor
+      - sessions_store_health
+      - gateway_status_command
+
+  - id: windows_shell_and_path
+    name: Windows shell, PowerShell, Git Bash, PATH, encoding, quoting
+    required_for_full_bootstrap: true
+    items:
+      - powershell_7_or_windows_powershell
+      - git_bash_or_msys_shell
+      - windows_terminal_or_console_host
+      - PATH_user_and_process_alignment
+      - utf8_no_bom_write_support
+      - long_path_and_space_path_handling
+      - quoting_rules_for_powershell_and_bash
+
+  - id: python_toolchain
+    name: Python and Python package workflow
+    required_for_full_bootstrap: true
+    items:
+      - python
+      - uv
+      - pip_or_uv_pip_route
+      - venv_capability
+      - pytest
+      - pyyaml
+      - json_yaml_parse_support
+      - py_compile
+
+  - id: node_frontend_toolchain
+    name: Node.js, frontend, package tooling
+    required_for_project_builder: true
+    items:
+      - node
+      - npm
+      - pnpm
+      - npx
+      - package_json_detection
+      - frontend_build_test_capability
+
+  - id: version_control
+    name: Git and repository tooling
+    required_for_project_builder: true
+    items:
+      - git
+      - git_lfs
+      - github_cli
+      - safe_directory_strategy
+      - repo_status_diff_branch_tag_readiness
+      - gh_auth_presence_only
+
+  - id: file_search_and_dev_utilities
+    name: File, search, archive, JSON/YAML utilities
+    required_for_full_bootstrap: true
+    items:
+      - ripgrep_or_search_equivalent
+      - jq_or_python_json_equivalent
+      - tar_zip_archive_support
+      - checksum_support
+      - text_editor_or_vscode_detection
+      - explorer_open_path_support
+
+  - id: browser_and_computer_use
+    name: Browser automation, visual QA, computer use
+    required_for_builder_or_desktop_operator: true
+    items:
+      - chrome_or_edge
+      - browser_automation_backend
+      - browser_private_url_policy
+      - cua_driver
+      - computer_use_doctor
+      - screenshot_and_ax_capture_readiness
+
+  - id: containers_and_local_services
+    name: Containers and local services
+    required_for_saas_builder: true
+    items:
+      - docker_desktop
+      - docker_engine
+      - docker_compose
+      - wsl2_windows_optional_but_recommended
+      - local_service_ports_inspection
+      - container_start_stop_policy
+
+  - id: database_clients
+    name: Database clients and inspection tools
+    required_for_saas_builder: true
+    items:
+      - sqlite_client_or_python_sqlite
+      - postgres_client_or_docker_psql_wrapper
+      - dbeaver_or_db_gui_optional
+      - migration_command_detection
+      - negative_tenant_test_support
+
+  - id: cloud_provider_clients
+    name: Cloud and provider CLIs, read-only first
+    required_for_cloudroom_agentops_later: true
+    items:
+      - wrangler
+      - cloudflared
+      - hcloud
+      - vercel_cli_if_selected
+      - supabase_cli_if_selected
+      - provider_auth_presence_only
+      - read_only_inventory_scripts
+    gates:
+      - provider_mutation_gate
+      - oauth_or_token_entry_gate
+      - billing_and_deploy_gate
+
+  - id: messaging_gateway
+    name: Messaging and gateway surfaces
+    required_for_operator_product: true
+    items:
+      - hermes_gateway
+      - telegram_adapter_readiness
+      - slack_adapter_readiness
+      - email_adapter_readiness
+      - discord_adapter_readiness
+      - pairing_status_presence_only
+      - home_channel_status_presence_only
+    gates:
+      - token_entry_gate
+      - pairing_gate
+      - send_message_gate
+      - gateway_autostart_gate
+
+  - id: mcp_advanced
+    name: MCP and advanced tool surfaces
+    required_for_advanced_operator: true
+    items:
+      - hermes_mcp_list
+      - mcp_test_per_server
+      - mcp_tool_inventory
+      - read_only_vs_mutating_tool_classification
+      - mcp_reload_policy
+    gates:
+      - mcp_add_or_remove_gate
+      - mutating_mcp_tool_gate
+      - oauth_scope_gate
+
+  - id: memory_context_and_knowledge
+    name: Memory, context, session search, knowledge substrate
+    required_for_full_bootstrap: true
+    items:
+      - built_in_memory
+      - user_profile_memory
+      - session_search
+      - hindsight_if_configured
+      - honcho_optional_candidate
+      - context_compression
+      - memory_write_approval
+      - skill_procedural_memory
+    gates:
+      - memory_write_gate
+      - external_memory_provider_setup_gate
+      - raw_session_import_forbidden_by_default
+
+  - id: media_documents_and_productivity
+    name: Media, documents, design, notes, OCR, presentations
+    required_for_project_builder: true
+    items:
+      - obsidian_vault_path
+      - ocr_pdf_tooling
+      - image_generation_readiness
+      - vision_readiness
+      - tts_stt_readiness
+      - powerpoint_or_document_generation
+      - design_diagram_tools
+    gates:
+      - private_notes_read_gate
+      - cloud_document_oauth_gate
+      - media_publication_gate
+
+  - id: observability_security_and_quality
+    name: Observability, security, validation, quality gates
+    required_for_saas_builder: true
+    items:
+      - secret_scanning
+      - dependency_review_capability
+      - lint_typecheck_test_detection
+      - code_scanning_readiness
+      - langfuse_or_observability_optional
+      - local_logs_readiness
+      - rollback_backup_checkpoint_support
+
+  - id: agentops_and_external_coding_agents
+    name: AgentOps and external coding agents
+    required_for_advanced_project_builder: true
+    items:
+      - codex_cli_or_codex_profile_readiness
+      - claude_code_or_cowork_readiness
+      - opencode_readiness
+      - delegation_capability
+      - kanban_or_task_board_readiness
+      - external_agent_credentials_presence_only
+    gates:
+      - external_agent_config_mutation_gate
+      - autonomous_agent_gate
+      - git_publication_gate
+
+report_outputs:
+  - LAUNCHROOM_SYSTEM_DIAGNOSTIC_REPORT.yaml
+  - LAUNCHROOM_SYSTEM_SETUP_PLAN.yaml
+  - LAUNCHROOM_FULL_SOFTWARE_MATRIX.yaml
+  - LAUNCHROOM_SMOKE_TEST_REPORT.yaml
