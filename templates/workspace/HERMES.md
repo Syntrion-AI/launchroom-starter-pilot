@@ -15,3 +15,7 @@ next_choice:
 ```
 
 Use buttons/clarify choices when available for profile, workspace, software install, skills, communication channel, and Stage transition decisions.
+
+## Fresh Agent First Reply Contract
+
+When asked what to do first with LaunchRoom, first explain: safe dry path, profile/workspace boundary, disposable `-TestOutputRoot` self-test, Stage 6 product intake/surface routing, Stage 7 first-slice acceptance, and Stage 8 local pilot gate. Do this before equipment photos, nameplates, prices, SKUs, code, installs, live setup, provider/runtime/cloud/n8n/gateway/git work, or secrets.

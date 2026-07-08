@@ -42,6 +42,20 @@ If official docs or the installed Hermes schema contradict this profile package,
 - Use interactive buttons/choices when available. Do not bury required choices in prose.
 - If buttons are unavailable, provide a short numbered fallback.
 
+## Fresh Agent First Reply Contract
+
+When the user asks what to do first with LaunchRoom, answer in the LaunchRoom onboarding order before any domain-specific intake:
+
+1. Explain the safe dry path before live setup.
+2. Explain the profile/workspace boundary in plain language.
+3. Offer the disposable `-TestOutputRoot` self-test as the first technical proof step, or ask for permission to run it.
+4. Explain that Stage 6 collects product intake and active/deferred surface routing only after the setup boundary is clear.
+5. Explain that Stage 7 defines the first-slice acceptance before implementation.
+6. Explain that Stage 8 creates a local pilot gate before commands, file changes, tests, dependencies, or runtime work.
+7. State that live setup, toolset enablement, runtime/provider/cloud/n8n/gateway/git publication, implementation, and secrets require separate owner gates.
+
+Do not start with equipment photos, nameplates, prices, SKUs, product code, installs, live setup, provider/runtime/cloud/n8n/gateway/git actions, or secrets before this LaunchRoom boundary is clear.
+
 ## SaaS operating model
 
 Use this chain for serious work:

@@ -311,6 +311,8 @@ if (-not [string]::IsNullOrWhiteSpace($WorkspaceSafetyBlocker)) {
   throw "Refusing unsafe Stage 2 workspace path before profile mutation: $WorkspaceSafetyBlocker ($WorkspaceFull)"
 }
 
+$ProfileExistedBefore = $false
+$EnvExistedBeforeSetup = $false
 if ($IsSelfTest) {
   Write-Host "Running non-mutating self-test mode under: $TestOutputFull"
   $profileRoot = Join-Path $TestOutputFull (Join-Path 'profiles' $ProfileName)
@@ -318,7 +320,8 @@ if ($IsSelfTest) {
   New-Item -ItemType Directory -Force -Path $profileRoot | Out-Null
 } else {
   $profiles = (Capture-Hermes @('profile','list'))
-  if ($profiles -notmatch [regex]::Escape($ProfileName)) {
+  $ProfileExistedBefore = ($profiles -match [regex]::Escape($ProfileName))
+  if (-not $ProfileExistedBefore) {
     Write-Host "Creating Hermes profile: $ProfileName"
     Run-Hermes @('profile','create',$ProfileName,'--no-skills','--description','LaunchRoom Starter profile for local SaaS project setup and governed AI-operator work.')
   } else {
@@ -327,6 +330,18 @@ if ($IsSelfTest) {
 
   $configPath = Capture-Hermes @('-p',$ProfileName,'config','path')
   $profileRoot = Split-Path -Parent $configPath
+  if ($ProfileExistedBefore) {
+    $EnvExistedBeforeSetup = Test-Path (Join-Path $profileRoot '.env')
+  }
+}
+$LaunchRoomRemovedGeneratedEnv = $false
+if ((-not $IsSelfTest) -and (-not $EnvExistedBeforeSetup)) {
+  $generatedEnvPath = Join-Path $profileRoot '.env'
+  if (Test-Path $generatedEnvPath) {
+    Remove-Item -LiteralPath $generatedEnvPath -Force
+    $LaunchRoomRemovedGeneratedEnv = $true
+    Write-Host 'Removed auto-created .env from newly created LaunchRoom profile without reading it; LaunchRoom writes .env.EXAMPLE only.'
+  }
 }
 $WorkspaceSafetyBlocker = Test-UnsafeWorkspacePath $WorkspaceFull
 if (-not [string]::IsNullOrWhiteSpace($WorkspaceSafetyBlocker)) {
@@ -390,6 +405,14 @@ if ($IsSelfTest) {
   Set-HermesConfig 'tool_output.max_bytes' '50000'
   Set-HermesConfig 'tool_output.max_lines' '2000'
   Set-HermesConfig 'tool_output.max_line_length' '2000'
+}
+if ((-not $IsSelfTest) -and (-not $EnvExistedBeforeSetup)) {
+  $generatedEnvPath = Join-Path $profileRoot '.env'
+  if (Test-Path $generatedEnvPath) {
+    Remove-Item -LiteralPath $generatedEnvPath -Force
+    $LaunchRoomRemovedGeneratedEnv = $true
+    Write-Host 'Removed auto-created .env after Hermes config writes without reading it; LaunchRoom writes .env.EXAMPLE only.'
+  }
 }
 
 Write-Host 'Writing LaunchRoom profile-distribution files into target profile'
