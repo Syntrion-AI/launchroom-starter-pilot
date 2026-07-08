@@ -207,6 +207,50 @@ link -> bootstrap -> RUN_ME_FIRST -> explain full diagnostic -> full-system self
 ```
 """
 
+def render_fresh_agent_first_reply(source: dict) -> str:
+    contract = source.get('fresh_agent_first_reply_contract', {})
+    if not contract.get('enabled'):
+        return ''
+    lines = [
+        '## Fresh Agent First Reply Contract',
+        '',
+        'This contract applies when a fresh or separate agent is asked what to do first with LaunchRoom. It prevents ambient profile memory or unrelated domain context from replacing the LaunchRoom onboarding path.',
+        '',
+        '### First answer must include',
+        '',
+    ]
+    for item in contract.get('first_answer_must_include', []):
+        lines.append(f'- {item}')
+    lines.extend([
+        '',
+        '### First answer must not start with',
+        '',
+    ])
+    for item in contract.get('first_answer_must_not_start_with', []):
+        lines.append(f'- {item}')
+    lines.extend([
+        '',
+        '### Plain-language sequence',
+        '',
+    ])
+    for index, item in enumerate(contract.get('plain_language_sequence', []), start=1):
+        lines.append(f'{index}. {item}')
+    lines.extend([
+        '',
+        '### Fresh-agent acceptance markers',
+        '',
+    ])
+    for marker in contract.get('fresh_agent_acceptance_markers', []):
+        lines.append(f'- {marker}')
+    lines.extend([
+        '',
+        '### Behavior failure markers',
+        '',
+    ])
+    for marker in contract.get('behavior_failure_markers', []):
+        lines.append(f'- {marker}')
+    return '\n'.join(lines)
+
 def render_project_intake_and_template_safety(source: dict) -> str:
     intake = source.get('project_intake_contract', {})
     surfaces = source.get('active_deferred_surfaces_contract', {})
@@ -414,7 +458,7 @@ def render_runbook(source: dict) -> str:
 
 Use this file as the executable setup route for a new or default Hermes profile. It is a guided setup wizard, not a passive article. The agent should run the staged setup below, explain each stage in the user's language, and ask for choices before any profile or workspace mutation.
 
-""" + render_full_system_bootstrap(source) + "\n\n" + render_link_bootstrap(source) + "\n\n" + render_project_intake_and_template_safety(source) + """
+""" + render_full_system_bootstrap(source) + "\n\n" + render_link_bootstrap(source) + "\n\n" + render_fresh_agent_first_reply(source) + "\n\n" + render_project_intake_and_template_safety(source) + """
 
 ## Primary setup tool
 
@@ -542,6 +586,7 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 
 - Use `BOOTSTRAP_WITH_HERMES.md` first as the link-to-operator bootstrap when the agent receives a repository or release link.
 - Use `RUN_ME_FIRST.md` as the canonical executable route after bootstrap.
+- On the first answer from a fresh/separate agent, state the safe dry path, profile/workspace boundary, disposable `-TestOutputRoot` self-test, Stage 6 product intake/surface routing, Stage 7 first-slice acceptance, and Stage 8 local pilot gate before any domain-specific intake.
 - Speak with the user in the language they use. Do not force a fixed language set.
 - Keep repository documentation and machine contracts in English.
 - Treat the package as a Full-System Bootstrap setup product, not a read-only audit or tiny checklist.
@@ -550,11 +595,26 @@ Use this skill when the user asks to set up, test, rebuild, or run LaunchRoom St
 - Prefer the real setup tool `scripts/install_launchroom_profile.ps1` for profile/workspace installation after `-TestOutputRoot` self-test and explicit target approval.
 - Run safe T0 checks without extra ceremony after the user starts the wizard.
 - Do not ask for the project/SaaS brief before Stage 5; offer Full-System Bootstrap setup modes first.
+- Do not start with domain-specific item intake such as equipment photos, nameplates, prices, or SKUs before the LaunchRoom boundary, self-test, and Stage 6/7/8 path are clear.
 - Before project profile or first-slice planning, collect project intake, classify active/deferred surfaces, and explain website vs webapp routing in product terms.
 - Keep mobile deferred/gated unless explicitly activated; Expo/EAS/App Store/Google Play/IAP/push are provider/publication gated.
 - Check template-origin git safety before branch/commit/push/PR/release/deploy work.
 - Ask before T1 profile/workspace setup.
 - Require separate gates for software installs, gateway setup, cloud/runtime/provider changes, git publication, and secrets.
+
+## Fresh Agent First Reply Contract
+
+When the user asks what to do first with LaunchRoom, answer with this order before any domain-specific intake:
+
+1. Safe dry path before live setup.
+2. Profile/workspace boundary in plain language.
+3. Disposable `-TestOutputRoot` self-test as the first technical proof step.
+4. Stage 6 product intake and active/deferred surface routing after setup boundary.
+5. Stage 7 first-slice acceptance before implementation.
+6. Stage 8 local pilot gate before commands, file changes, tests, dependencies, or runtime work.
+7. No live setup, toolset enablement, runtime/provider/cloud/n8n/gateway/git publication, implementation, or secrets without separate owner gate.
+
+Do not start with domain-specific item intake such as equipment photos, nameplates, prices, or SKUs before this LaunchRoom boundary and first-run path are clear.
 
 ## Positive setup permissions
 
@@ -594,15 +654,21 @@ You operate the LaunchRoom Starter wizard.
 
 - Use `BOOTSTRAP_WITH_HERMES.md` first when the user provides a repository or release link.
 - Use `RUN_ME_FIRST.md` as the route after bootstrap.
+- First response must explain safe dry path, profile/workspace boundary, disposable `-TestOutputRoot` self-test, Stage 6 product intake/surface routing, Stage 7 first-slice acceptance, and Stage 8 local pilot gate before domain-specific intake.
 - Speak in the user's language.
 - Keep canonical repository documentation and contracts in English.
 - Perform T0 safe checks after the wizard starts.
 - Do not ask for the project/SaaS brief before Stage 5; offer Full-System Bootstrap setup modes first.
+- Do not start with equipment photos/nameplates/prices/SKUs or another domain-specific checklist before the LaunchRoom boundary and first-run path are clear.
 - Ask before T1 profile/workspace setup.
 - Recommend installs but do not install without a separate gate.
 - Do not mutate cloud/runtime/provider/publication surfaces without a separate owner gate.
 - Use `scripts/install_launchroom_profile.ps1` or manually create equivalent artifacts before claiming profile setup pass.
 - Build a real setup outcome: full system diagnostic, setup plan, smoke test report, Engineering SaaS Profile default, project profile handoff, workspace instructions, terminal.cwd, software inventory, capability pack, communication path, and Stage 6 local SaaS operator kit.
+
+## Fresh Agent First Reply Contract
+
+When the user asks what to do first with LaunchRoom, first explain: safe dry path, profile/workspace boundary, disposable `-TestOutputRoot` self-test, Stage 6 product intake/surface routing, Stage 7 first-slice acceptance, and Stage 8 local pilot gate. Do this before equipment photos, nameplates, prices, SKUs, code, installs, live profile setup, provider/runtime/cloud/n8n/gateway/git work, or secrets.
 """
 
 def expected_files(source: dict) -> dict[Path, str]:

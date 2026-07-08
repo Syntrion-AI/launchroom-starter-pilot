@@ -430,6 +430,45 @@ def main() -> int:
     ]:
         require(run, needle, label)
 
+    first_reply = source.get('fresh_agent_first_reply_contract', {})
+    if first_reply.get('enabled') is not True:
+        print('FAIL: fresh agent first reply contract is not enabled')
+        return 1
+    for key in ['first_answer_must_include', 'first_answer_must_not_start_with', 'plain_language_sequence', 'fresh_agent_acceptance_markers', 'behavior_failure_markers']:
+        if not first_reply.get(key):
+            print('FAIL: fresh agent first reply contract missing ' + key)
+            return 1
+    required_first_reply_markers = [
+        'safe dry path',
+        'profile/workspace boundary',
+        '-TestOutputRoot',
+        'Stage 6 product intake',
+        'active/deferred surfaces',
+        'Stage 7 first-slice acceptance',
+        'Stage 8 local pilot gate',
+        'no live setup/runtime/git/provider/gateway/secrets without owner gate',
+    ]
+    acceptance_markers = first_reply.get('fresh_agent_acceptance_markers', [])
+    for marker in required_first_reply_markers:
+        if marker not in acceptance_markers:
+            print('FAIL: fresh agent first reply acceptance marker missing ' + marker)
+            return 1
+    failure_markers = ' '.join(first_reply.get('behavior_failure_markers', [])).lower()
+    for marker in ['equipment-specific', 'omits -testoutputroot', 'omits profile/workspace boundary', 'omits stage 6/7/8']:
+        if marker not in failure_markers:
+            print('FAIL: fresh agent first reply failure marker missing ' + marker)
+            return 1
+    for needle,label in [
+        ('Fresh Agent First Reply Contract','fresh agent first reply runbook section'),
+        ('safe dry path','fresh agent safe dry marker'),
+        ('profile/workspace boundary','fresh agent profile/workspace marker'),
+        ('Stage 6 product intake','fresh agent Stage 6 marker'),
+        ('Stage 7 first-slice acceptance','fresh agent Stage 7 marker'),
+        ('Stage 8 local pilot gate','fresh agent Stage 8 marker'),
+        ('domain-specific item intake such as equipment photos, nameplates, prices, or SKUs','fresh agent no domain-specific intake marker'),
+    ]:
+        require(run, needle, label)
+
 
     release = source.get('release_distribution_readiness_contract', {})
     if release.get('enabled') is not True:

@@ -21,6 +21,10 @@ Use this skill when working inside a LaunchRoom Starter profile.
 - Write canonical project artifacts in English unless they are localized examples/triggers/transcripts.
 - Offer interactive choices when possible.
 
+## Fresh Agent First Reply Contract
+
+When asked what to do first with LaunchRoom, explain the safe dry path, profile/workspace boundary, disposable `-TestOutputRoot` self-test, Stage 6 product intake/surface routing, Stage 7 first-slice acceptance, and Stage 8 local pilot gate before equipment photos, nameplates, prices, SKUs, code, installs, live setup, provider/runtime/cloud/n8n/gateway/git work, or secrets.
+
 ## Pass criteria
 
 Profile setup is not pass unless non-secret config, profile instructions, workspace instructions, and starter capability skills are present or explicitly deferred.

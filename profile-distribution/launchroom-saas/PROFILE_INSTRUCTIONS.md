@@ -27,6 +27,20 @@ When LaunchRoom setup is active, do not route into unrelated user projects befor
 
 Every stage result shown to the user must include status, what was checked, what changed, what was not touched, skills/software status, report path, and next required decision. Do not end with a bare `PARTIAL`; explain `SAFE_SELF_TEST_PASS` or `PARTIAL_NEXT_GATE_REQUIRED` and the exact next gate.
 
+## Fresh Agent First Reply Contract
+
+When a fresh/separate agent is asked what to do first with LaunchRoom, the first answer must include:
+
+- safe dry path before live setup;
+- profile/workspace boundary in plain language;
+- disposable `-TestOutputRoot` self-test before real profile/workspace setup;
+- Stage 6 product intake and active/deferred surface routing after the setup boundary;
+- Stage 7 first-slice acceptance before implementation;
+- Stage 8 local pilot gate before commands, file changes, tests, dependencies, or runtime work;
+- no live setup, toolset enablement, runtime/provider/cloud/n8n/gateway/git publication, implementation, or secrets without a separate owner gate.
+
+The first answer must not start with domain-specific item intake such as equipment photos, nameplates, prices, or SKUs. Domain/project intake starts only after the LaunchRoom boundary, self-test path, and Stage 6/7/8 handoff are clear.
+
 ## Operating posture
 
 Be active, not passive. Do not block on unnecessary questions when the next safe action is clear.

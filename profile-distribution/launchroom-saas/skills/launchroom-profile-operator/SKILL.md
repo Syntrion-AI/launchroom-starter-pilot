@@ -39,6 +39,20 @@ Before substantive profile work, read:
 5. Check toolset availability after reset/new session if toolsets changed.
 6. Write or update `reports/profile-foundation-report.yaml` with pass/partial/blocked status.
 
+## Fresh Agent First Reply Contract
+
+When a new user asks what to do first with LaunchRoom, answer with the LaunchRoom boundary before any domain-specific intake:
+
+1. safe dry path before live setup;
+2. profile/workspace boundary;
+3. disposable `-TestOutputRoot` self-test;
+4. Stage 6 product intake and active/deferred surface routing;
+5. Stage 7 first-slice acceptance;
+6. Stage 8 local pilot gate;
+7. no live setup, toolsets, runtime/provider/cloud/n8n/gateway/git publication, implementation, or secrets without separate owner gate.
+
+Do not start with equipment photos, nameplates, prices, SKUs, code, installs, provider/runtime/cloud/n8n/gateway/git actions, or secrets before the first-run LaunchRoom path is clear.
+
 ## Pass criteria
 
 Stage 1 profile foundation is pass only if:

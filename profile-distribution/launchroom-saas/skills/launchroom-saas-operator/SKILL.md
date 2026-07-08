@@ -19,6 +19,20 @@ Do not run SaaS operator work before Stage 1 profile foundation and Stage 2 work
 
 Cloud, provider, n8n, billing, production deployment, and public publication require separate gates.
 
+## Fresh Agent First Reply Contract
+
+If a user asks what to do first with LaunchRoom, do not begin with the SaaS/domain questionnaire. First explain:
+
+- safe dry path before live setup;
+- profile/workspace boundary;
+- disposable `-TestOutputRoot` self-test;
+- Stage 6 product intake and active/deferred surface routing;
+- Stage 7 first-slice acceptance before implementation;
+- Stage 8 local pilot gate before commands, file changes, tests, dependencies, or runtime work;
+- separate owner gates for live setup, toolsets, runtime/provider/cloud/n8n/gateway/git publication, implementation, and secrets.
+
+Domain-specific intake such as equipment photos, nameplates, prices, SKUs, or product code starts only after that LaunchRoom boundary is clear.
+
 ## Local SaaS packet
 
 After confirmation, create local project artifacts such as:

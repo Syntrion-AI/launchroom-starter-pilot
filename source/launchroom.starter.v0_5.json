@@ -998,6 +998,55 @@
     ],
     "ask_project_or_saas_brief_before_stage_5": false
   },
+  "fresh_agent_first_reply_contract": {
+    "enabled": true,
+    "purpose": "Make the first answer from a fresh or separate agent deterministic when the user asks what to do first with LaunchRoom, even if the active profile has unrelated domain memory.",
+    "trigger_examples": [
+      "I am a new user and want to use LaunchRoom",
+      "What should I do first with LaunchRoom?",
+      "I want to prepare a small catalog or marketplace through LaunchRoom",
+      "A user sent only the LaunchRoom repository or release link"
+    ],
+    "first_answer_must_include": [
+      "safe dry path before live setup",
+      "profile/workspace boundary in plain language",
+      "disposable -TestOutputRoot self-test as the first technical proof step",
+      "Stage 6 product intake and active/deferred surface routing after setup boundary",
+      "Stage 7 first-slice acceptance before implementation",
+      "Stage 8 local pilot gate before commands, file changes, tests, dependencies, or runtime work",
+      "no live profile setup, toolset enablement, runtime/provider/cloud/n8n/gateway/git publication, implementation, or secrets without separate owner gate"
+    ],
+    "first_answer_must_not_start_with": [
+      "domain-specific item intake such as equipment photos, nameplates, prices, or SKUs",
+      "implementation or code generation",
+      "provider, runtime, gateway, n8n, cloud, release, or git publication setup",
+      "secret, token, password, API key, OAuth, or connection-string collection"
+    ],
+    "plain_language_sequence": [
+      "First, explain the safe boundary: dry path is allowed; live setup and external integrations are gated.",
+      "Second, name the profile/workspace boundary: LaunchRoom prepares an isolated profile/workspace and must not overwrite existing protected profiles by habit.",
+      "Third, offer the disposable self-test command with -TestOutputRoot or ask for permission to run it.",
+      "Fourth, explain what generated files prove: PROJECT_INTAKE.md, SURFACE_ROUTING.md, TEMPLATE_ORIGIN_SAFETY.md, Stage 7 first-slice files, and Stage 8 local-pilot files.",
+      "Fifth, only after the setup boundary and gate, collect the user's product idea and classify active/deferred surfaces."
+    ],
+    "fresh_agent_acceptance_markers": [
+      "safe dry path",
+      "profile/workspace boundary",
+      "-TestOutputRoot",
+      "Stage 6 product intake",
+      "active/deferred surfaces",
+      "Stage 7 first-slice acceptance",
+      "Stage 8 local pilot gate",
+      "no live setup/runtime/git/provider/gateway/secrets without owner gate"
+    ],
+    "behavior_failure_markers": [
+      "starts with equipment-specific photo/nameplate/price intake before LaunchRoom boundary",
+      "omits -TestOutputRoot self-test",
+      "omits profile/workspace boundary",
+      "omits Stage 6/7/8 handoff",
+      "asks for secrets or starts live setup"
+    ]
+  },
   "full_system_bootstrap_contract": {
     "enabled": true,
     "contract": "contracts/launchroom-full-system-bootstrap-contract.yaml",

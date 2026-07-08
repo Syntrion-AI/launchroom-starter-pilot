@@ -228,6 +228,28 @@ def run_self_test_if_available() -> None:
         if profile_state.get('ambient_context_policy') != 'evidence_only_until_profile_factory_baseline_complete':
             print('FAIL: profile state missing ambient context policy')
             raise SystemExit(1)
+        forbidden_profile_files = ['.env', 'auth.json', 'state.db', 'credentials.json', 'oauth.json', 'token.json', 'tokens.json']
+        for name in forbidden_profile_files:
+            if (profile_root / name).exists():
+                print('FAIL: self-test created forbidden profile secret/session file: ' + name)
+                raise SystemExit(1)
+        first_reply_targets = {
+            'SOUL.md': profile_root / 'SOUL.md',
+            'PROFILE_INSTRUCTIONS.md': profile_root / 'PROFILE_INSTRUCTIONS.md',
+            'launchroom-profile-operator skill': profile_root / 'skills' / 'launchroom' / 'launchroom-profile-operator' / 'SKILL.md',
+            'launchroom-saas-operator skill': profile_root / 'skills' / 'launchroom' / 'launchroom-saas-operator' / 'SKILL.md',
+            'workspace AGENTS.md': workspace_root / 'AGENTS.md',
+            'workspace HERMES.md': workspace_root / 'HERMES.md',
+        }
+        for label, path in first_reply_targets.items():
+            text = path.read_text(encoding='utf-8')
+            for needle in ['Fresh Agent First Reply Contract', 'safe dry path', 'profile/workspace boundary', '-TestOutputRoot', 'Stage 6', 'Stage 7', 'Stage 8']:
+                if needle.lower() not in text.lower():
+                    print(f'FAIL: {label} missing fresh-agent marker: {needle}')
+                    raise SystemExit(1)
+            if 'equipment photos' not in text and 'domain-specific item intake' not in text:
+                print(f'FAIL: {label} missing equipment/domain-specific intake guard')
+                raise SystemExit(1)
         workspace_readme_text = (workspace_root / 'README.md').read_text(encoding='utf-8')
         if 'saas-operator-kit/' in workspace_readme_text:
             print('FAIL: workspace README still points to stale root saas-operator-kit paths')

@@ -65,6 +65,54 @@ link -> bootstrap -> RUN_ME_FIRST -> explain full diagnostic -> full-system self
 ```
 
 
+## Fresh Agent First Reply Contract
+
+This contract applies when a fresh or separate agent is asked what to do first with LaunchRoom. It prevents ambient profile memory or unrelated domain context from replacing the LaunchRoom onboarding path.
+
+### First answer must include
+
+- safe dry path before live setup
+- profile/workspace boundary in plain language
+- disposable -TestOutputRoot self-test as the first technical proof step
+- Stage 6 product intake and active/deferred surface routing after setup boundary
+- Stage 7 first-slice acceptance before implementation
+- Stage 8 local pilot gate before commands, file changes, tests, dependencies, or runtime work
+- no live profile setup, toolset enablement, runtime/provider/cloud/n8n/gateway/git publication, implementation, or secrets without separate owner gate
+
+### First answer must not start with
+
+- domain-specific item intake such as equipment photos, nameplates, prices, or SKUs
+- implementation or code generation
+- provider, runtime, gateway, n8n, cloud, release, or git publication setup
+- secret, token, password, API key, OAuth, or connection-string collection
+
+### Plain-language sequence
+
+1. First, explain the safe boundary: dry path is allowed; live setup and external integrations are gated.
+2. Second, name the profile/workspace boundary: LaunchRoom prepares an isolated profile/workspace and must not overwrite existing protected profiles by habit.
+3. Third, offer the disposable self-test command with -TestOutputRoot or ask for permission to run it.
+4. Fourth, explain what generated files prove: PROJECT_INTAKE.md, SURFACE_ROUTING.md, TEMPLATE_ORIGIN_SAFETY.md, Stage 7 first-slice files, and Stage 8 local-pilot files.
+5. Fifth, only after the setup boundary and gate, collect the user's product idea and classify active/deferred surfaces.
+
+### Fresh-agent acceptance markers
+
+- safe dry path
+- profile/workspace boundary
+- -TestOutputRoot
+- Stage 6 product intake
+- active/deferred surfaces
+- Stage 7 first-slice acceptance
+- Stage 8 local pilot gate
+- no live setup/runtime/git/provider/gateway/secrets without owner gate
+
+### Behavior failure markers
+
+- starts with equipment-specific photo/nameplate/price intake before LaunchRoom boundary
+- omits -TestOutputRoot self-test
+- omits profile/workspace boundary
+- omits Stage 6/7/8 handoff
+- asks for secrets or starts live setup
+
 ## Project Intake, Surface Routing, and Template Safety
 
 This v0.7.2 layer strengthens the handoff from profile setup into a real project. It is inspired by external starter-template patterns, but LaunchRoom remains the authority for gates and safety. These rules do not authorize implementation, publication, deployment, provider/runtime changes, or secret handling.
