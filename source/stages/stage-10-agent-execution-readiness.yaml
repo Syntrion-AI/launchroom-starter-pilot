@@ -25,6 +25,7 @@ purpose:
 stage_boundary:
   consumes:
     - .hermes/project-audit/AUDIT_REPORT.yaml
+    - .hermes/project-audit/AUDIT_FINDINGS.yaml
     - .hermes/project-audit/PLAN_INTEGRITY_REPORT.md
     - .hermes/project-audit/IMPLEMENTATION_BLOCKERS.md
     - .hermes/project-audit/REPAIR_RECOMMENDATIONS.md
@@ -75,6 +76,7 @@ packet_model:
   permission_tier: readiness_analysis_only
   required_checks:
     - stage_9_audit_consumed
+    - stage9_audit_findings_consumed
     - project_toolchain_requirements_present
     - software_gap_analysis_present
     - hermes_toolset_plan_present
@@ -128,12 +130,14 @@ outputs:
     - agent_pipeline_plan_present: true
     - install_plan_present: true
     - command_readiness_present: true
+    - stage9_audit_findings_consumed: true
 
 acceptance_criteria:
   - Agent readiness folder exists under workspace `.hermes/agent-readiness/`.
   - All required markdown and YAML readiness files exist.
   - EXECUTION_READINESS_REPORT.yaml parses as YAML.
-  - Stage 10 references Stage 9 audit, Stage 8 execution packet, Stage 8 external practice inputs, Stage 3 software reports, and Stage 4 starter capability pack.
+  - Stage 10 references Stage 9 audit report and audit findings, Stage 8 execution packet, Stage 8 external practice inputs, Stage 3 software reports, and Stage 4 starter capability pack.
+  - Stage 9 audit findings inform execution blockers and owner repair decisions before any implementation gate.
   - Toolchain requirements map project work to required software, Hermes toolsets, skills, agent roles, commands, gates, and verification.
   - Software gap analysis separates installed/present, missing/unknown, optional, and gated install candidates.
   - Install plan explains why each software category may be needed, install command shape, verification command, risk, rollback, admin/restart/PATH notes, and owner gate.

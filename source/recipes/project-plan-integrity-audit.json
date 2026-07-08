@@ -7,6 +7,7 @@
     "PLAN_INTEGRITY_REPORT.md",
     "EXPECTED_RESULT_MAP.md",
     "MISSING_FRAGMENTS.md",
+    "AUDIT_FINDINGS.yaml",
     "CONTRADICTION_SCAN.md",
     "STAGE_DRIFT_SCAN.md",
     "ASSUMPTION_REGISTER.md",
@@ -50,6 +51,10 @@
     "plan_integrity_report_present: true",
     "expected_result_map_present: true",
     "missing_fragments_report_present: true",
+    "finding_required_actions_present: true",
+    "finding_severity_status_present: true",
+    "stable_finding_ids_present: true",
+    "audit_findings_present: true",
     "contradiction_scan_present: true",
     "stage_drift_scan_present: true",
     "assumption_register_present: true",
@@ -66,5 +71,40 @@
     "runtime gate bypass detected",
     "unresolved assumptions not accepted by owner"
   ],
-  "stage_9_contract": "source/stages/stage-9-project-plan-integrity-audit.yaml"
+  "stage_9_contract": "source/stages/stage-9-project-plan-integrity-audit.yaml",
+  "audit_findings_schema": {
+    "required_fields": [
+      "finding_id",
+      "category",
+      "severity",
+      "status",
+      "source_artifacts",
+      "summary",
+      "blocks_execution",
+      "blocks_stage10_readiness_analysis",
+      "required_action"
+    ],
+    "required_categories": [
+      "missing_fragment",
+      "contradiction",
+      "stage_drift",
+      "assumption",
+      "gate_bypass",
+      "evidence_gap"
+    ],
+    "required_severities": [
+      "info",
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ],
+    "required_statuses": [
+      "open_until_owner_review",
+      "accepted_for_stage10_only",
+      "resolved",
+      "blocked"
+    ],
+    "stable_id_prefix": "LR-S9-"
+  }
 }

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import json
 import re
 import shutil
 import subprocess
@@ -154,6 +155,7 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'project-audit' / 'PLAN_INTEGRITY_REPORT.md',
             workspace_root / '.hermes' / 'project-audit' / 'EXPECTED_RESULT_MAP.md',
             workspace_root / '.hermes' / 'project-audit' / 'MISSING_FRAGMENTS.md',
+            workspace_root / '.hermes' / 'project-audit' / 'AUDIT_FINDINGS.yaml',
             workspace_root / '.hermes' / 'project-audit' / 'CONTRADICTION_SCAN.md',
             workspace_root / '.hermes' / 'project-audit' / 'STAGE_DRIFT_SCAN.md',
             workspace_root / '.hermes' / 'project-audit' / 'ASSUMPTION_REGISTER.md',
@@ -257,7 +259,9 @@ def run_self_test_if_available() -> None:
         local_pilot_readiness = yaml.safe_load((workspace_root / '.hermes' / 'local-pilot' / 'READINESS_REPORT.yaml').read_text(encoding='utf-8'))
         local_pilot_text = '\n'.join((workspace_root / '.hermes' / 'local-pilot' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','EXECUTION_PACKET.md','FILE_CHANGE_PLAN.md','COMMAND_PLAN.md','TEST_PLAN.md','EXTERNAL_PRACTICE_INPUTS.md','EVIDENCE_LOG.md','REVIEW_CHECKLIST.md','HANDOFF_SUMMARY.md'])
         project_audit_report = yaml.safe_load((workspace_root / '.hermes' / 'project-audit' / 'AUDIT_REPORT.yaml').read_text(encoding='utf-8'))
-        project_audit_text = '\n'.join((workspace_root / '.hermes' / 'project-audit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md'])
+        project_audit_findings = yaml.safe_load((workspace_root / '.hermes' / 'project-audit' / 'AUDIT_FINDINGS.yaml').read_text(encoding='utf-8'))
+        project_audit_recipe = json.loads((ROOT / 'source' / 'recipes' / 'project-plan-integrity-audit.json').read_text(encoding='utf-8'))
+        project_audit_text = '\n'.join((workspace_root / '.hermes' / 'project-audit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','AUDIT_FINDINGS.yaml','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md'])
         agent_readiness_report = yaml.safe_load((workspace_root / '.hermes' / 'agent-readiness' / 'EXECUTION_READINESS_REPORT.yaml').read_text(encoding='utf-8'))
         agent_readiness_text = '\n'.join((workspace_root / '.hermes' / 'agent-readiness' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','EXECUTION_READINESS_REPORT.yaml'])
         hygiene_report = yaml.safe_load((workspace_root / '.hermes' / 'hygiene' / 'HYGIENE_REPORT.yaml').read_text(encoding='utf-8'))
@@ -444,11 +448,88 @@ def run_self_test_if_available() -> None:
             if project_audit_flags.get(key) is not False:
                 print('FAIL: self-test project audit action flag not false: ' + key)
                 raise SystemExit(1)
-        for key in ['plan_integrity_report_present','expected_result_map_present','missing_fragments_report_present','contradiction_scan_present','stage_drift_scan_present','assumption_register_present','implementation_blockers_present','repair_recommendations_present']:
+        for key in ['plan_integrity_report_present','expected_result_map_present','missing_fragments_report_present','audit_findings_present','stable_finding_ids_present','finding_severity_status_present','finding_required_actions_present','contradiction_scan_present','stage_drift_scan_present','assumption_register_present','implementation_blockers_present','repair_recommendations_present']:
             if project_audit_flags.get(key) is not True:
                 print('FAIL: self-test project audit readiness flag not true: ' + key)
                 raise SystemExit(1)
-        for needle in ['Project Plan Integrity','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md','execution_allowed: false','Stage 10 readiness analysis']:
+        if 'AUDIT_FINDINGS.yaml' not in project_audit_report.get('generated_files', []):
+            print('FAIL: self-test project audit generated_files missing AUDIT_FINDINGS.yaml')
+            raise SystemExit(1)
+        if not isinstance(project_audit_findings, dict):
+            print('FAIL: self-test project audit findings is not a YAML mapping')
+            raise SystemExit(1)
+        if project_audit_findings.get('artifact_id') != 'LAUNCHROOM_PROJECT_AUDIT_FINDINGS_v0_1':
+            print('FAIL: self-test project audit findings wrong artifact_id')
+            raise SystemExit(1)
+        if project_audit_findings.get('stage_id') != 'stage_9_project_plan_integrity_audit':
+            print('FAIL: self-test project audit findings wrong stage_id')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in project_audit_findings.get('status_marker', ''):
+            print('FAIL: self-test project audit findings missing non-authority marker')
+            raise SystemExit(1)
+        recipe_schema = project_audit_recipe.get('audit_findings_schema', {})
+        findings_schema = project_audit_findings.get('finding_schema', {})
+        required_finding_fields = recipe_schema.get('required_fields', [])
+        if not required_finding_fields:
+            print('FAIL: self-test project audit recipe findings schema has no required_fields')
+            raise SystemExit(1)
+        if findings_schema.get('stable_id_prefix') != recipe_schema.get('stable_id_prefix') or findings_schema.get('stable_id_prefix') != 'LR-S9-':
+            print('FAIL: self-test project audit findings missing LR-S9- stable id prefix')
+            raise SystemExit(1)
+        for field in required_finding_fields:
+            if field not in findings_schema.get('required_fields', []):
+                print('FAIL: self-test project audit findings schema missing field: ' + field)
+                raise SystemExit(1)
+        allowed_categories = set(recipe_schema.get('required_categories', []))
+        allowed_severities = set(recipe_schema.get('required_severities', []))
+        allowed_statuses = set(recipe_schema.get('required_statuses', []))
+        if not allowed_categories or not allowed_severities or not allowed_statuses:
+            print('FAIL: self-test project audit recipe findings schema missing allowed values')
+            raise SystemExit(1)
+        findings = project_audit_findings.get('findings')
+        if not isinstance(findings, list) or not findings:
+            print('FAIL: self-test project audit findings list missing or empty')
+            raise SystemExit(1)
+        finding_ids = []
+        for finding in findings:
+            if not isinstance(finding, dict):
+                print('FAIL: self-test project audit finding is not a mapping')
+                raise SystemExit(1)
+            for field in required_finding_fields:
+                if field not in finding:
+                    print('FAIL: self-test project audit finding missing field: ' + field)
+                    raise SystemExit(1)
+            finding_id = finding.get('finding_id')
+            if not isinstance(finding_id, str) or not re.fullmatch(r'LR-S9-\d{3}', finding_id):
+                print('FAIL: self-test project audit finding has non-stable id: ' + str(finding_id))
+                raise SystemExit(1)
+            finding_ids.append(finding_id)
+            if finding.get('category') not in allowed_categories:
+                print('FAIL: self-test project audit finding has invalid category: ' + str(finding.get('category')))
+                raise SystemExit(1)
+            if finding.get('severity') not in allowed_severities:
+                print('FAIL: self-test project audit finding has invalid severity: ' + str(finding.get('severity')))
+                raise SystemExit(1)
+            if finding.get('status') not in allowed_statuses:
+                print('FAIL: self-test project audit finding has invalid status: ' + str(finding.get('status')))
+                raise SystemExit(1)
+            if not isinstance(finding.get('source_artifacts'), list) or not finding.get('source_artifacts') or not all(isinstance(item, str) and item for item in finding.get('source_artifacts')):
+                print('FAIL: self-test project audit finding source_artifacts invalid: ' + finding_id)
+                raise SystemExit(1)
+            if not isinstance(finding.get('summary'), str) or not finding.get('summary').strip():
+                print('FAIL: self-test project audit finding summary empty: ' + finding_id)
+                raise SystemExit(1)
+            if not isinstance(finding.get('required_action'), str) or not finding.get('required_action').strip():
+                print('FAIL: self-test project audit finding required_action empty: ' + finding_id)
+                raise SystemExit(1)
+            for boolean_field in ['blocks_execution','blocks_stage10_readiness_analysis']:
+                if not isinstance(finding.get(boolean_field), bool):
+                    print('FAIL: self-test project audit finding boolean field invalid: ' + finding_id + ' ' + boolean_field)
+                    raise SystemExit(1)
+        if len(finding_ids) != len(set(finding_ids)):
+            print('FAIL: self-test project audit finding IDs are duplicated')
+            raise SystemExit(1)
+        for needle in ['Project Plan Integrity','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','AUDIT_FINDINGS.yaml','LAUNCHROOM_PROJECT_AUDIT_FINDINGS_v0_1','finding_id: LR-S9-001','severity: medium','status: open_until_owner_review','required_action','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md','execution_allowed: false','Stage 10 readiness analysis']:
             if needle not in project_audit_text:
                 print('FAIL: self-test project audit text missing ' + needle)
                 raise SystemExit(1)
@@ -467,8 +548,14 @@ def run_self_test_if_available() -> None:
         if agent_readiness_report.get('source_lineage', {}).get('stage8_external_practice_inputs') != '.hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md':
             print('FAIL: self-test agent readiness source_lineage missing stage8_external_practice_inputs')
             raise SystemExit(1)
+        if agent_readiness_report.get('source_lineage', {}).get('stage9_audit_findings') != '.hermes/project-audit/AUDIT_FINDINGS.yaml':
+            print('FAIL: self-test agent readiness source_lineage missing stage9_audit_findings')
+            raise SystemExit(1)
         if agent_readiness_report.get('readiness_checks', {}).get('stage8_external_practice_inputs_consumed') is not True:
             print('FAIL: self-test agent readiness does not consume Stage 8 external practice inputs')
+            raise SystemExit(1)
+        if agent_readiness_report.get('readiness_checks', {}).get('stage9_audit_findings_consumed') is not True:
+            print('FAIL: self-test agent readiness does not consume Stage 9 audit findings')
             raise SystemExit(1)
         if 'Hermes working artifact / not AIRMIDA authority' not in agent_readiness_report.get('status_marker',''):
             print('FAIL: self-test agent readiness missing non-authority marker')
@@ -684,12 +771,17 @@ def main() -> int:
         ('commands_executed: false','records no commands executed'),
         ('tests_executed: false','records no tests executed'),
         ('project-audit/AUDIT_REPORT.yaml','writes Stage 9 project audit report'),
-        ('project_plan_integrity_audit: expected result map -> missing fragments -> contradiction scan -> stage drift scan -> repair recommendations','prints Stage 9 summary'),
+        ('project-audit/AUDIT_FINDINGS.yaml','writes Stage 9 structured audit findings'),
+        ('generated_files:','starts machine-readable generated files sections'),
+        ('project_plan_integrity_audit: expected result map -> missing fragments -> audit findings -> contradiction scan -> stage drift scan -> repair recommendations','prints Stage 9 summary'),
         ('stage9_status: $Stage9Status','prints Stage 9 status'),
+        ('audit_findings_present=true','prints Stage 9 audit findings marker'),
+        ('stable_finding_ids_present=true','prints Stage 9 stable finding IDs marker'),
         ('execution_allowed=false','blocks execution by default'),
         ('agent-readiness/EXECUTION_READINESS_REPORT.yaml','writes Stage 10 agent readiness report'),
         ('agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness','prints Stage 10 summary'),
         ('stage10_status: $Stage10Status','prints Stage 10 status'),
+        ('stage9_audit_findings_consumed: true','records Stage 10 consumption of Stage 9 audit findings'),
         ('execution_ready=false','blocks execution readiness by default'),
         ('toolsets_enabled_without_gate=false','records no unauthorized toolset enablement'),
         ('skills_installed_without_gate=false','records no unauthorized skill install'),

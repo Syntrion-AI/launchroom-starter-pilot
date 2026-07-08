@@ -648,12 +648,14 @@ Purpose: Audit the Stage 6 blueprint, Stage 7 first-slice plan, and Stage 8 loca
 
 Pass requires:
 - project audit folder exists
-- PLAN_INTEGRITY_REPORT.md, EXPECTED_RESULT_MAP.md, MISSING_FRAGMENTS.md, CONTRADICTION_SCAN.md, STAGE_DRIFT_SCAN.md, ASSUMPTION_REGISTER.md, IMPLEMENTATION_BLOCKERS.md, REPAIR_RECOMMENDATIONS.md, and AUDIT_REPORT.yaml exist
+- PLAN_INTEGRITY_REPORT.md, EXPECTED_RESULT_MAP.md, MISSING_FRAGMENTS.md, AUDIT_FINDINGS.yaml, CONTRADICTION_SCAN.md, STAGE_DRIFT_SCAN.md, ASSUMPTION_REGISTER.md, IMPLEMENTATION_BLOCKERS.md, REPAIR_RECOMMENDATIONS.md, and AUDIT_REPORT.yaml exist
 - project-audit/AUDIT_REPORT.yaml parses as YAML
 - Stage 6 blueprint, Stage 7 first-slice plan, and Stage 8 local execution packet are referenced
 - Stage 8 external practice inputs are referenced before auditing execution readiness
 - expected result map separates planned result, user-visible result, acceptance signal, and non-goals
 - missing fragments and assumptions are explicitly recorded
+- AUDIT_FINDINGS.yaml records stable finding IDs, categories, severity, status, source artifacts, execution-block impact, and required repair actions
+- Audit findings are consumed by Stage 10 before agent/toolchain readiness can claim execution readiness
 - contradiction scan checks blueprint vs first slice vs execution packet vs gates
 - stage drift scan checks skipped stages, premature implementation, runtime bypass, and evidence gaps
 - execution_allowed is false by default until blockers are resolved or owner accepts partial audit for Stage 10 only
@@ -668,7 +670,8 @@ Pass requires:
 - agent-readiness folder exists
 - PROJECT_TOOLCHAIN_REQUIREMENTS.md, SOFTWARE_GAP_ANALYSIS.md, HERMES_TOOLSET_PLAN.md, SKILL_LOAD_PLAN.md, AGENT_PIPELINE_PLAN.md, INSTALL_PLAN.md, COMMAND_READINESS.md, and EXECUTION_READINESS_REPORT.yaml exist
 - agent-readiness/EXECUTION_READINESS_REPORT.yaml parses as YAML
-- Stage 9 audit, Stage 8 execution packet, Stage 3 software reports, and Stage 4 starter capability pack are referenced
+- Stage 9 audit report and audit findings, Stage 8 execution packet, Stage 3 software reports, and Stage 4 starter capability pack are referenced
+- Stage 9 audit findings inform execution blockers and owner repair decisions before any implementation gate
 - Stage 8 external practice inputs inform toolchain, command, test, provider, and mobile gate readiness without activating anything automatically
 - toolchain requirements map project work to software, Hermes toolsets, skills, agent roles, commands, gates, and verification
 - software gap analysis separates present, missing/unknown, optional, and gated install candidates
