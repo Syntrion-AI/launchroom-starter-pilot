@@ -170,6 +170,7 @@ def run_self_test_if_available() -> None:
             workspace_root / '.hermes' / 'agent-readiness' / 'AGENT_PIPELINE_PLAN.md',
             workspace_root / '.hermes' / 'agent-readiness' / 'INSTALL_PLAN.md',
             workspace_root / '.hermes' / 'agent-readiness' / 'COMMAND_READINESS.md',
+            workspace_root / '.hermes' / 'agent-readiness' / 'TOOLCHAIN_ACTIVATION_PLAN.yaml',
             workspace_root / '.hermes' / 'agent-readiness' / 'EXECUTION_READINESS_REPORT.yaml',
             workspace_root / '.hermes' / 'hygiene' / 'START_HERE.md',
             workspace_root / '.hermes' / 'hygiene' / 'ARTIFACT_INDEX.md',
@@ -263,7 +264,9 @@ def run_self_test_if_available() -> None:
         project_audit_recipe = json.loads((ROOT / 'source' / 'recipes' / 'project-plan-integrity-audit.json').read_text(encoding='utf-8'))
         project_audit_text = '\n'.join((workspace_root / '.hermes' / 'project-audit' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','AUDIT_FINDINGS.yaml','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md'])
         agent_readiness_report = yaml.safe_load((workspace_root / '.hermes' / 'agent-readiness' / 'EXECUTION_READINESS_REPORT.yaml').read_text(encoding='utf-8'))
-        agent_readiness_text = '\n'.join((workspace_root / '.hermes' / 'agent-readiness' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','EXECUTION_READINESS_REPORT.yaml'])
+        toolchain_activation_plan = yaml.safe_load((workspace_root / '.hermes' / 'agent-readiness' / 'TOOLCHAIN_ACTIVATION_PLAN.yaml').read_text(encoding='utf-8'))
+        agent_readiness_recipe = json.loads((ROOT / 'source' / 'recipes' / 'agent-execution-readiness.json').read_text(encoding='utf-8'))
+        agent_readiness_text = '\n'.join((workspace_root / '.hermes' / 'agent-readiness' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','TOOLCHAIN_ACTIVATION_PLAN.yaml','EXECUTION_READINESS_REPORT.yaml'])
         hygiene_report = yaml.safe_load((workspace_root / '.hermes' / 'hygiene' / 'HYGIENE_REPORT.yaml').read_text(encoding='utf-8'))
         hygiene_text = '\n'.join((workspace_root / '.hermes' / 'hygiene' / name).read_text(encoding='utf-8') for name in ['START_HERE.md','ARTIFACT_INDEX.md','ACTIVE_FILES.md','SUPERSEDED_FILES.md','BROKEN_OR_STALE_FILES.md','DO_NOT_USE.md','CLEANUP_PLAN.md','ARCHIVE_PLAN.md','DELETION_GATE.md','HYGIENE_REPORT.yaml'])
         skill_integration_report = yaml.safe_load((workspace_root / '.hermes' / 'skills' / 'SKILL_INTEGRATION_REPORT.yaml').read_text(encoding='utf-8'))
@@ -561,7 +564,7 @@ def run_self_test_if_available() -> None:
             print('FAIL: self-test agent readiness missing non-authority marker')
             raise SystemExit(1)
         readiness_flags = agent_readiness_report.get('action_flags', {})
-        for key in ['software_installed','toolsets_enabled_without_gate','skills_installed_without_gate','agents_spawned','implementation_executed','file_changes_executed','commands_executed','tests_executed','dependencies_installed','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
+        for key in ['software_installed','toolsets_enabled_without_gate','skills_installed_without_gate','persistent_memory_written_without_gate','agents_spawned','implementation_executed','file_changes_executed','commands_executed','tests_executed','dependencies_installed','runtime_mutation','cloud_mutation','gateway_mutation','n8n_mutation','secrets_read_or_written','git_publication_executed']:
             if readiness_flags.get(key) is not False:
                 print('FAIL: self-test agent readiness action flag not false: ' + key)
                 raise SystemExit(1)
@@ -569,7 +572,94 @@ def run_self_test_if_available() -> None:
             if readiness_flags.get(key) is not True:
                 print('FAIL: self-test agent readiness flag not true: ' + key)
                 raise SystemExit(1)
-        for needle in ['Agent Execution Readiness','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','execution_ready: false','install_gate_required','Toolchain Verifier','Node.js LTS + npm']:
+        if 'TOOLCHAIN_ACTIVATION_PLAN.yaml' not in agent_readiness_report.get('generated_files', []):
+            print('FAIL: self-test agent readiness generated_files missing TOOLCHAIN_ACTIVATION_PLAN.yaml')
+            raise SystemExit(1)
+        if agent_readiness_report.get('source_lineage', {}).get('stage10_activation_plan') != '.hermes/agent-readiness/TOOLCHAIN_ACTIVATION_PLAN.yaml':
+            print('FAIL: self-test agent readiness source_lineage missing stage10_activation_plan')
+            raise SystemExit(1)
+        for key in ['activation_plan_present','toolchain_requirements_structured','software_gap_analysis_structured','toolset_plan_structured','skill_load_plan_structured','agent_pipeline_structured','install_plan_entries_present','command_readiness_matrix_present','readiness_blockers_present']:
+            if agent_readiness_report.get('readiness_checks', {}).get(key) is not True:
+                print('FAIL: self-test agent readiness readiness_checks structured flag not true: ' + key)
+                raise SystemExit(1)
+            if readiness_flags.get(key) is not True:
+                print('FAIL: self-test agent readiness action flag structured marker not true: ' + key)
+                raise SystemExit(1)
+        if not isinstance(toolchain_activation_plan, dict):
+            print('FAIL: self-test toolchain activation plan is not a YAML mapping')
+            raise SystemExit(1)
+        activation_schema = agent_readiness_recipe.get('activation_plan_schema', {})
+        if toolchain_activation_plan.get('artifact_id') != activation_schema.get('artifact_id') or toolchain_activation_plan.get('artifact_id') != 'LAUNCHROOM_TOOLCHAIN_ACTIVATION_PLAN_v0_1':
+            print('FAIL: self-test toolchain activation plan wrong artifact_id')
+            raise SystemExit(1)
+        if toolchain_activation_plan.get('stage_id') != 'stage_10_agent_execution_readiness':
+            print('FAIL: self-test toolchain activation plan wrong stage_id')
+            raise SystemExit(1)
+        if toolchain_activation_plan.get('activation_status') != 'gated_plan_only':
+            print('FAIL: self-test toolchain activation plan wrong activation_status')
+            raise SystemExit(1)
+        if toolchain_activation_plan.get('execution_ready') is not False or toolchain_activation_plan.get('execution_allowed') is not False:
+            print('FAIL: self-test toolchain activation plan does not block execution')
+            raise SystemExit(1)
+        if 'Hermes working artifact / not AIRMIDA authority' not in toolchain_activation_plan.get('status_marker', ''):
+            print('FAIL: self-test toolchain activation plan missing non-authority marker')
+            raise SystemExit(1)
+        activation_lineage = toolchain_activation_plan.get('source_lineage')
+        if not isinstance(activation_lineage, dict) or not activation_lineage:
+            print('FAIL: self-test toolchain activation plan source_lineage missing or not mapping')
+            raise SystemExit(1)
+        for lineage_key in ['stage9_audit','stage9_audit_findings','stage8_execution_packet','stage8_external_practice_inputs','stage3_software_inventory','stage3_install_recommendation','stage4_starter_capability_pack']:
+            if not isinstance(activation_lineage.get(lineage_key), str) or not activation_lineage.get(lineage_key).strip():
+                print('FAIL: self-test toolchain activation plan source_lineage missing key: ' + lineage_key)
+                raise SystemExit(1)
+        for section in activation_schema.get('required_sections', []):
+            if section not in toolchain_activation_plan:
+                print('FAIL: self-test toolchain activation plan missing section: ' + section)
+                raise SystemExit(1)
+        for section in ['toolchain_requirements','toolset_plan','skill_load_plan','agent_pipeline','install_plan_entries','readiness_blockers']:
+            if not isinstance(toolchain_activation_plan.get(section), list) or not toolchain_activation_plan.get(section):
+                print('FAIL: self-test toolchain activation plan section empty or not list: ' + section)
+                raise SystemExit(1)
+        if not isinstance(toolchain_activation_plan.get('software_gap_analysis'), dict):
+            print('FAIL: self-test toolchain activation plan software_gap_analysis not mapping')
+            raise SystemExit(1)
+        command_readiness = toolchain_activation_plan.get('command_readiness')
+        if not isinstance(command_readiness, dict):
+            print('FAIL: self-test toolchain activation plan command_readiness not mapping')
+            raise SystemExit(1)
+        for command_class in activation_schema.get('command_readiness_required_classes', []):
+            if not isinstance(command_readiness.get(command_class), list) or not command_readiness.get(command_class):
+                print('FAIL: self-test toolchain activation plan missing command class: ' + command_class)
+                raise SystemExit(1)
+        forbidden_text = '\n'.join(command_readiness.get('forbidden_without_gate', []))
+        for forbidden_marker in ['secrets','git push','runtime','gateway','n8n']:
+            if forbidden_marker not in forbidden_text.lower():
+                print('FAIL: self-test toolchain activation forbidden commands missing marker: ' + forbidden_marker)
+                raise SystemExit(1)
+        for entry in toolchain_activation_plan.get('install_plan_entries', []):
+            if not isinstance(entry, dict):
+                print('FAIL: self-test toolchain activation install entry is not mapping')
+                raise SystemExit(1)
+            for field in activation_schema.get('install_entry_required_fields', []):
+                if field not in entry:
+                    print('FAIL: self-test toolchain activation install entry missing field: ' + field)
+                    raise SystemExit(1)
+            if not isinstance(entry.get('verification_commands'), list) or not entry.get('verification_commands'):
+                print('FAIL: self-test toolchain activation install entry verification_commands invalid')
+                raise SystemExit(1)
+            if 'gate' not in str(entry.get('gate')).lower():
+                print('FAIL: self-test toolchain activation install entry gate does not require gate')
+                raise SystemExit(1)
+        for blocker in toolchain_activation_plan.get('readiness_blockers', []):
+            if not isinstance(blocker, dict) or not blocker.get('id') or blocker.get('blocks_execution') is not True or not blocker.get('next_action'):
+                print('FAIL: self-test toolchain activation readiness blocker invalid')
+                raise SystemExit(1)
+        activation_flags = toolchain_activation_plan.get('action_flags', {})
+        for key in activation_schema.get('false_action_flags', []):
+            if activation_flags.get(key) is not False:
+                print('FAIL: self-test toolchain activation action flag not false: ' + key)
+                raise SystemExit(1)
+        for needle in ['Agent Execution Readiness','PROJECT_TOOLCHAIN_REQUIREMENTS.md','SOFTWARE_GAP_ANALYSIS.md','HERMES_TOOLSET_PLAN.md','SKILL_LOAD_PLAN.md','AGENT_PIPELINE_PLAN.md','INSTALL_PLAN.md','COMMAND_READINESS.md','TOOLCHAIN_ACTIVATION_PLAN.yaml','toolchain_requirements:','install_plan_entries:','command_readiness:','readiness_blockers:','execution_ready: false','install_gate_required','Toolchain Verifier','Node.js LTS + npm']:
             if needle not in agent_readiness_text:
                 print('FAIL: self-test agent readiness text missing ' + needle)
                 raise SystemExit(1)
@@ -779,12 +869,22 @@ def main() -> int:
         ('stable_finding_ids_present=true','prints Stage 9 stable finding IDs marker'),
         ('execution_allowed=false','blocks execution by default'),
         ('agent-readiness/EXECUTION_READINESS_REPORT.yaml','writes Stage 10 agent readiness report'),
-        ('agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness','prints Stage 10 summary'),
+        ('agent-readiness/TOOLCHAIN_ACTIVATION_PLAN.yaml','writes Stage 10 structured activation plan'),
+        ('artifact_id: LAUNCHROOM_TOOLCHAIN_ACTIVATION_PLAN_v0_1','writes Stage 10 activation plan artifact id'),
+        ('toolchain_requirements:','writes structured Stage 10 toolchain requirements'),
+        ('install_plan_entries:','writes structured Stage 10 install plan entries'),
+        ('command_readiness:','writes structured Stage 10 command readiness matrix'),
+        ('readiness_blockers:','writes structured Stage 10 readiness blockers'),
+        ('agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness -> structured activation plan','prints Stage 10 summary'),
         ('stage10_status: $Stage10Status','prints Stage 10 status'),
         ('stage9_audit_findings_consumed: true','records Stage 10 consumption of Stage 9 audit findings'),
+        ('activation_plan_present: true','records Stage 10 activation plan presence'),
+        ('install_plan_entries_present: true','records Stage 10 install entries presence'),
+        ('command_readiness_matrix_present: true','records Stage 10 command readiness matrix presence'),
         ('execution_ready=false','blocks execution readiness by default'),
         ('toolsets_enabled_without_gate=false','records no unauthorized toolset enablement'),
         ('skills_installed_without_gate=false','records no unauthorized skill install'),
+        ('persistent_memory_written_without_gate: false','records no persistent memory write without gate'),
         ('agents_spawned=false','records no agent spawning'),
         ('hygiene/HYGIENE_REPORT.yaml','writes Stage 11 hygiene report'),
         ('workspace_hygiene: artifact index -> active files -> superseded files -> broken/stale files -> do-not-use -> cleanup plan -> archive plan -> deletion gate','prints Stage 11 summary'),

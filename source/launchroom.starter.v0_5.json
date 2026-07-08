@@ -212,9 +212,11 @@
       "purpose": "Map the Stage 9 project audit to concrete software, Hermes toolsets, skills, agent pipeline, install gates, command readiness, and execution blockers without installing, enabling, spawning, executing implementation, or mutating runtime/cloud/provider/gateway/n8n surfaces.",
       "pass_requires": [
         "agent-readiness folder exists",
-        "PROJECT_TOOLCHAIN_REQUIREMENTS.md, SOFTWARE_GAP_ANALYSIS.md, HERMES_TOOLSET_PLAN.md, SKILL_LOAD_PLAN.md, AGENT_PIPELINE_PLAN.md, INSTALL_PLAN.md, COMMAND_READINESS.md, and EXECUTION_READINESS_REPORT.yaml exist",
+        "PROJECT_TOOLCHAIN_REQUIREMENTS.md, SOFTWARE_GAP_ANALYSIS.md, HERMES_TOOLSET_PLAN.md, SKILL_LOAD_PLAN.md, AGENT_PIPELINE_PLAN.md, INSTALL_PLAN.md, COMMAND_READINESS.md, TOOLCHAIN_ACTIVATION_PLAN.yaml, and EXECUTION_READINESS_REPORT.yaml exist",
         "agent-readiness/EXECUTION_READINESS_REPORT.yaml parses as YAML",
         "Stage 9 audit report and audit findings, Stage 8 execution packet, Stage 3 software reports, and Stage 4 starter capability pack are referenced",
+        "activation plan validation fails if install entries omit why/command shape/verification/risk/rollback/gate or command classes omit read-only, gated local, install, and forbidden groups",
+        "TOOLCHAIN_ACTIVATION_PLAN.yaml provides machine-readable gated activation plan sections for toolchain requirements, software gaps, Hermes toolsets, skills, agent pipeline, install entries, command readiness classes, and blockers",
         "Stage 9 audit findings inform execution blockers and owner repair decisions before any implementation gate",
         "Stage 8 external practice inputs inform toolchain, command, test, provider, and mobile gate readiness without activating anything automatically",
         "toolchain requirements map project work to software, Hermes toolsets, skills, agent roles, commands, gates, and verification",
