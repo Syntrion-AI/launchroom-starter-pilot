@@ -158,6 +158,7 @@
         "PLAN_INTEGRITY_REPORT.md",
         "EXPECTED_RESULT_MAP.md",
         "MISSING_FRAGMENTS.md",
+        "AUDIT_FINDINGS.yaml",
         "CONTRADICTION_SCAN.md",
         "STAGE_DRIFT_SCAN.md",
         "ASSUMPTION_REGISTER.md",

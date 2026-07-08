@@ -2940,12 +2940,13 @@ $projectAuditStartLines = @(
   '1. PLAN_INTEGRITY_REPORT.md — overall planning quality and execution gate status.',
   '2. EXPECTED_RESULT_MAP.md — what was planned, expected, user-visible, and explicitly excluded.',
   '3. MISSING_FRAGMENTS.md — what is absent, vague, or still placeholder-driven.',
-  '4. CONTRADICTION_SCAN.md — blueprint vs first slice vs execution packet vs gates.',
-  '5. STAGE_DRIFT_SCAN.md — skipped stages, premature implementation, runtime bypass, evidence gaps.',
-  '6. ASSUMPTION_REGISTER.md — assumptions that must not be hidden inside execution.',
-  '7. IMPLEMENTATION_BLOCKERS.md — blockers that must be resolved before execution.',
-  '8. REPAIR_RECOMMENDATIONS.md — safe next repairs.',
-  '9. AUDIT_REPORT.yaml — machine-readable audit status.',
+  '4. AUDIT_FINDINGS.yaml — machine-readable finding IDs, severity, status, source artifacts, and required repair actions.',
+  '5. CONTRADICTION_SCAN.md — blueprint vs first slice vs execution packet vs gates.',
+  '6. STAGE_DRIFT_SCAN.md — skipped stages, premature implementation, runtime bypass, evidence gaps.',
+  '7. ASSUMPTION_REGISTER.md — assumptions that must not be hidden inside execution.',
+  '8. IMPLEMENTATION_BLOCKERS.md — blockers that must be resolved before execution.',
+  '9. REPAIR_RECOMMENDATIONS.md — safe next repairs.',
+  '10. AUDIT_REPORT.yaml — machine-readable audit status.',
   '',
   '## Rule',
   '',
@@ -3039,6 +3040,59 @@ if ($missingProjectAuditEvidence.Count -gt 0) {
   foreach ($missingEvidence in $missingProjectAuditEvidence) { $missingFragmentsLines += "- $missingEvidence" }
 }
 Write-Utf8NoBom (Join-Path $projectAuditRoot 'MISSING_FRAGMENTS.md') ($missingFragmentsLines -join "`n")
+
+$auditFindingsLines = @(
+  'artifact_id: LAUNCHROOM_PROJECT_AUDIT_FINDINGS_v0_1',
+  'stage_id: stage_9_project_plan_integrity_audit',
+  'status_marker: Hermes working artifact / not AIRMIDA authority',
+  'finding_schema:',
+  '  stable_id_prefix: LR-S9-',
+  '  required_fields:',
+  '    - finding_id',
+  '    - category',
+  '    - severity',
+  '    - status',
+  '    - source_artifacts',
+  '    - summary',
+  '    - blocks_execution',
+  '    - blocks_stage10_readiness_analysis',
+  '    - required_action',
+  'findings:',
+  '  - finding_id: LR-S9-001',
+  '    category: missing_fragment',
+  '    severity: medium',
+  '    status: open_until_owner_review',
+  '    source_artifacts:',
+  '      - .hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md',
+  '      - .hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md',
+  '    summary: Project-specific workflow/output may still be placeholder-backed.',
+  '    blocks_execution: true',
+  '    blocks_stage10_readiness_analysis: false',
+  '    required_action: Owner confirms one workflow and one user-visible output or accepts Stage 10 readiness analysis only.',
+  '  - finding_id: LR-S9-002',
+  '    category: evidence_gap',
+  '    severity: medium',
+  '    status: open_until_owner_review',
+  '    source_artifacts:',
+  '      - .hermes/first-slice/ACCEPTANCE_TESTS.md',
+  '      - .hermes/local-pilot/TEST_PLAN.md',
+  '    summary: Acceptance tests and local-pilot tests must map to the same visible result before implementation.',
+  '    blocks_execution: true',
+  '    blocks_stage10_readiness_analysis: false',
+  '    required_action: Map primary signal, pass criteria, secondary signals, and evidence to the selected output.',
+  '  - finding_id: LR-S9-003',
+  '    category: assumption',
+  '    severity: low',
+  '    status: accepted_for_stage10_only',
+  '    source_artifacts:',
+  '      - .hermes/local-pilot/COMMAND_PLAN.md',
+  '      - .hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md',
+  '    summary: Concrete project commands are deferred to Stage 10 toolchain readiness.',
+  '    blocks_execution: true',
+  '    blocks_stage10_readiness_analysis: false',
+  '    required_action: Stage 10 must derive commands from inspected repo scripts or explicit owner-approved commands.'
+)
+Write-Utf8NoBom (Join-Path $projectAuditRoot 'AUDIT_FINDINGS.yaml') ($auditFindingsLines -join "`n")
 
 $contradictionLines = @(
   '# Contradiction Scan',
@@ -3161,6 +3215,7 @@ $projectAuditReportLines = @(
   '  - PLAN_INTEGRITY_REPORT.md',
   '  - EXPECTED_RESULT_MAP.md',
   '  - MISSING_FRAGMENTS.md',
+  '  - AUDIT_FINDINGS.yaml',
   '  - CONTRADICTION_SCAN.md',
   '  - STAGE_DRIFT_SCAN.md',
   '  - ASSUMPTION_REGISTER.md',
@@ -3186,6 +3241,8 @@ $projectAuditReportLines += @(
   '  no_skipped_stage_detected: true',
   '  no_runtime_gate_bypass_detected: true',
   '  unresolved_assumptions_recorded: true',
+  '  audit_findings_have_stable_ids: true',
+  '  finding_severity_status_and_required_action_present: true',
   '  repair_recommendations_present: true',
   'action_flags:',
   '  implementation_executed: false',
@@ -3202,6 +3259,10 @@ $projectAuditReportLines += @(
   '  plan_integrity_report_present: true',
   '  expected_result_map_present: true',
   '  missing_fragments_report_present: true',
+  '  audit_findings_present: true',
+  '  stable_finding_ids_present: true',
+  '  finding_severity_status_present: true',
+  '  finding_required_actions_present: true',
   '  contradiction_scan_present: true',
   '  stage_drift_scan_present: true',
   '  assumption_register_present: true',
@@ -3222,6 +3283,7 @@ New-Item -ItemType Directory -Force -Path $agentReadinessRoot | Out-Null
 $Stage10Status = 'partial'
 $agentReadinessEvidenceFiles = @(
   '.hermes/project-audit/AUDIT_REPORT.yaml',
+  '.hermes/project-audit/AUDIT_FINDINGS.yaml',
   '.hermes/project-audit/PLAN_INTEGRITY_REPORT.md',
   '.hermes/project-audit/IMPLEMENTATION_BLOCKERS.md',
   '.hermes/project-audit/REPAIR_RECOMMENDATIONS.md',
@@ -3273,6 +3335,7 @@ $toolchainRequirementsLines = @(
   '## Source lineage',
   '',
   '- .hermes/project-audit/AUDIT_REPORT.yaml',
+  '- .hermes/project-audit/AUDIT_FINDINGS.yaml',
   '- .hermes/local-pilot/EXECUTION_PACKET.md',
   '- .hermes/local-pilot/FILE_CHANGE_PLAN.md',
   '- .hermes/local-pilot/COMMAND_PLAN.md',
@@ -3496,6 +3559,7 @@ $executionReadinessLines = @(
   "agent_readiness_root: $(ConvertTo-YamlSingleQuotedScalar $agentReadinessRoot)",
   'source_lineage:',
   '  stage9_audit: .hermes/project-audit/AUDIT_REPORT.yaml',
+  '  stage9_audit_findings: .hermes/project-audit/AUDIT_FINDINGS.yaml',
   '  stage8_execution_packet: .hermes/local-pilot/EXECUTION_PACKET.md',
   '  stage8_command_plan: .hermes/local-pilot/COMMAND_PLAN.md',
   '  stage8_test_plan: .hermes/local-pilot/TEST_PLAN.md',
@@ -3531,6 +3595,7 @@ $executionReadinessLines += @(
   '  install_plan_present: true',
   '  command_readiness_present: true',
   '  stage8_external_practice_inputs_consumed: true',
+  '  stage9_audit_findings_consumed: true',
   '  execution_ready_false_until_owner_gate: true',
   'action_flags:',
   '  software_installed: false',
@@ -4625,8 +4690,8 @@ Write-Host "first_slice_planning: implementation brief -> local pilot plan -> ac
 Write-Host "stage7_status: $Stage7Status; acceptance_contract_present=true; primary_signal_present=true; pass_criteria_present=true; secondary_signals_present=true; evidence_required_present=true; cannot_claim_done_if_present=true; implementation_executed=false; dependencies_installed=false; runtime_mutation=false; gateway_mutation=false"
 Write-Host "local_pilot_execution_packet: execution packet -> file change plan -> command plan -> test plan -> external practice inputs -> evidence log -> review checklist -> handoff summary"
 Write-Host "stage8_status: $Stage8Status; external_practice_inputs_present=true; external_practices_mapped_not_copied=true; package_manager_detection_required=true; commands_derived_from_repo_scripts_required=true; test_level_selection_required=true; provider_and_mobile_surfaces_gated=true; local_pilot_isolation_present=true; test_data_only=true; prod_or_dev_database_forbidden=true; test_database_suffix_required_when_database_url_present=true; repo_derived_or_isolated_ports_preferred=true; ambiguous_data_target_blocks_execution=true; implementation_executed=false; file_changes_executed: false; commands_executed: false; tests_executed: false; runtime_mutation=false; gateway_mutation=false"
-Write-Host "project_plan_integrity_audit: expected result map -> missing fragments -> contradiction scan -> stage drift scan -> repair recommendations"
-Write-Host "stage9_status: $Stage9Status; execution_allowed=false; implementation_executed=false; commands_executed=false; tests_executed=false; runtime_mutation=false"
+Write-Host "project_plan_integrity_audit: expected result map -> missing fragments -> audit findings -> contradiction scan -> stage drift scan -> repair recommendations"
+Write-Host "stage9_status: $Stage9Status; audit_findings_present=true; stable_finding_ids_present=true; execution_allowed=false; implementation_executed=false; commands_executed=false; tests_executed=false; runtime_mutation=false"
 Write-Host "agent_execution_readiness: toolchain requirements -> software gap analysis -> Hermes toolset plan -> skill load plan -> agent pipeline plan -> install plan -> command readiness"
 Write-Host "stage10_status: $Stage10Status; execution_ready=false; execution_allowed=false; install_gate_required=true; toolsets_enabled_without_gate=false; skills_installed_without_gate=false; agents_spawned=false"
 Write-Host "workspace_hygiene: artifact index -> active files -> superseded files -> broken/stale files -> do-not-use -> cleanup plan -> archive plan -> deletion gate"

@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIRED_FILES = ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md','AUDIT_REPORT.yaml']
-REQUIRED_FLAGS = ['audit_status: partial','execution_allowed: false','implementation_executed: false','file_changes_executed: false','commands_executed: false','tests_executed: false','dependencies_installed: false','runtime_mutation: false','cloud_mutation: false','gateway_mutation: false','n8n_mutation: false','secrets_read_or_written: false','git_publication_executed: false','plan_integrity_report_present: true','expected_result_map_present: true','missing_fragments_report_present: true','contradiction_scan_present: true','stage_drift_scan_present: true','assumption_register_present: true','implementation_blockers_present: true','repair_recommendations_present: true']
+REQUIRED_FILES = ['START_HERE.md','PLAN_INTEGRITY_REPORT.md','EXPECTED_RESULT_MAP.md','MISSING_FRAGMENTS.md','AUDIT_FINDINGS.yaml','CONTRADICTION_SCAN.md','STAGE_DRIFT_SCAN.md','ASSUMPTION_REGISTER.md','IMPLEMENTATION_BLOCKERS.md','REPAIR_RECOMMENDATIONS.md','AUDIT_REPORT.yaml']
+REQUIRED_FLAGS = ['audit_status: partial', 'execution_allowed: false', 'implementation_executed: false', 'file_changes_executed: false', 'commands_executed: false', 'tests_executed: false', 'dependencies_installed: false', 'runtime_mutation: false', 'cloud_mutation: false', 'gateway_mutation: false', 'n8n_mutation: false', 'secrets_read_or_written: false', 'git_publication_executed: false', 'plan_integrity_report_present: true', 'expected_result_map_present: true', 'missing_fragments_report_present: true', 'audit_findings_present: true', 'stable_finding_ids_present: true', 'finding_severity_status_present: true', 'finding_required_actions_present: true', 'contradiction_scan_present: true', 'stage_drift_scan_present: true', 'assumption_register_present: true', 'implementation_blockers_present: true', 'repair_recommendations_present: true']
 REQUIRED_CONSUMES = ['.hermes/operator-kit/guided-session/PROJECT_BLUEPRINT.md','.hermes/operator-kit/guided-session/FIRST_SLICE_PACKET.md','.hermes/operator-kit/guided-session/IMPLEMENTATION_ROADMAP.md','.hermes/first-slice/IMPLEMENTATION_BRIEF.md','.hermes/first-slice/LOCAL_PILOT_PLAN.md','.hermes/first-slice/ACCEPTANCE_TESTS.md','.hermes/first-slice/USER_DEMO_SCRIPT.md','.hermes/first-slice/RISKS_AND_ROLLBACK.md','.hermes/first-slice/DECISION_GATE.md','.hermes/local-pilot/EXECUTION_PACKET.md','.hermes/local-pilot/FILE_CHANGE_PLAN.md','.hermes/local-pilot/COMMAND_PLAN.md','.hermes/local-pilot/TEST_PLAN.md','.hermes/local-pilot/EXTERNAL_PRACTICE_INPUTS.md','.hermes/local-pilot/READINESS_REPORT.yaml']
 
 def main() -> int:
@@ -56,6 +56,19 @@ def main() -> int:
     ]:
         if marker not in contract:
             print('FAIL: Stage 9 contract marker missing: ' + marker)
+            return 1
+    schema = recipe.get('audit_findings_schema', {})
+    required_schema_fields = ['finding_id','category','severity','status','source_artifacts','summary','blocks_execution','blocks_stage10_readiness_analysis','required_action']
+    for field in required_schema_fields:
+        if field not in schema.get('required_fields', []):
+            print('FAIL: audit findings schema missing required field: ' + field)
+            return 1
+    if schema.get('stable_id_prefix') != 'LR-S9-':
+        print('FAIL: audit findings schema missing LR-S9- stable id prefix')
+        return 1
+    for key in ['required_categories','required_severities','required_statuses']:
+        if not schema.get(key):
+            print('FAIL: audit findings schema missing ' + key)
             return 1
     print('validate_project_plan_integrity_audit: ok')
     return 0

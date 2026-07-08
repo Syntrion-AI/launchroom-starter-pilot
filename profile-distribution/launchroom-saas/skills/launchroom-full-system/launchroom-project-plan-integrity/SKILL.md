@@ -1,7 +1,7 @@
 ---
 name: launchroom-project-plan-integrity
-description: Use when LaunchRoom Full-System Bootstrap v0.7 needs project plan integrity as a public LaunchRoom skill for a real project-builder setup.
-version: 0.7.0
+description: Use when LaunchRoom Full-System Bootstrap v0.9 needs project plan integrity as a public LaunchRoom skill for a real project-builder setup.
+version: 0.9.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -13,7 +13,7 @@ metadata:
 
 # Project Plan Integrity
 
-This is a public LaunchRoom skill for the Full-System Bootstrap v0.7 package. It is written in English as machine-readable operator instruction, while the agent still speaks to the user in the user's language.
+This is a public LaunchRoom skill for the Full-System Bootstrap v0.9 package. It is written in English as machine-readable operator instruction, while the agent still speaks to the user in the user's language.
 
 ## When to Use
 
@@ -23,10 +23,11 @@ Use this skill during LaunchRoom setup when the current stage needs project plan
 
 1. Identify the current LaunchRoom stage and required evidence.
 2. Inspect the relevant local, non-secret surfaces first.
-3. Produce or update the stage artifact required by the v0.7 contract.
-4. Repair or configure allowed local, non-secret settings when the setup gate already permits it.
-5. Stop before secrets, OAuth, gateway pairing, cloud/runtime, n8n, production, release, or destructive actions unless a separate explicit gate exists.
-6. Run or record the relevant smoke test before reporting pass.
+3. Produce or update the Stage 9 project-audit artifacts required by the current contract, including `AUDIT_FINDINGS.yaml` when available.
+4. Record each audit finding with a stable ID, category, severity, status, source artifacts, execution-block impact, and required action.
+5. Repair or configure allowed local, non-secret settings when the setup gate already permits it.
+6. Stop before secrets, OAuth, gateway pairing, cloud/runtime, n8n, production, release, or destructive actions unless a separate explicit gate exists.
+7. Run or record the relevant smoke test before reporting pass.
 
 ## Boundaries
 
@@ -39,7 +40,8 @@ Use this skill during LaunchRoom setup when the current stage needs project plan
 
 A pass requires current evidence, not intention:
 
-- required artifact exists and parses when structured;
+- required artifacts exist and parse when structured;
+- `AUDIT_FINDINGS.yaml` uses stable `LR-S9-*` finding IDs when present;
 - blocked or gated items are explicit;
 - no secret-like values are present;
 - smoke test or equivalent verification is recorded;

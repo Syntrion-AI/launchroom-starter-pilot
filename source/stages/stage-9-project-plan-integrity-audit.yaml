@@ -42,6 +42,7 @@ stage_boundary:
     - plan integrity report
     - expected result map
     - missing fragments report
+    - audit findings register with stable IDs
     - contradiction scan
     - stage drift scan
     - assumption register
@@ -61,6 +62,7 @@ audit_layout:
     - PLAN_INTEGRITY_REPORT.md
     - EXPECTED_RESULT_MAP.md
     - MISSING_FRAGMENTS.md
+    - AUDIT_FINDINGS.yaml
     - CONTRADICTION_SCAN.md
     - STAGE_DRIFT_SCAN.md
     - ASSUMPTION_REGISTER.md
@@ -83,6 +85,8 @@ packet_model:
     - no_skipped_stage_detected
     - no_runtime_gate_bypass_detected
     - unresolved_assumptions_recorded
+    - audit_findings_have_stable_ids
+    - finding_severity_status_and_required_action_present
     - repair_recommendations_present
 
 outputs:
@@ -91,6 +95,7 @@ outputs:
     - .hermes/project-audit/PLAN_INTEGRITY_REPORT.md
     - .hermes/project-audit/EXPECTED_RESULT_MAP.md
     - .hermes/project-audit/MISSING_FRAGMENTS.md
+    - .hermes/project-audit/AUDIT_FINDINGS.yaml
     - .hermes/project-audit/CONTRADICTION_SCAN.md
     - .hermes/project-audit/STAGE_DRIFT_SCAN.md
     - .hermes/project-audit/ASSUMPTION_REGISTER.md
@@ -115,6 +120,10 @@ outputs:
     - plan_integrity_report_present: true
     - expected_result_map_present: true
     - missing_fragments_report_present: true
+    - audit_findings_present: true
+    - stable_finding_ids_present: true
+    - finding_severity_status_present: true
+    - finding_required_actions_present: true
     - contradiction_scan_present: true
     - stage_drift_scan_present: true
     - assumption_register_present: true
@@ -128,6 +137,7 @@ acceptance_criteria:
   - Stage 9 references Stage 6 blueprint, Stage 7 first-slice plan, Stage 8 local execution packet, and Stage 8 external practice inputs.
   - Expected result map separates planned result, user-visible result, acceptance signal, and non-goals.
   - Missing fragments and assumptions are explicitly recorded instead of hidden.
+  - AUDIT_FINDINGS.yaml records stable finding IDs, categories, severity, status, source artifacts, execution-block impact, and required repair actions.
   - Contradiction scan checks plan vs first slice vs execution packet vs gates.
   - Stage drift scan checks skipped stages, premature implementation, runtime bypass, and evidence gaps.
   - Audit report contains execution_allowed false by default until owner resolves blockers or explicitly accepts partial audit.

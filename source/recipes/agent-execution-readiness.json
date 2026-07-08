@@ -15,6 +15,7 @@
   ],
   "consumes": [
     ".hermes/project-audit/AUDIT_REPORT.yaml",
+    ".hermes/project-audit/AUDIT_FINDINGS.yaml",
     ".hermes/project-audit/PLAN_INTEGRITY_REPORT.md",
     ".hermes/project-audit/IMPLEMENTATION_BLOCKERS.md",
     ".hermes/project-audit/REPAIR_RECOMMENDATIONS.md",
@@ -60,7 +61,8 @@
     "skill_load_plan_present: true",
     "agent_pipeline_plan_present: true",
     "install_plan_present: true",
-    "command_readiness_present: true"
+    "command_readiness_present: true",
+    "stage9_audit_findings_consumed: true"
   ],
   "blocked_without_gate": [
     "missing critical software",
@@ -71,5 +73,6 @@
     "install command not owner-approved",
     "command plan includes runtime/provider/cloud/gateway/n8n/git/secret mutation"
   ],
-  "stage_10_contract": "source/stages/stage-10-agent-execution-readiness.yaml"
+  "stage_10_contract": "source/stages/stage-10-agent-execution-readiness.yaml",
+  "stage9_audit_findings_required": true
 }
