@@ -756,6 +756,11 @@
         "required": true
       },
       {
+        "path": "scripts/validate_product_e2e_readiness.py",
+        "role": "product boundary and end-to-end acceptance validator",
+        "required": true
+      },
+      {
         "path": "profile-distribution/launchroom-saas",
         "role": "profile distribution payload",
         "required": true
@@ -768,7 +773,8 @@
       "Artifact manifest points to required user-facing, source, generated, installer, and validator surfaces.",
       "Validation commands are listed and run locally before PR publication.",
       "Secret-handling rules are explicit; .env/auth/state/OAuth stores are never copied or printed.",
-      "No GitHub release, tag, package publication, website publication, runtime/provider/gateway/cloud/n8n mutation, or broadcast is performed without a separate owner release gate."
+      "No GitHub release, tag, package publication, website publication, runtime/provider/gateway/cloud/n8n mutation, or broadcast is performed without a separate owner release gate.",
+      "Product boundary and end-to-end acceptance contract are present; new setup stages are frozen unless real user-facing acceptance fails."
     ],
     "blocked_until_separate_release_gate": [
       "git_tag_creation",
@@ -783,6 +789,191 @@
       "secret_collection_readback_or_storage"
     ],
     "validation_rule": "Release/distribution readiness must provide a front-page quickstart, artifact manifest, validation list, and explicit release gate while performing no tag, release, deploy, runtime, gateway, n8n, cloud, or secret mutation."
+  },
+  "product_boundary_contract": {
+    "enabled": true,
+    "artifact_id": "LAUNCHROOM_STARTER_PRODUCT_BOUNDARY_v1_0",
+    "purpose": "Freeze LaunchRoom Starter as a bounded product: a safe local SaaS/project operator setup that reaches the first execution gate without becoming infinite setup work.",
+    "starter_definition_of_done": "safe_local_saas_project_operator_to_first_execution_gate",
+    "plain_language_definition": "LaunchRoom Starter is done when a new or weak Hermes profile can become a safe local SaaS/project operator, prove the setup through self-test/acceptance evidence, and stop at a clear first implementation/install/release/pause gate.",
+    "no_new_setup_stages_without_user_facing_acceptance_failure": true,
+    "machine_stage_count_frozen_at": 14,
+    "starter_in_scope": [
+      "link_to_operator_bootstrap",
+      "fresh_clone_self_test",
+      "safe_profile_workspace_setup",
+      "software_capability_skill_memory_maps",
+      "communication_path_prepared_without_pairing",
+      "operator_kit_first_slice_local_pilot_readiness",
+      "project_audit_agent_readiness_hygiene_skill_evidence_scaffolds",
+      "clear_next_gate_for_implementation_install_release_or_pause"
+    ],
+    "starter_out_of_scope": [
+      "automatic_cloud_runtime_deployment",
+      "cloudflare_hetzner_n8n_mutation",
+      "gateway_pairing_or_home_channel_changes",
+      "provider_model_billing_or_secret_setup",
+      "autonomous_agent_execution_without_owner_gate",
+      "production_database_or_customer_data_mutation",
+      "git_tag_or_github_release_without_release_gate"
+    ],
+    "v1_completion_gates": [
+      "fresh_clone_acceptance_passed",
+      "disposable_self_test_acceptance_passed",
+      "isolated_real_profile_setup_acceptance_passed_or_blocked_with_reason",
+      "first_product_journey_reaches_execution_gate",
+      "release_artifact_walkthrough_passed_before_public_release",
+      "no_release_tag_runtime_cloud_gateway_n8n_secret_mutation_without_separate_gate"
+    ],
+    "boundary_rule": "If a proposed new setup layer does not fix a named real user-facing acceptance failure, it belongs after v1.0 or in CloudRoom/AgentOps, not in LaunchRoom Starter."
+  },
+  "end_to_end_acceptance_contract": {
+    "enabled": true,
+    "artifact_id": "LAUNCHROOM_END_TO_END_ACCEPTANCE_v1_0",
+    "purpose": "Define the real product acceptance path from repository link to safe local operator readiness and first execution gate.",
+    "acceptance_status_before_run": "not_passed_until_real_e2e_evidence_exists",
+    "scenarios": [
+      {
+        "id": "fresh_clone_disposable_self_test",
+        "goal": "Prove an external user can clone or download the repository and run the documented non-mutating self-test.",
+        "entry_surface": "README.md -> BOOTSTRAP_WITH_HERMES.md -> RUN_ME_FIRST.md",
+        "commands_or_actions": [
+          "fresh clone or clean checkout",
+          "python scripts/build_agentpack.py --check",
+          "python scripts/validate_pilot_seed.py",
+          "powershell -ExecutionPolicy Bypass -File scripts/install_launchroom_profile.ps1 -ProfileName launchroom-e2e-selftest -TestOutputRoot <temp> -Yes -NoInventory -NoToolsets"
+        ],
+        "pass_signals": [
+          "self-test exits zero",
+          "generated profile and workspace directories exist under TestOutputRoot",
+          "final status is SAFE_SELF_TEST_PASS or PARTIAL_NEXT_GATE_REQUIRED with a clear next gate",
+          "no live profile/config/toolset/gateway/cloud/runtime mutation occurs"
+        ],
+        "blocked_if": [
+          "self-test exits non-zero",
+          "final user-facing result is BLOCKED without a repair path",
+          "generated workspace landing files are missing",
+          "self-test asks for secrets or mutates live runtime surfaces"
+        ],
+        "writes_allowed": [
+          "temporary TestOutputRoot only"
+        ],
+        "forbidden_actions": [
+          "secret_readback_or_storage",
+          "runtime_provider_cloud_gateway_n8n_mutation",
+          "production_database_or_customer_data_mutation",
+          "git_tag_or_github_release_without_release_gate",
+          "live_profile_mutation",
+          "hermes_toolset_enablement"
+        ]
+      },
+      {
+        "id": "isolated_real_profile_setup",
+        "goal": "Prove the installer can configure an isolated LaunchRoom profile/workspace using non-secret local setup only.",
+        "entry_surface": "scripts/install_launchroom_profile.ps1 with a non-protected profile name and explicit workspace path",
+        "commands_or_actions": [
+          "choose isolated profile name not in default/airmida/main",
+          "choose workspace under an explicit local test path",
+          "run installer with -Yes and no runtime/cloud/gateway/n8n/secret options",
+          "inspect profile foundation report and workspace onboarding report"
+        ],
+        "pass_signals": [
+          "isolated profile artifacts exist",
+          "workspace README/AGENTS/HERMES exist",
+          "reports record no secrets copied and no runtime/cloud/gateway/n8n mutation",
+          "user-visible result gives a clear next gate"
+        ],
+        "blocked_if": [
+          "installer targets a protected profile by default",
+          "profile/workspace path safety fails",
+          "secrets/auth/state/OAuth files are copied or requested",
+          "gateway/runtime/cloud/n8n setup is attempted"
+        ],
+        "writes_allowed": [
+          "isolated Hermes profile test surface",
+          "explicit local test workspace"
+        ],
+        "forbidden_actions": [
+          "secret_readback_or_storage",
+          "runtime_provider_cloud_gateway_n8n_mutation",
+          "production_database_or_customer_data_mutation",
+          "git_tag_or_github_release_without_release_gate",
+          "protected_profile_mutation",
+          "credential_file_copy"
+        ]
+      },
+      {
+        "id": "first_product_journey_to_execution_gate",
+        "goal": "Prove LaunchRoom turns a beginner product idea into a bounded first execution packet and stops before implementation.",
+        "entry_surface": "generated workspace operator kit and first-slice/local-pilot/readiness artifacts",
+        "commands_or_actions": [
+          "provide a tiny SaaS/workflow idea",
+          "inspect generated operator kit, first-slice plan, local pilot packet, audit, agent readiness, hygiene, skills, and execution evidence scaffolds",
+          "verify acceptance criteria and next implementation gate are explicit"
+        ],
+        "pass_signals": [
+          "operator kit exists and is user-readable",
+          "first-slice acceptance tests and demo script exist",
+          "local pilot command/test/evidence plan exists",
+          "Stage 9/10 readiness blocks real execution until owner gate",
+          "execution evidence binder distinguishes planned vs executed work"
+        ],
+        "blocked_if": [
+          "the user cannot identify the next action",
+          "implementation is executed before the gate",
+          "planned commands are misreported as executed evidence",
+          "product scope drifts into CloudRoom/AgentOps without a gate"
+        ],
+        "writes_allowed": [
+          "workspace-local .hermes planning and readiness artifacts"
+        ],
+        "forbidden_actions": [
+          "secret_readback_or_storage",
+          "runtime_provider_cloud_gateway_n8n_mutation",
+          "production_database_or_customer_data_mutation",
+          "git_tag_or_github_release_without_release_gate",
+          "implementation_execution_without_gate"
+        ]
+      },
+      {
+        "id": "published_release_artifact_walkthrough_after_release_gate",
+        "goal": "After a separate owner release gate, prove the published tag/release surface matches the local product contract.",
+        "entry_surface": "published GitHub release/tag archive",
+        "commands_or_actions": [
+          "fetch the published release body including body text",
+          "download or clone from the tag/archive",
+          "repeat README/RUN_ME_FIRST/self-test walkthrough from the published artifact"
+        ],
+        "pass_signals": [
+          "published release body has no draft-only markers",
+          "tag/archive contains the expected README/RUN_ME_FIRST/scripts/profile distribution",
+          "self-test passes from the published artifact",
+          "release body and generated runbook agree on gates and next actions"
+        ],
+        "blocked_if": [
+          "release gate has not been granted",
+          "published body contains stale draft markers",
+          "tag/archive differs from validated main",
+          "published artifact self-test fails"
+        ],
+        "writes_allowed": [
+          "local temporary download or checkout for verification only after separate owner release gate"
+        ],
+        "forbidden_actions": [
+          "secret_readback_or_storage",
+          "runtime_provider_cloud_gateway_n8n_mutation",
+          "production_database_or_customer_data_mutation",
+          "git_tag_or_github_release_without_release_gate"
+        ]
+      }
+    ],
+    "blocked_until_separate_gate": [
+      "github_release_creation",
+      "git_tag_creation_or_push",
+      "runtime_provider_cloud_gateway_n8n_mutation",
+      "secret_collection_readback_or_storage"
+    ],
+    "reporting_rule": "Each scenario must report status, evidence path, what was touched, what was not touched, residual risk, and the exact next gate."
   },
   "link_bootstrap_contract": {
     "enabled": true,

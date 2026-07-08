@@ -379,6 +379,169 @@ Expected evidence: runtime/cloud/gateway/n8n/git/secret/implementation actions r
 - secret_readback_or_storage
 - implementation_execution
 
+## Product Boundary / Definition of Done
+
+LaunchRoom Starter is a bounded product, not an infinite setup stream. It is complete when it turns a new or weak Hermes profile into a safe local SaaS/project operator and stops at a clear first execution gate.
+
+Definition of done: safe_local_saas_project_operator_to_first_execution_gate
+
+No new setup stages are authorized by this section. New setup stages require a named real user-facing acceptance failure; otherwise the work belongs after v1.0 or in CloudRoom/AgentOps.
+
+### starter_in_scope
+
+- link_to_operator_bootstrap
+- fresh_clone_self_test
+- safe_profile_workspace_setup
+- software_capability_skill_memory_maps
+- communication_path_prepared_without_pairing
+- operator_kit_first_slice_local_pilot_readiness
+- project_audit_agent_readiness_hygiene_skill_evidence_scaffolds
+- clear_next_gate_for_implementation_install_release_or_pause
+
+### starter_out_of_scope
+
+- automatic_cloud_runtime_deployment
+- cloudflare_hetzner_n8n_mutation
+- gateway_pairing_or_home_channel_changes
+- provider_model_billing_or_secret_setup
+- autonomous_agent_execution_without_owner_gate
+- production_database_or_customer_data_mutation
+- git_tag_or_github_release_without_release_gate
+
+### v1_completion_gates
+
+- fresh_clone_acceptance_passed
+- disposable_self_test_acceptance_passed
+- isolated_real_profile_setup_acceptance_passed_or_blocked_with_reason
+- first_product_journey_reaches_execution_gate
+- release_artifact_walkthrough_passed_before_public_release
+- no_release_tag_runtime_cloud_gateway_n8n_secret_mutation_without_separate_gate
+
+## End-to-End Acceptance Path
+
+End-to-end acceptance proves the product path from repository link to safe local operator readiness. It does not authorize release execution; release/tag remains blocked until a separate owner release gate.
+
+### fresh_clone_disposable_self_test
+
+Goal: Prove an external user can clone or download the repository and run the documented non-mutating self-test.
+
+Entry surface: README.md -> BOOTSTRAP_WITH_HERMES.md -> RUN_ME_FIRST.md
+
+Pass signals:
+
+- self-test exits zero
+- generated profile and workspace directories exist under TestOutputRoot
+- final status is SAFE_SELF_TEST_PASS or PARTIAL_NEXT_GATE_REQUIRED with a clear next gate
+- no live profile/config/toolset/gateway/cloud/runtime mutation occurs
+
+Blocked if:
+
+- self-test exits non-zero
+- final user-facing result is BLOCKED without a repair path
+- generated workspace landing files are missing
+- self-test asks for secrets or mutates live runtime surfaces
+
+Forbidden actions:
+
+- secret_readback_or_storage
+- runtime_provider_cloud_gateway_n8n_mutation
+- production_database_or_customer_data_mutation
+- git_tag_or_github_release_without_release_gate
+- live_profile_mutation
+- hermes_toolset_enablement
+
+### isolated_real_profile_setup
+
+Goal: Prove the installer can configure an isolated LaunchRoom profile/workspace using non-secret local setup only.
+
+Entry surface: scripts/install_launchroom_profile.ps1 with a non-protected profile name and explicit workspace path
+
+Pass signals:
+
+- isolated profile artifacts exist
+- workspace README/AGENTS/HERMES exist
+- reports record no secrets copied and no runtime/cloud/gateway/n8n mutation
+- user-visible result gives a clear next gate
+
+Blocked if:
+
+- installer targets a protected profile by default
+- profile/workspace path safety fails
+- secrets/auth/state/OAuth files are copied or requested
+- gateway/runtime/cloud/n8n setup is attempted
+
+Forbidden actions:
+
+- secret_readback_or_storage
+- runtime_provider_cloud_gateway_n8n_mutation
+- production_database_or_customer_data_mutation
+- git_tag_or_github_release_without_release_gate
+- protected_profile_mutation
+- credential_file_copy
+
+### first_product_journey_to_execution_gate
+
+Goal: Prove LaunchRoom turns a beginner product idea into a bounded first execution packet and stops before implementation.
+
+Entry surface: generated workspace operator kit and first-slice/local-pilot/readiness artifacts
+
+Pass signals:
+
+- operator kit exists and is user-readable
+- first-slice acceptance tests and demo script exist
+- local pilot command/test/evidence plan exists
+- Stage 9/10 readiness blocks real execution until owner gate
+- execution evidence binder distinguishes planned vs executed work
+
+Blocked if:
+
+- the user cannot identify the next action
+- implementation is executed before the gate
+- planned commands are misreported as executed evidence
+- product scope drifts into CloudRoom/AgentOps without a gate
+
+Forbidden actions:
+
+- secret_readback_or_storage
+- runtime_provider_cloud_gateway_n8n_mutation
+- production_database_or_customer_data_mutation
+- git_tag_or_github_release_without_release_gate
+- implementation_execution_without_gate
+
+### published_release_artifact_walkthrough_after_release_gate
+
+Goal: After a separate owner release gate, prove the published tag/release surface matches the local product contract.
+
+Entry surface: published GitHub release/tag archive
+
+Pass signals:
+
+- published release body has no draft-only markers
+- tag/archive contains the expected README/RUN_ME_FIRST/scripts/profile distribution
+- self-test passes from the published artifact
+- release body and generated runbook agree on gates and next actions
+
+Blocked if:
+
+- release gate has not been granted
+- published body contains stale draft markers
+- tag/archive differs from validated main
+- published artifact self-test fails
+
+Forbidden actions:
+
+- secret_readback_or_storage
+- runtime_provider_cloud_gateway_n8n_mutation
+- production_database_or_customer_data_mutation
+- git_tag_or_github_release_without_release_gate
+
+### Blocked until separate gate
+
+- github_release_creation
+- git_tag_creation_or_push
+- runtime_provider_cloud_gateway_n8n_mutation
+- secret_collection_readback_or_storage
+
 ## Release / Distribution Readiness
 
 This section prepares LaunchRoom Starter for a clear public/test distribution package. It is readiness only: it does not create a GitHub release, tag, package publication, deployment, provider/runtime change, gateway pairing, Cloudflare/Hetzner/n8n mutation, distribution broadcast, or secret-handling path.
@@ -436,6 +599,7 @@ Expected result: Release readiness can be reported without performing public rel
 - `scripts/build_agentpack.py` — generated artifact builder (required)
 - `scripts/validate_behavior_contract.py` — behavior/UX/distribution validator (required)
 - `scripts/validate_profile_setup_tool.py` — installer self-test validator (required)
+- `scripts/validate_product_e2e_readiness.py` — product boundary and end-to-end acceptance validator (required)
 - `profile-distribution/launchroom-saas` — profile distribution payload (required)
 
 ### Release readiness checklist
@@ -447,6 +611,7 @@ Expected result: Release readiness can be reported without performing public rel
 - Validation commands are listed and run locally before PR publication.
 - Secret-handling rules are explicit; .env/auth/state/OAuth stores are never copied or printed.
 - No GitHub release, tag, package publication, website publication, runtime/provider/gateway/cloud/n8n mutation, or broadcast is performed without a separate owner release gate.
+- Product boundary and end-to-end acceptance contract are present; new setup stages are frozen unless real user-facing acceptance fails.
 
 ### Blocked until separate owner release gate
 

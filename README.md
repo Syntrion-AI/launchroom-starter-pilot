@@ -98,6 +98,45 @@ The script creates or selects the Hermes profile, applies non-secret config, wri
 - Demonstrate the first-run path through a safe self-test scenario.
 - Prepare release/distribution readiness without performing release execution.
 
+## Product boundary and v1.0 definition of done
+
+LaunchRoom Starter v1.0 is a bounded product: it turns a new or weak Hermes profile into a safe local SaaS/project operator and reaches the first execution gate. It is not an infinite setup stream.
+
+Definition of done: safe local SaaS/project operator to first execution gate.
+
+No new setup stages are added unless a real user-facing acceptance failure proves the need. Work that belongs to cloud runtime, agent autonomy, provider/billing setup, gateway pairing, or production mutation moves to CloudRoom/AgentOps and requires separate gates.
+
+In scope:
+
+- link-to-operator bootstrap;
+- fresh clone self-test;
+- safe profile/workspace setup;
+- software/capability/skill/memory maps;
+- communication path prepared without pairing;
+- operator kit, first-slice, local-pilot, audit, agent-readiness, hygiene, skill, and evidence scaffolds;
+- clear next gate for implementation, install, release, or pause.
+
+Out of scope for Starter v1.0:
+
+- automatic cloud/runtime deployment;
+- Cloudflare, Hetzner, or n8n mutation;
+- gateway pairing or home-channel changes;
+- provider/model/billing/secret setup;
+- autonomous agent execution without owner gate;
+- production database or customer-data mutation;
+- git tag or GitHub release without a release gate.
+
+## End-to-end acceptance path
+
+A real product test must prove the path from repository link to safe local operator readiness. The required scenarios are:
+
+1. `fresh_clone_disposable_self_test` — fresh clone/download, validator run, and non-mutating self-test under `-TestOutputRoot`.
+2. `isolated_real_profile_setup` — isolated non-protected profile/workspace setup with no secrets/runtime/cloud/gateway/n8n mutation.
+3. `first_product_journey_to_execution_gate` — a tiny SaaS/workflow idea reaches operator kit, first-slice/local-pilot/audit/agent-readiness artifacts, and stops before implementation.
+4. `published_release_artifact_walkthrough_after_release_gate` — only after a separate release gate, verify the published tag/release archive and body.
+
+Release/tag remains blocked until a separate owner release gate.
+
 ## Distribution artifact manifest
 
 | Artifact | Role |
@@ -123,6 +162,7 @@ The script creates or selects the Hermes profile, applies non-secret config, wri
 | `scripts/validate_behavior_contract.py` | Behavior/UX/distribution validator |
 | `scripts/validate_skillpack_registry.py` | Skillpack registry validator |
 | `scripts/validate_profile_setup_tool.py` | Installer self-test validator |
+| `scripts/validate_product_e2e_readiness.py` | Product boundary and end-to-end acceptance validator |
 | `profile-distribution/launchroom-saas` | Profile distribution payload |
 
 ## Permission model
@@ -180,6 +220,7 @@ python scripts/validate_skillpack_registry.py
 python scripts/validate_execution_evidence_binder.py
 python scripts/validate_profile_distribution.py
 python scripts/validate_profile_setup_tool.py
+python scripts/validate_product_e2e_readiness.py
 python scripts/validate_pilot_seed.py
 python -m py_compile scripts/*.py
 ```
