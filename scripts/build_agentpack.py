@@ -296,6 +296,64 @@ def render_project_intake_and_template_safety(source: dict) -> str:
         ])
     return '\n'.join(lines)
 
+
+def render_product_boundary_and_e2e(source: dict) -> str:
+    boundary = source.get('product_boundary_contract', {})
+    e2e = source.get('end_to_end_acceptance_contract', {})
+    if not boundary.get('enabled') and not e2e.get('enabled'):
+        return ''
+    lines = [
+        '## Product Boundary / Definition of Done',
+        '',
+        'LaunchRoom Starter is a bounded product, not an infinite setup stream. It is complete when it turns a new or weak Hermes profile into a safe local SaaS/project operator and stops at a clear first execution gate.',
+        '',
+        f"Definition of done: {boundary.get('starter_definition_of_done', '')}",
+        '',
+        'No new setup stages are authorized by this section. New setup stages require a named real user-facing acceptance failure; otherwise the work belongs after v1.0 or in CloudRoom/AgentOps.',
+        '',
+        '### starter_in_scope',
+        '',
+    ]
+    for item in boundary.get('starter_in_scope', []):
+        lines.append(f'- {item}')
+    lines.extend(['', '### starter_out_of_scope', ''])
+    for item in boundary.get('starter_out_of_scope', []):
+        lines.append(f'- {item}')
+    lines.extend(['', '### v1_completion_gates', ''])
+    for item in boundary.get('v1_completion_gates', []):
+        lines.append(f'- {item}')
+    lines.extend([
+        '',
+        '## End-to-End Acceptance Path',
+        '',
+        'End-to-end acceptance proves the product path from repository link to safe local operator readiness. It does not authorize release execution; release/tag remains blocked until a separate owner release gate.',
+        '',
+    ])
+    for scenario in e2e.get('scenarios', []):
+        lines.extend([
+            f"### {scenario.get('id', '')}",
+            '',
+            f"Goal: {scenario.get('goal', '')}",
+            '',
+            f"Entry surface: {scenario.get('entry_surface', '')}",
+            '',
+            'Pass signals:',
+            '',
+        ])
+        for signal in scenario.get('pass_signals', []):
+            lines.append(f'- {signal}')
+        lines.extend(['', 'Blocked if:', ''])
+        for blocker in scenario.get('blocked_if', []):
+            lines.append(f'- {blocker}')
+        lines.extend(['', 'Forbidden actions:', ''])
+        for action in scenario.get('forbidden_actions', []):
+            lines.append(f'- {action}')
+        lines.append('')
+    lines.extend(['### Blocked until separate gate', ''])
+    for action in e2e.get('blocked_until_separate_gate', []):
+        lines.append(f'- {action}')
+    return '\n'.join(lines)
+
 def render_release_distribution_readiness(source: dict) -> str:
     contract = source.get('release_distribution_readiness_contract', {})
     if not contract.get('enabled'):
@@ -390,7 +448,7 @@ When the repository is used through a raw GitHub link, ask the user to clone or 
 
 Use the Hermes `clarify` tool for interactive decisions whenever it is available. Real Desktop buttons require a pending `clarify` tool call with a non-empty `choices` array; Telegram native buttons are adapter-specific and also come from `clarify`, not from markdown. Put selectable options only in the `choices` array, not inside the question text. Required clarify decisions: profile strategy, workspace strategy, apply setup tool, software install gate, starter capability pack, communication channel, every stage transition, git publication gate, implementation gate, and runtime/provider/secret/destructive-action gates. Plain A/B/C or numbered text is fallback only when `clarify` or native buttons are unavailable.
 
-""" + render_wizard_rooms(source) + "\n\n" + render_wizard_room_transitions(source) + "\n\n" + render_first_run_demo(source) + "\n\n" + render_release_distribution_readiness(source) + """
+""" + render_wizard_rooms(source) + "\n\n" + render_wizard_room_transitions(source) + "\n\n" + render_first_run_demo(source) + "\n\n" + render_product_boundary_and_e2e(source) + "\n\n" + render_release_distribution_readiness(source) + """
 
 ## Language contract
 

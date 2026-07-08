@@ -479,6 +479,7 @@ def main() -> int:
         'scripts/build_agentpack.py',
         'scripts/validate_behavior_contract.py',
         'scripts/validate_profile_setup_tool.py',
+        'scripts/validate_product_e2e_readiness.py',
         'profile-distribution/launchroom-saas',
     ]
     if manifest_paths != required_paths:

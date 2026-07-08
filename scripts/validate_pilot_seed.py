@@ -22,6 +22,7 @@ checks = [
     ['scripts/validate_execution_evidence_binder.py'],
     ['scripts/validate_profile_distribution.py'],
     ['scripts/validate_profile_setup_tool.py'],
+    ['scripts/validate_product_e2e_readiness.py'],
 ]
 for check in checks:
     code = subprocess.call([sys.executable] + check)
