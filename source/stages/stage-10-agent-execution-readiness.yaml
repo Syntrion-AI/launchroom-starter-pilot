@@ -48,6 +48,7 @@ stage_boundary:
     - agent pipeline plan
     - gated install plan
     - command readiness report
+    - structured toolchain activation plan
     - execution readiness report
   does_not_own:
     - installing missing software
@@ -68,6 +69,7 @@ readiness_layout:
     - AGENT_PIPELINE_PLAN.md
     - INSTALL_PLAN.md
     - COMMAND_READINESS.md
+    - TOOLCHAIN_ACTIVATION_PLAN.yaml
     - EXECUTION_READINESS_REPORT.yaml
 
 packet_model:
@@ -84,6 +86,15 @@ packet_model:
     - agent_pipeline_plan_present
     - install_plan_present
     - command_readiness_present
+    - activation_plan_present
+    - toolchain_requirements_structured
+    - software_gap_analysis_structured
+    - toolset_plan_structured
+    - skill_load_plan_structured
+    - agent_pipeline_structured
+    - install_plan_entries_present
+    - command_readiness_matrix_present
+    - readiness_blockers_present
     - execution_ready_false_until_owner_gate
     - install_gate_required
     - no_activation_without_gate
@@ -98,6 +109,7 @@ outputs:
     - .hermes/agent-readiness/AGENT_PIPELINE_PLAN.md
     - .hermes/agent-readiness/INSTALL_PLAN.md
     - .hermes/agent-readiness/COMMAND_READINESS.md
+    - .hermes/agent-readiness/TOOLCHAIN_ACTIVATION_PLAN.yaml
     - .hermes/agent-readiness/EXECUTION_READINESS_REPORT.yaml
   required_markers:
     - Hermes working artifact / not AIRMIDA authority
@@ -111,6 +123,7 @@ outputs:
     - software_installed: false
     - toolsets_enabled_without_gate: false
     - skills_installed_without_gate: false
+    - persistent_memory_written_without_gate: false
     - agents_spawned: false
     - implementation_executed: false
     - file_changes_executed: false
@@ -130,7 +143,60 @@ outputs:
     - agent_pipeline_plan_present: true
     - install_plan_present: true
     - command_readiness_present: true
+    - activation_plan_present: true
+    - toolchain_requirements_structured: true
+    - software_gap_analysis_structured: true
+    - toolset_plan_structured: true
+    - skill_load_plan_structured: true
+    - agent_pipeline_structured: true
+    - install_plan_entries_present: true
+    - command_readiness_matrix_present: true
+    - readiness_blockers_present: true
     - stage9_audit_findings_consumed: true
+
+activation_plan_schema:
+  artifact_id: LAUNCHROOM_TOOLCHAIN_ACTIVATION_PLAN_v0_1
+  required_sections:
+    - source_lineage
+    - toolchain_requirements
+    - software_gap_analysis
+    - toolset_plan
+    - skill_load_plan
+    - agent_pipeline
+    - install_plan_entries
+    - command_readiness
+    - readiness_blockers
+    - action_flags
+  install_entry_required_fields:
+    - software
+    - why
+    - command_shape
+    - verification_commands
+    - risk
+    - rollback
+    - gate
+  command_readiness_required_classes:
+    - read_only_allowed
+    - gated_local_commands
+    - install_commands
+    - forbidden_without_gate
+  false_action_flags:
+    - software_installed
+    - toolsets_enabled_without_gate
+    - skills_installed_without_gate
+    - persistent_memory_written_without_gate
+    - agents_spawned
+    - implementation_executed
+    - file_changes_executed
+    - commands_executed
+    - tests_executed
+    - dependencies_installed
+    - runtime_mutation
+    - cloud_mutation
+    - gateway_mutation
+    - n8n_mutation
+    - secrets_read_or_written
+    - git_publication_executed
 
 acceptance_criteria:
   - Agent readiness folder exists under workspace `.hermes/agent-readiness/`.
@@ -139,11 +205,13 @@ acceptance_criteria:
   - Stage 10 references Stage 9 audit report and audit findings, Stage 8 execution packet, Stage 8 external practice inputs, Stage 3 software reports, and Stage 4 starter capability pack.
   - Stage 9 audit findings inform execution blockers and owner repair decisions before any implementation gate.
   - Toolchain requirements map project work to required software, Hermes toolsets, skills, agent roles, commands, gates, and verification.
+  - TOOLCHAIN_ACTIVATION_PLAN.yaml provides a machine-readable gated activation plan for toolchain requirements, software gaps, toolsets, skills, agent pipeline, install entries, command classes, and readiness blockers.
   - Software gap analysis separates installed/present, missing/unknown, optional, and gated install candidates.
   - Install plan explains why each software category may be needed, install command shape, verification command, risk, rollback, admin/restart/PATH notes, and owner gate.
   - Hermes toolset plan and skill load plan recommend activation/load order without enabling or installing anything automatically.
   - Agent pipeline plan defines planner/repair, toolchain verifier, implementer, verification arbiter, and owner gate roles without spawning agents.
   - Command readiness separates read-only inspection, gated local commands, install commands, and forbidden runtime/secret/git/publication commands.
+  - Validators parse the generated activation plan and fail if required structured sections, install-entry fields, command classes, gates, blocker records, or false action flags are missing.
   - Execution remains blocked by default until Stage 9 issues are repaired, Stage 10 readiness is owner-accepted, and an implementation gate is granted.
   - Validators and CI pass.
 

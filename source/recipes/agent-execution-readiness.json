@@ -11,6 +11,7 @@
     "AGENT_PIPELINE_PLAN.md",
     "INSTALL_PLAN.md",
     "COMMAND_READINESS.md",
+    "TOOLCHAIN_ACTIVATION_PLAN.yaml",
     "EXECUTION_READINESS_REPORT.yaml"
   ],
   "consumes": [
@@ -43,6 +44,7 @@
     "software_installed: false",
     "toolsets_enabled_without_gate: false",
     "skills_installed_without_gate: false",
+    "persistent_memory_written_without_gate: false",
     "agents_spawned: false",
     "implementation_executed: false",
     "file_changes_executed: false",
@@ -62,6 +64,15 @@
     "agent_pipeline_plan_present: true",
     "install_plan_present: true",
     "command_readiness_present: true",
+    "activation_plan_present: true",
+    "toolchain_requirements_structured: true",
+    "software_gap_analysis_structured: true",
+    "toolset_plan_structured: true",
+    "skill_load_plan_structured: true",
+    "agent_pipeline_structured: true",
+    "install_plan_entries_present: true",
+    "command_readiness_matrix_present: true",
+    "readiness_blockers_present: true",
     "stage9_audit_findings_consumed: true"
   ],
   "blocked_without_gate": [
@@ -74,5 +85,54 @@
     "command plan includes runtime/provider/cloud/gateway/n8n/git/secret mutation"
   ],
   "stage_10_contract": "source/stages/stage-10-agent-execution-readiness.yaml",
-  "stage9_audit_findings_required": true
+  "stage9_audit_findings_required": true,
+  "activation_plan_schema": {
+    "artifact_id": "LAUNCHROOM_TOOLCHAIN_ACTIVATION_PLAN_v0_1",
+    "required_sections": [
+      "source_lineage",
+      "toolchain_requirements",
+      "software_gap_analysis",
+      "toolset_plan",
+      "skill_load_plan",
+      "agent_pipeline",
+      "install_plan_entries",
+      "command_readiness",
+      "readiness_blockers",
+      "action_flags"
+    ],
+    "install_entry_required_fields": [
+      "software",
+      "why",
+      "command_shape",
+      "verification_commands",
+      "risk",
+      "rollback",
+      "gate"
+    ],
+    "command_readiness_required_classes": [
+      "read_only_allowed",
+      "gated_local_commands",
+      "install_commands",
+      "forbidden_without_gate"
+    ],
+    "false_action_flags": [
+      "software_installed",
+      "toolsets_enabled_without_gate",
+      "skills_installed_without_gate",
+      "persistent_memory_written_without_gate",
+      "agents_spawned",
+      "implementation_executed",
+      "file_changes_executed",
+      "commands_executed",
+      "tests_executed",
+      "dependencies_installed",
+      "runtime_mutation",
+      "cloud_mutation",
+      "gateway_mutation",
+      "n8n_mutation",
+      "secrets_read_or_written",
+      "git_publication_executed"
+    ]
+  },
+  "stage_10_hardening": "v0_10_structured_toolchain_activation_plan"
 }

@@ -179,6 +179,7 @@
         "AGENT_PIPELINE_PLAN.md",
         "INSTALL_PLAN.md",
         "COMMAND_READINESS.md",
+        "TOOLCHAIN_ACTIVATION_PLAN.yaml",
         "EXECUTION_READINESS_REPORT.yaml"
       ]
     },
